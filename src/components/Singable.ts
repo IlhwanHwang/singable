@@ -43,28 +43,6 @@ export default class Singable extends Draggable {
           n.onclick = e => {
             this.destroy()
           }
-        }),
-        createButtonNode(n => {
-          n.classList.add("in-connection")
-          n.innerText = "in"
-          n.style.position = "absolute"
-          n.style.right = "160px"
-          n.style.top = "60px"
-          n.onclick = e => {
-            if (outConnectionFocus.get() !== null) {
-              connections.add(outConnectionFocus.get(), this)
-            }
-          }
-        }),
-        createButtonNode(n => {
-          n.classList.add("out-connection")
-          n.innerText = "out"
-          n.style.position = "absolute"
-          n.style.left = "160px"
-          n.style.top = "60px"
-          n.onclick = e => {
-            outConnectionFocus.set(this)
-          }
         })
 			]
 		)

@@ -4,22 +4,23 @@ import {createButtonNode} from "../utils/singable"
 import {centerOf} from "../utils"
 import { drawLine, drawClear } from "../utils/draw";
 import { connections } from "../renderer";
+import { OutEndpoint, InEndpoint } from "./Endpoint";
 
 export default class Connection extends Component {
-  s1: Singable
-  s2: Singable
+  op: OutEndpoint
+  ip: InEndpoint
 
-  constructor(parent: Component, s1: Singable, s2: Singable) {
+  constructor(parent: Component, op: OutEndpoint, ip: InEndpoint) {
     super(parent)
-    this.s1 = s1
-    this.s2 = s2
+    this.op = op
+    this.ip = ip
   }
 
   render(): [HTMLElement, HTMLElement] {
-    const [x1, y1] = centerOf(this.s1.target.querySelector("button.out-connection"))
-    const [x2, y2] = centerOf(this.s2.target.querySelector("button.in-connection"))
+    const [x1, y1] = centerOf(this.op.target)
+    const [x2, y2] = centerOf(this.ip.target)
 
-    const lineId = `connection-line-${this.s1.debugName}-${this.s2.debugName}`
+    const lineId = `connection-line-${this.op.debugName}-${this.ip.debugName}`
     const line = drawLine(lineId, x1, y1, x2, y2)
     line.style.stroke = "blue"
     line.style.strokeWidth = "3"
@@ -35,7 +36,7 @@ export default class Connection extends Component {
       n.onclick = e => {
         this.destroy()
         drawClear(lineId)
-        connections.remove(this.s1, this.s2)
+        connections.remove(this.op, this.ip)
       }
     })
 

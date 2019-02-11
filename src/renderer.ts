@@ -7,9 +7,10 @@ import { forEach, centerOf } from "./utils";
 import { drawLine, drawClear } from "./utils/draw"
 import Watchable from "./utils/Watchable"
 import Connection from "./components/Connection"
+import { OutEndpoint, InEndpoint } from "./components/Endpoint";
 
 export const editorSingable = new Watchable<Singable>(null)
-export const outConnectionFocus = new Watchable<Singable>(null)
+export const outConnectionFocus = new Watchable<OutEndpoint>(null)
 
 const root = new Component()
 export const singablePanel = new SingablePanel(root)
@@ -22,7 +23,7 @@ const outConnectionFocusActions = {
   mousemove(e: Event) {
     const me = e as MouseEvent
     const [x1, y1] = [me.x, me.y]
-    const [x2, y2] = centerOf(outConnectionFocus.get().target.querySelector("button.out-connection"))
+    const [x2, y2] = centerOf(outConnectionFocus.get().target)
     const line = drawLine("out-conneciton-focus", x1, y1, x2, y2)
     line.style.stroke = "red"
     line.style.strokeWidth = "3"
@@ -54,19 +55,19 @@ outConnectionFocus.watch(() => {
 })
 
 class Connections extends Watchable<Array<Connection>> {
-  add(s1: Singable, s2: Singable) {
-    const duplicated = this.value.filter(cn => { return cn.s1 === s1 && cn.s2 === s2 }).length > 0
+  add(op: OutEndpoint, ip: InEndpoint) {
+    const duplicated = this.value.filter(cn => { return cn.op === op && cn.ip === ip }).length > 0
     if (duplicated) {
       return false
     }
     else {
-      this.set(this.get().concat(new Connection(singablePanel, s1, s2)))
+      this.set(this.get().concat(new Connection(singablePanel, op, ip)))
       return true
     }
   }
 
-  remove(s1: Singable, s2: Singable) {
-    const removed = this.value.filter(cn => { return !(cn.s1 === s1 && cn.s2 === s2) })
+  remove(op: OutEndpoint, ip: InEndpoint) {
+    const removed = this.value.filter(cn => { return !(cn.op === op && cn.ip === ip) })
     this.set(removed)
   }
 }

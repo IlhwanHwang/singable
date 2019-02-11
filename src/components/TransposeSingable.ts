@@ -3,6 +3,7 @@ import Singable from "./Singable"
 import {editorBase, editorSingable} from "../renderer"
 import TransposeEditor from "./editor/TransposeEditor";
 import {createDivNode} from "../utils/singable"
+import { InEndpoint, OutEndpoint } from "./Endpoint";
 
 export interface TransposeStructure {
   semitones: number
@@ -10,6 +11,8 @@ export interface TransposeStructure {
 
 export default class TransposeSingable extends Singable {
   data: TransposeStructure
+  op: OutEndpoint
+  ip: InEndpoint
 
   constructor(parent: Component) {
     super(parent)
@@ -17,6 +20,8 @@ export default class TransposeSingable extends Singable {
       semitones: 0
     }
     this.name = "new transpose object"
+    this.op = new OutEndpoint(this)
+    this.ip = new InEndpoint(this)
   }
 
   create() {

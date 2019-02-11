@@ -3,9 +3,11 @@ import DrumRollStructure, { DrumRollRowStructure } from "./DrumRollStructure"
 import DrumRollEditor from "./editor/DrumRollEditor"
 import {editorBase, editorSingable} from "../renderer"
 import Component from "./Component";
+import { OutEndpoint } from "./Endpoint";
 
 export default class DrumRollSingable extends Singable {
   data: DrumRollStructure
+  op: OutEndpoint
 
   constructor(parent: Component) {
     super(parent)
@@ -14,6 +16,7 @@ export default class DrumRollSingable extends Singable {
       rows: Array<DrumRollRowStructure>()
     }
     this.name = "new drum roll object"
+    this.op = new OutEndpoint(this)
   }
 
   create() {
