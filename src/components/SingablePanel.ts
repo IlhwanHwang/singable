@@ -3,7 +3,7 @@ import {createDivNode, createButtonNode} from "../utils/singable"
 import Singable from "./Singable"
 import DrumRollSingable from "./DrumRollSingable";
 import TransposeSingable from "./TransposeSingable";
-
+import OutputSingable from "./OutputSingable"
 
 export default class SingablePanel extends Component {
 
@@ -19,20 +19,23 @@ export default class SingablePanel extends Component {
         createButtonNode(n => {
           n.innerText = "New drum roll"
           n.onclick = e => {
-            // this.nodes.push(new Singable(this))
             const newSingable = new DrumRollSingable(this)
             newSingable.update()
           }
-          n.style.pointerEvents = "auto"
         }),
         createButtonNode(n => {
           n.innerText = "New transpose"
           n.onclick = e => {
-            // this.nodes.push(new Singable(this))
             const newSingable = new TransposeSingable(this)
             newSingable.update()
           }
-          n.style.pointerEvents = "auto"
+        }),
+        createButtonNode(n => {
+          n.innerText = "New output"
+          n.onclick = e => {
+            const newSingable = new OutputSingable(this)
+            newSingable.update()
+          }
         })
       ]
     )
