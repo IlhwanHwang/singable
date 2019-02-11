@@ -1,5 +1,5 @@
 import Component from "../Component"
-import {createDivNode, createButtonNode, createInputNode} from "../../utils/node"
+import {createDivNode, createButtonNode, createInputNode} from "../../utils/singable"
 import {TransposeStructure} from "../TransposeSingable"
 import { editorSingable } from "../../renderer";
 

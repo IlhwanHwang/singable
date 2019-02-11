@@ -1,10 +1,16 @@
 import Component from "./Component"
 
+export interface DragEvent {
+  deltaX: number,
+  deltaY: number
+}
+
 export default class Draggable extends Component {
   __mousePrevX: number
   __mousePrevY: number
   __translateX: number
   __translateY: number
+  onDragging: (e: DragEvent) => void
 
   create() {
     super.create()
@@ -40,6 +46,10 @@ export default class Draggable extends Component {
 
         this.__mousePrevX = me.x
         this.__mousePrevY = me.y
+
+        if (this.onDragging) {
+          this.onDragging({deltaX: deltaX, deltaY: deltaY})
+        }
       }
       
       const dragStop = (e: Event) => {

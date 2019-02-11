@@ -12,6 +12,7 @@ import Component from "./components/Component"
 import EditorBase from "./components/editor/EditorBase"
 import CommonEditor from "./components/editor/CommonEditor"
 import { forEach } from "./utils";
+import {drawLine, drawClear} from "./utils/draw"
 
 
 export class Watchable<T> {
@@ -50,6 +51,7 @@ export class Watchable<T> {
 
 export const editorSingable = new Watchable<Singable>(null)
 export const outConnectionFocus = new Watchable<Singable>(null)
+export const connections = new Watchable<Array<[Singable, Singable]>>([])
 
 const root = new Component()
 new SingablePanel(root)
@@ -59,27 +61,12 @@ const commonEditor = new CommonEditor(editorBase)
 const outConnectionFocusActions = {
   clickSet: false,
   mousemove(e: Event) {
-    console.log("move!!")
-    let svg = document.querySelector("#out-connection-focus-line")
-    if (!svg) {
-      svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
-      svg.id = "out-connection-focus-line"
-    }
-    while (svg.firstChild) {
-      svg.removeChild(svg.firstChild)
-    }
-    svg.setAttribute("style", "position: fixed; left: 0; top: 0; width: 100%; height: 100%")
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line")
+    const rect = outConnectionFocus.get().target.querySelector("button.out-connection").getClientRects()[0]
     const me = e as MouseEvent
-    const rect = outConnectionFocus.get().target.querySelector("button.out-connection").getClientRects()
-    line.setAttribute("x1", rect[0].left.toString())
-    line.setAttribute("y1", rect[0].top.toString())
-    line.setAttribute("x2", me.x.toString())
-    line.setAttribute("y2", me.y.toString())
-    line.style.stroke = "rgb(255,0,0)"
-    line.style.strokeWidth = "2"
-    svg.appendChild(line)
-    document.body.appendChild(svg)
+    const [x1, y1, x2, y2] = [me.x, me.y, rect.left, rect.top]
+    const line = drawLine("out-conneciton-focus", x1, y1, x2, y2)
+    line.style.stroke = "red"
+    line.style.strokeWidth = "3"
   },
   mouseup(e: Event) {
     console.log("up!!")
@@ -89,6 +76,7 @@ const outConnectionFocusActions = {
     if (this.clickSet) {
       console.log("click!!")
       outConnectionFocus.set(null)
+      drawClear("out-conneciton-focus")
       this.clickSet = false
     }
   }
@@ -106,7 +94,16 @@ outConnectionFocus.watch(() => {
   }
 })
 
+connections.watch(() => {
+  connections.get().forEach(([s1, s2]) => {
+    const rect1 = s1.target.querySelector("button.out-connection").getClientRects()[0]
+    const rect2 = s2.target.querySelector("button.in-connection").getClientRects()[0]
+    const line = drawLine(`connection-line-${s1.debugName}-${s2.debugName}`, rect1.left, rect1.top, rect2.left, rect2.top)
+    line.style.stroke = "blue"
+    line.style.strokeWidth = "3"
+  })
+})
+
 root.update()
-// addListenerEditorSingable(commonEditor)
 editorSingable.watch(commonEditor)
 eval("window.rootComp = root")

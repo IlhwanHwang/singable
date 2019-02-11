@@ -1,5 +1,5 @@
 import Component from "../Component"
-import {createDivNode} from "../../utils/node"
+import {createDivNode} from "../../utils/singable"
 
 
 export default class EditorBase extends Component {

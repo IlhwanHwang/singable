@@ -1,7 +1,7 @@
 import Component from "./Component"
 import Draggable from "./Draggable"
-import {createDivNode, createButtonNode, createInputNode} from "../utils/node"
-import { outConnectionFocus } from "../renderer";
+import {createDivNode, createButtonNode, createInputNode} from "../utils/singable"
+import { outConnectionFocus, connections } from "../renderer";
 
 
 export default class Singable extends Draggable {
@@ -41,10 +41,16 @@ export default class Singable extends Draggable {
           }
         }),
         createButtonNode(n => {
+          n.classList.add("in-connection")
           n.innerText = "in"
           n.style.position = "absolute"
           n.style.right = "160px"
           n.style.top = "60px"
+          n.onclick = e => {
+            if (outConnectionFocus.get() !== null) {
+              connections.set([...connections.get(), [outConnectionFocus.get(), this]])
+            }
+          }
         }),
         createButtonNode(n => {
           n.classList.add("out-connection")

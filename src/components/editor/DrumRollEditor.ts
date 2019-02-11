@@ -1,5 +1,5 @@
 import Component from "../Component"
-import {createDivNode, createButtonNode} from "../../utils/node"
+import {createDivNode, createButtonNode} from "../../utils/singable"
 import DrumRollStructure from "../DrumRollStructure"
 import DrumRollRowEditor from "./DrumRollRowEditor";
 import { fillArray } from "../../utils";

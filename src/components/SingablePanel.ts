@@ -1,5 +1,5 @@
 import Component from "./Component"
-import {createDivNode, createButtonNode} from "../utils/node"
+import {createDivNode, createButtonNode} from "../utils/singable"
 import Singable from "./Singable"
 import DrumRollSingable from "./DrumRollSingable";
 import TransposeSingable from "./TransposeSingable";

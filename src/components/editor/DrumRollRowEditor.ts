@@ -1,6 +1,6 @@
 import Component from "../Component";
 import { DrumRollRowStructure } from "../DrumRollStructure";
-import { createDivNode, createButtonNode } from "../../utils/node";
+import { createDivNode, createButtonNode } from "../../utils/singable";
 
 export default class DrumRollRowEditor extends Component {
   data: DrumRollRowStructure

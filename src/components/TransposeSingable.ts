@@ -2,7 +2,7 @@ import Component from "./Component"
 import Singable from "./Singable"
 import {editorBase, editorSingable} from "../renderer"
 import TransposeEditor from "./editor/TransposeEditor";
-import {createDivNode} from "../utils/node"
+import {createDivNode} from "../utils/singable"
 
 export interface TransposeStructure {
   semitones: number
