@@ -1,6 +1,8 @@
 import Component from "../Component"
 import {createDivNode, createButtonNode} from "../../utils/node"
 import DrumRollStructure from "../DrumRollStructure"
+import DrumRollRowEditor from "./DrumRollRowEditor";
+import { fillArray } from "../../utils";
 
 
 export default class DrumRollEditor extends Component {
@@ -9,7 +11,15 @@ export default class DrumRollEditor extends Component {
   constructor(parent: Component, data: DrumRollStructure) {
     super(parent)
     this.data = data
-    this.update()
+  }
+
+  removeChild(child: Component) {
+    if (child instanceof DrumRollRowEditor) {
+      this.data.rows = this.data.rows.filter(d => {
+        return d !== child.data
+      })
+    }
+    super.removeChild(child)
   }
 
   render(): [Node, Node] {
@@ -24,14 +34,19 @@ export default class DrumRollEditor extends Component {
         createButtonNode(n => {
           n.innerText = "Add new drumroll row"
           n.onclick = e => {
-            this.data.rows.push({
+            const newDR = new DrumRollRowEditor(this, {
               name: "new drumroll row",
-              beats: Array<boolean>(this.data.length)
+              beats: fillArray(Array<boolean>(this.data.length), false)
             })
+            newDR.update()
+            this.data.rows.push(newDR.data)
           }
-        })
+        }),
       ]
     )
+    this.data.rows.forEach(dr => {
+      new DrumRollRowEditor(this, dr)
+    })
     return [newDiv, newDiv]
   }
 }

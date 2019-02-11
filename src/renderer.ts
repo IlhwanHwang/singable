@@ -10,9 +10,23 @@ import SingablePanel from "./components/SingablePanel"
 import Singable from "./components/Singable"
 import Component from "./components/Component"
 import EditorBase from "./components/editor/EditorBase"
+import CommonEditor from "./components/editor/CommonEditor"
+
+export let editorSingable: Singable = null
+
+// TODO: Listenable object
+const editorSingableListener = Array<Component>()
+export const addListenerEditorSingable = (component: Component) => { editorSingableListener.push(component) }
+export const setEditorSingable = (singable: Singable) => {
+  editorSingable = singable
+  editorSingableListener.forEach(c => c.update())
+}
 
 const root = new Component()
-const c1 = new SingablePanel(root)
+new SingablePanel(root)
 export const editorBase = new EditorBase(root)
-export let editorSingable: Singable = null
-export const setEditorSingable = (singable: Singable) => { editorSingable = singable }
+const commonEditor = new CommonEditor(editorBase)
+
+root.update()
+addListenerEditorSingable(commonEditor)
+eval("window.rootComp = root")

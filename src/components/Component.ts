@@ -8,7 +8,7 @@ export default class Component {
     container: Node = null
     parent: Component = null
     debugName: string = `component-${id++}`
-    chlidren = Array<Component>()
+    children = new Array<Component>()
 
     constructor(parent: Component = null) {
         this.parent = parent
@@ -16,14 +16,23 @@ export default class Component {
             this.container = document.querySelector("body")
         }
         else {
-            this.parent.chlidren.push(this)
+            this.parent.addChild(this)
         }
-        this.create()
+    }
+
+    removeChild(child: Component) {
+        this.children = this.parent.children.filter((c) => { return c !== child })
+    }
+
+    addChild(child: Component) {
+        this.children.push(child)
     }
 
     destroy() {
         this.target.parentNode.removeChild(this.target)
-        this.parent.chlidren = this.parent.chlidren.filter((c) => { return this !== c })
+        if (this.parent !== null) {
+            this.parent.removeChild(this)
+        }
     }
 
     create() {
@@ -41,7 +50,7 @@ export default class Component {
 
     update() {
         this.create()
-        this.chlidren.forEach((c) => {
+        this.children.forEach((c) => {
             c.target = null
             c.update()
         })

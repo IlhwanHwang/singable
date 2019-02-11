@@ -5,7 +5,6 @@ import DrumRollSingable from "./DrumRollSingable";
 
 
 export default class SingablePanel extends Component {
-  nodes = Array<Singable>()
 
   render(): [Node, Node] {
     const newDiv = createDivNode(
@@ -20,7 +19,8 @@ export default class SingablePanel extends Component {
           n.innerText = "New"
           n.onclick = e => {
             // this.nodes.push(new Singable(this))
-            this.nodes.push(new DrumRollSingable(this))
+            const newSingable = new DrumRollSingable(this)
+            newSingable.update()
           }
         })
       ]

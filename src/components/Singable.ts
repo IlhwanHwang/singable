@@ -11,7 +11,6 @@ export default class Singable extends Draggable {
   constructor(parent: Component) {
     super(parent)
     this.name = "new singable object"
-    this.nameEditing = false
     this.update()
   }
 
@@ -32,22 +31,8 @@ export default class Singable extends Draggable {
           n.style.backgroundColor = "cyan"
           n.setAttribute("draggable-target", "true")
         }),
-				this.nameEditing
-					? createInputNode(n => {
-              n.value = this.name
-              n.onchange = e => {
-                this.name = (e.target as HTMLInputElement).value
-              }
-            })
-					: createDivNode(n => {
-              n.innerText = this.name
-            }),
-				createButtonNode(n => {
-					n.innerText = "Edit"
-					n.onclick = e => {
-						this.nameEditing = !this.nameEditing
-						this.update()
-					}
+        createDivNode(n => {
+          n.innerText = this.name
         }),
         createButtonNode(n => {
           n.innerText = "Delete"
