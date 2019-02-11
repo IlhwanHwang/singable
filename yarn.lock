@@ -25,6 +25,11 @@
     "@types/prop-types" "*"
     csstype "^2.2.0"
 
+"@types/webmidi@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@types/webmidi/-/webmidi-2.0.2.tgz#0466cf747aaed2b914a1e2564635bbda217cb256"
+  integrity sha512-m/5kolDeFVi/tiE2OFaj0KCfz1mfefBh7MZ1RXowd8hP455b0qkkeOLUhjXK0fDDU+e8WKVJ7EP+NG8+LwCghA==
+
 ajv@^6.5.5:
   version "6.8.1"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.8.1.tgz#0890b93742985ebf8973cd365c5b23920ce3cb20"
