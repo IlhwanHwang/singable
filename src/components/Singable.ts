@@ -12,6 +12,9 @@ export default class Singable extends Draggable {
   constructor(parent: Component) {
     super(parent)
     this.name = "new singable object"
+    this.onDragging = e => {
+      connections.update()
+    }
   }
 
 	render(): [HTMLElement, HTMLElement] {

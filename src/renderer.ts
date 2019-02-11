@@ -11,7 +11,7 @@ import Singable from "./components/Singable"
 import Component from "./components/Component"
 import EditorBase from "./components/editor/EditorBase"
 import CommonEditor from "./components/editor/CommonEditor"
-import { forEach } from "./utils";
+import { forEach, centerOf } from "./utils";
 import {drawLine, drawClear} from "./utils/draw"
 
 
@@ -61,9 +61,9 @@ const commonEditor = new CommonEditor(editorBase)
 const outConnectionFocusActions = {
   clickSet: false,
   mousemove(e: Event) {
-    const rect = outConnectionFocus.get().target.querySelector("button.out-connection").getClientRects()[0]
     const me = e as MouseEvent
-    const [x1, y1, x2, y2] = [me.x, me.y, rect.left, rect.top]
+    const [x1, y1] = [me.x, me.y]
+    const [x2, y2] = centerOf(outConnectionFocus.get().target.querySelector("button.out-connection"))
     const line = drawLine("out-conneciton-focus", x1, y1, x2, y2)
     line.style.stroke = "red"
     line.style.strokeWidth = "3"
@@ -96,9 +96,9 @@ outConnectionFocus.watch(() => {
 
 connections.watch(() => {
   connections.get().forEach(([s1, s2]) => {
-    const rect1 = s1.target.querySelector("button.out-connection").getClientRects()[0]
-    const rect2 = s2.target.querySelector("button.in-connection").getClientRects()[0]
-    const line = drawLine(`connection-line-${s1.debugName}-${s2.debugName}`, rect1.left, rect1.top, rect2.left, rect2.top)
+    const [x1, y1] = centerOf(s1.target.querySelector("button.out-connection"))
+    const [x2, y2] = centerOf(s2.target.querySelector("button.in-connection"))
+    const line = drawLine(`connection-line-${s1.debugName}-${s2.debugName}`, x1, y1, x2, y2)
     line.style.stroke = "blue"
     line.style.strokeWidth = "3"
   })

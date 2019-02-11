@@ -13,3 +13,8 @@ export function forEach(object: any, func: (key: string, e: any) => void) {
     }
   }
 }
+
+export function centerOf(elem: Element) {
+  const rect = elem.getClientRects()[0]
+  return [rect.left + rect.width / 2, rect.top + rect.height / 2]
+}
