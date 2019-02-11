@@ -56,7 +56,7 @@ outConnectionFocus.watch(() => {
 
 class Connections extends Watchable<Array<Connection>> {
   add(op: OutEndpoint, ip: InEndpoint) {
-    const duplicated = this.value.filter(cn => { return cn.op === op && cn.ip === ip }).length > 0
+    const duplicated = this.value.filter(cn => { return cn.ip === ip }).length > 0
     if (duplicated) {
       return false
     }
