@@ -18,7 +18,7 @@ export default class DrumRollSingable extends Singable {
 
   create() {
     super.create()
-    const target = this.target as HTMLElement
+    const target = this.target
     target.onmousedown = e => {
       if (editorSingable.get() !== this) {
         if (editorSingable.get() !== null) {
