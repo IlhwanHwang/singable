@@ -34,7 +34,7 @@ export default class TransposeSingable extends Singable {
     }
   }
 
-  render(): [Node, Node] {
+  render(): [HTMLElement, HTMLElement] {
     const [newDiv, container] = super.render()
     newDiv.appendChild(
       createDivNode(n => {

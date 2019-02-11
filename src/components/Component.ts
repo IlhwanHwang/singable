@@ -4,8 +4,8 @@ let id = 0
 
 
 export default class Component {
-    target: Node = null
-    container: Node = null
+    target: HTMLElement = null
+    container: HTMLElement = null
     parent: Component = null
     debugName: string = `component-${id++}`
     children = new Array<Component>()
@@ -56,7 +56,7 @@ export default class Component {
         })
     }
 
-    render(): [Node, Node] {
+    render(): [HTMLElement, HTMLElement] {
         return [null, null]
     }
 }

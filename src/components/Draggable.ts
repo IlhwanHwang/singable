@@ -43,18 +43,12 @@ export default class Draggable extends Component {
       }
       
       const dragStop = (e: Event) => {
-        // TODO: remove event
-        // window.removeEventListener("onmousemove", dragging)
-        // window.removeEventListener("onmouseup", dragStop)
-        window.onmousemove = null
-        window.onmouseup = null
+        window.removeEventListener("mousemove", dragging)
+        window.removeEventListener("mouseup", dragStop)
       }
 
-      // TODO: add event
-      // window.addEventListener("onmousemove", dragging)
-      // window.addEventListener("onmouseup", dragStop)
-      window.onmousemove = dragging
-      window.onmouseup = dragStop
+      window.addEventListener("mousemove", dragging)
+      window.addEventListener("mouseup", dragStop)
     }
   }
 }

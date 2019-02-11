@@ -5,7 +5,7 @@ import {editorSingable} from "../../renderer"
 export default class CommonEditor extends Component {
   nameEditing = false
 
-  render(): [Node, Node] {
+  render(): [HTMLElement, HTMLElement] {
     const newDiv = createDivNode(n => {
       n.style.border = "solid 1px red"
     }, [

@@ -1,6 +1,7 @@
 import Component from "./Component"
 import Draggable from "./Draggable"
 import {createDivNode, createButtonNode, createInputNode} from "../utils/node"
+import { outConnectionFocus } from "../renderer";
 
 
 export default class Singable extends Draggable {
@@ -13,7 +14,7 @@ export default class Singable extends Draggable {
     this.name = "new singable object"
   }
 
-	render(): [Node, Node] {
+	render(): [HTMLElement, HTMLElement] {
 		const newDiv = createDivNode(
 			n => {
         n.style.border = "solid 1px black"
@@ -46,10 +47,14 @@ export default class Singable extends Draggable {
           n.style.top = "60px"
         }),
         createButtonNode(n => {
+          n.classList.add("out-connection")
           n.innerText = "out"
           n.style.position = "absolute"
           n.style.left = "160px"
           n.style.top = "60px"
+          n.onclick = e => {
+            outConnectionFocus.set(this)
+          }
         })
 			]
 		)

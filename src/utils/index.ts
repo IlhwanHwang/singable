@@ -4,3 +4,12 @@ export function fillArray<T>(arr: Array<T>, value: T) {
   }
   return arr
 }
+
+export function forEach(object: any, func: (key: string, e: any) => void) {
+  for (const key in object) {
+    if (object.hasOwnProperty(key)) {
+      const element = object[key];
+      func(key, element)
+    }
+  }
+}

@@ -14,7 +14,7 @@ export default class TransposeEditor extends Component {
     this.data = data
   }
 
-  render(): [Node, Node] {
+  render(): [HTMLElement, HTMLElement] {
     const newDiv = createDivNode(
       n => {
         n.style.border = "solid 1px orange",

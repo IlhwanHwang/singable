@@ -22,7 +22,7 @@ export default class DrumRollEditor extends Component {
     super.removeChild(child)
   }
 
-  render(): [Node, Node] {
+  render(): [HTMLElement, HTMLElement] {
     const newDiv = createDivNode(
       n => {
         n.style.border = "solid 1px orange",

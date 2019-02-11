@@ -10,7 +10,7 @@ export default class DrumRollRowEditor extends Component {
     this.data = data
   }
 
-  render(): [Node, Node] {
+  render(): [HTMLElement, HTMLElement] {
     const newDiv = createDivNode(n => {
       n.style.display = "flex"
       n.style.border = "solid 1px black"

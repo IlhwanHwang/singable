@@ -3,7 +3,7 @@ import {createDivNode} from "../../utils/node"
 
 
 export default class EditorBase extends Component {
-  render(): [Node, Node] {
+  render(): [HTMLElement, HTMLElement] {
     const newDiv = createDivNode(
       n => {
         n.style.border = "solid 1px black",
