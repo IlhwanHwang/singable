@@ -2,7 +2,7 @@ import Component from "../Component"
 import {createDivNode, createButtonNode} from "../../utils/singable"
 import DrumRollStructure from "../DrumRollStructure"
 import DrumRollRowEditor from "./DrumRollRowEditor";
-import { fillArray } from "../../utils";
+import { fillArray, filled } from "../../utils";
 
 
 export default class DrumRollEditor extends Component {
@@ -36,7 +36,8 @@ export default class DrumRollEditor extends Component {
           n.onclick = e => {
             const newDR = new DrumRollRowEditor(this, {
               name: "new drumroll row",
-              beats: fillArray(Array<boolean>(this.data.length), false)
+              beats: filled(false, this.data.length),
+              key: 0
             })
             newDR.update()
             // TODO: Smarter data sync
