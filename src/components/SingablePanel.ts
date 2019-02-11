@@ -2,6 +2,7 @@ import Component from "./Component"
 import {createDivNode, createButtonNode} from "../utils/node"
 import Singable from "./Singable"
 import DrumRollSingable from "./DrumRollSingable";
+import TransposeSingable from "./TransposeSingable";
 
 
 export default class SingablePanel extends Component {
@@ -16,10 +17,18 @@ export default class SingablePanel extends Component {
       },
       [
         createButtonNode(n => {
-          n.innerText = "New"
+          n.innerText = "New drum roll"
           n.onclick = e => {
             // this.nodes.push(new Singable(this))
             const newSingable = new DrumRollSingable(this)
+            newSingable.update()
+          }
+        }),
+        createButtonNode(n => {
+          n.innerText = "New transpose"
+          n.onclick = e => {
+            // this.nodes.push(new Singable(this))
+            const newSingable = new TransposeSingable(this)
             newSingable.update()
           }
         })

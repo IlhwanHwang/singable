@@ -39,6 +39,7 @@ export default class DrumRollEditor extends Component {
               beats: fillArray(Array<boolean>(this.data.length), false)
             })
             newDR.update()
+            // TODO: Smarter data sync
             this.data.rows.push(newDR.data)
           }
         }),

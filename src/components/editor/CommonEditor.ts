@@ -11,17 +11,17 @@ export default class CommonEditor extends Component {
     }, [
       this.nameEditing
         ? createInputNode(n => {
-            n.value = editorSingable.name
+            n.value = editorSingable.get().name
             n.onchange = e => {
-              editorSingable.name = (e.target as HTMLInputElement).value
+              editorSingable.get().name = (e.target as HTMLInputElement).value
             }
           })
         : createDivNode(n => {
-            if (editorSingable === null ) {
+            if (editorSingable.get() === null ) {
               n.innerText = "No singable selected"
             }
             else {
-              n.innerText = editorSingable.name
+              n.innerText = editorSingable.get().name
             }
           }),
       createButtonNode(n => {
@@ -29,7 +29,7 @@ export default class CommonEditor extends Component {
         n.onclick = e => {
           this.nameEditing = !this.nameEditing
           this.update()
-          editorSingable.update()
+          editorSingable.get().update()
         }
         n.disabled = (editorSingable === null)
       })

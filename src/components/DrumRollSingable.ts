@@ -1,7 +1,7 @@
 import Singable from "./Singable"
 import DrumRollStructure, { DrumRollRowStructure } from "./DrumRollStructure"
 import DrumRollEditor from "./editor/DrumRollEditor"
-import {editorBase, editorSingable, setEditorSingable} from "../renderer"
+import {editorBase, editorSingable} from "../renderer"
 import Component from "./Component";
 
 export default class DrumRollSingable extends Singable {
@@ -20,13 +20,13 @@ export default class DrumRollSingable extends Singable {
     super.create()
     const target = this.target as HTMLElement
     target.onmousedown = e => {
-      if (editorSingable !== this) {
-        if (editorSingable !== null) {
-          editorSingable.editor.destroy()
+      if (editorSingable.get() !== this) {
+        if (editorSingable.get() !== null) {
+          editorSingable.get().editor.destroy()
         }
         this.editor = new DrumRollEditor(editorBase, this.data)
         this.editor.update()
-        setEditorSingable(this)
+        editorSingable.set(this)
       }
     }
   }

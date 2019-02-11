@@ -11,7 +11,6 @@ export default class Singable extends Draggable {
   constructor(parent: Component) {
     super(parent)
     this.name = "new singable object"
-    this.update()
   }
 
 	render(): [Node, Node] {
@@ -20,7 +19,7 @@ export default class Singable extends Draggable {
         n.style.border = "solid 1px black"
         n.style.width = "160px"
         n.style.height = "120px"
-        n.style.overflow = "hidden"
+        // n.style.overflow = "hidden"
         n.style.position = "absolute"
         n.style.left = "100px"
         n.style.top = "100px"
@@ -39,6 +38,18 @@ export default class Singable extends Draggable {
           n.onclick = e => {
             this.destroy()
           }
+        }),
+        createButtonNode(n => {
+          n.innerText = "in"
+          n.style.position = "absolute"
+          n.style.right = "160px"
+          n.style.top = "60px"
+        }),
+        createButtonNode(n => {
+          n.innerText = "out"
+          n.style.position = "absolute"
+          n.style.left = "160px"
+          n.style.top = "60px"
         })
 			]
 		)
