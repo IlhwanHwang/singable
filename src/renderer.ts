@@ -1,57 +1,14 @@
-// This file is required by the index.html file and will
-// be executed in the renderer process for that window.
-// All of the Node.js APIs are available in this process.
-
-// const div = document.createElement("div")
-// div.setAttribute("style", "width: 100px; height: 80px; border: solid 1px black;")
-// document.querySelector("body").appendChild(div)
-
 import SingablePanel from "./components/SingablePanel"
 import Singable from "./components/Singable"
 import Component from "./components/Component"
 import EditorBase from "./components/editor/EditorBase"
 import CommonEditor from "./components/editor/CommonEditor"
 import { forEach, centerOf } from "./utils";
-import {drawLine, drawClear} from "./utils/draw"
-
-
-export class Watchable<T> {
-  watchers = Array<Component | (() => void)>()
-  value: T
-
-  constructor(initial: T) {
-    this.value = initial
-  }
-
-  set(value: T) {
-    this.value = value
-    this.update()
-  }
-
-  update() {
-    this.watchers.forEach(c => {
-      if (c instanceof Component) {
-        c.update()
-      }
-      else {
-        c()
-      }
-    })
-  }
-  
-  get() {
-    return this.value
-  }
-
-  watch(c: Component | (() => void)) {
-    this.watchers.push(c)
-  }
-}
-
+import { drawLine, drawClear } from "./utils/draw"
+import Watchable from "./utils/Watchable"
 
 export const editorSingable = new Watchable<Singable>(null)
 export const outConnectionFocus = new Watchable<Singable>(null)
-export const connections = new Watchable<Array<[Singable, Singable]>>([])
 
 const root = new Component()
 new SingablePanel(root)
@@ -60,6 +17,7 @@ const commonEditor = new CommonEditor(editorBase)
 
 const outConnectionFocusActions = {
   clickSet: false,
+
   mousemove(e: Event) {
     const me = e as MouseEvent
     const [x1, y1] = [me.x, me.y]
@@ -68,13 +26,13 @@ const outConnectionFocusActions = {
     line.style.stroke = "red"
     line.style.strokeWidth = "3"
   },
+
   mouseup(e: Event) {
-    console.log("up!!")
     this.clickSet = true
   },
+
   click(e: Event) {
     if (this.clickSet) {
-      console.log("click!!")
       outConnectionFocus.set(null)
       drawClear("out-conneciton-focus")
       this.clickSet = false
@@ -93,6 +51,21 @@ outConnectionFocus.watch(() => {
     })
   }
 })
+
+class Connections extends Watchable<Array<[Singable, Singable]>> {
+  add(s1: Singable, s2: Singable) {
+    const duplicated = this.value.filter(([t1, t2]) => { return t1 === s1 && t2 === s2 }).length > 0
+    if (duplicated) {
+      return false
+    }
+    else {
+      connections.set([...this.get(), [s1, s2]])
+      return true
+    }
+  }
+}
+
+export const connections = new Connections([])
 
 connections.watch(() => {
   connections.get().forEach(([s1, s2]) => {

@@ -51,7 +51,7 @@ export default class Singable extends Draggable {
           n.style.top = "60px"
           n.onclick = e => {
             if (outConnectionFocus.get() !== null) {
-              connections.set([...connections.get(), [outConnectionFocus.get(), this]])
+              connections.add(outConnectionFocus.get(), this)
             }
           }
         }),
