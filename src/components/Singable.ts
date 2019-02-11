@@ -27,6 +27,7 @@ export default class Singable extends Draggable {
         n.style.position = "absolute"
         n.style.left = "100px"
         n.style.top = "100px"
+        n.style.pointerEvents = "auto"
       },
 			[
         createDivNode(n => {

@@ -1,17 +1,14 @@
 function getSvgCanvas() {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
-  svg.setAttribute("style", "position: fixed; width: 100vw; height: 100vh; left 0; top 0; z-index: -1")
+  svg.setAttribute("style", "position: absolute; width: 100%; height: 100%; left 0; top 0; z-index: -1")
   return svg
 }
 
-const svgForeground = getSvgCanvas()
 const svgBackground = getSvgCanvas()
-
-document.body.appendChild(svgForeground)
 document.body.appendChild(svgBackground)
 
-export function drawLine(id: string, x1: number, y1: number, x2: number, y2: number, order: "foreground" | "background" = "background") {
-  const svg = order === "foreground" ? svgForeground : svgBackground
+export function drawLine(id: string, x1: number, y1: number, x2: number, y2: number) {
+  const svg = svgBackground
   const line = (() => {
     const lineElem = svg.getElementById(id)
     if (lineElem) {
@@ -29,5 +26,8 @@ export function drawLine(id: string, x1: number, y1: number, x2: number, y2: num
 }
 
 export function drawClear(id: string) {
-  document.getElementById(id).remove()
+  const elem = svgBackground.getElementById(id)
+  if (elem) {
+    elem.remove()
+  }
 }

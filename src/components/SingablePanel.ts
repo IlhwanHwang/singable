@@ -23,6 +23,7 @@ export default class SingablePanel extends Component {
             const newSingable = new DrumRollSingable(this)
             newSingable.update()
           }
+          n.style.pointerEvents = "auto"
         }),
         createButtonNode(n => {
           n.innerText = "New transpose"
@@ -31,6 +32,7 @@ export default class SingablePanel extends Component {
             const newSingable = new TransposeSingable(this)
             newSingable.update()
           }
+          n.style.pointerEvents = "auto"
         })
       ]
     )
