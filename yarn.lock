@@ -670,10 +670,12 @@ meow@^3.1.0:
     redent "^1.0.0"
     trim-newlines "^1.0.0"
 
-midi-player-ts@^2.0.1-tm2:
-  version "2.0.1-tm2"
-  resolved "https://registry.yarnpkg.com/midi-player-ts/-/midi-player-ts-2.0.1-tm2.tgz#f69366f2b87a82ea5b76ce5720693c1962c455e3"
-  integrity sha512-8HMy8DDcPLYUH2zH1LoGMzrG+b8DAyqzl7Rh07HQ7lFd75gymcSUrUa/lAbpofu09uWm9NjQEmxDOTYV86Bvzg==
+midi-writer-js@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/midi-writer-js/-/midi-writer-js-1.7.0.tgz#1ddb2727e52f20fcad6ea8233d89dd7dee8cfc1b"
+  integrity sha512-HOp2NZFrevKCvaYxakN0tZcSvlfeOVDAW6ORnIGxN4Hc6ZT43HkKzzNi8riiUwh0tMUlwJVbgBaVR3VfR5+xig==
+  dependencies:
+    tonal-midi "^0.69.7"
 
 mime-db@~1.37.0:
   version "1.37.0"
@@ -725,6 +727,11 @@ normalize-package-data@^2.3.2, normalize-package-data@^2.3.4:
     is-builtin-module "^1.0.0"
     semver "2 || 3 || 4 || 5"
     validate-npm-package-license "^3.0.1"
+
+note-parser@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/note-parser/-/note-parser-2.0.1.tgz#2438fd57a46894b402b3a2071798660129c8fbc1"
+  integrity sha1-JDj9V6RolLQCs6IHF5hmASnI+8E=
 
 nugget@^2.0.0:
   version "2.0.1"
@@ -1155,6 +1162,13 @@ through2@~0.2.3:
   dependencies:
     readable-stream "~1.1.9"
     xtend "~2.1.1"
+
+tonal-midi@^0.69.7:
+  version "0.69.7"
+  resolved "https://registry.yarnpkg.com/tonal-midi/-/tonal-midi-0.69.7.tgz#e754ec93f3dbdb28a6d39d42457c33ad245ffa47"
+  integrity sha1-51Tsk/Pb2yim051CRXwzrSRf+kc=
+  dependencies:
+    note-parser "^2.0.1"
 
 tough-cookie@~2.4.3:
   version "2.4.3"

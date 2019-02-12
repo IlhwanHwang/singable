@@ -24,6 +24,11 @@ export default class Key {
   }
 }
 
+
+import {MidiWriter} from "midi-writer-js"
+
+MidiPlayer.Player
+
 export class Timeline {
   keys: Array<Key>
   length: number
@@ -35,5 +40,9 @@ export class Timeline {
 
   clone() {
     return new Timeline(this.length, [...this.keys])
+  }
+
+  toMidi(fname: string) {
+
   }
 }

@@ -1,5 +1,6 @@
 import SingablePanel from "./components/SingablePanel"
 import Singable from "./components/Singable"
+import OutputSingable from "./components/OutputSingable"
 import Component from "./components/Component"
 import EditorBase from "./components/editor/EditorBase"
 import CommonEditor from "./components/editor/CommonEditor"
@@ -15,6 +16,81 @@ export const outConnectionFocus = new Watchable<OutEndpoint>(null)
 
 const root = new Component()
 
+
+const onFulfilled = (item: WebMidi.MIDIAccess) => {
+    this._midiPort = item;
+
+    item.onstatechange = (event: WebMidi.MIDIConnectionEvent) => {
+        console.log("onstatechange");
+        console.log(event);
+    };
+
+    console.log("sysexenabled");
+    console.log(item.sysexEnabled);
+
+    const inputs = this._midiPort.inputs.values();
+
+    for (const o of inputs) {
+        this._inputs.push(o);
+        console.log(o);
+    }
+
+    const outputs = (item.outputs as any).values();
+    for (const op of outputs) {
+        this._outputs.push(op);
+        op.send([ 0x90, 0x45, 0x7f ]);
+        op.send(new Uint8Array([ 0x90, 0x45, 0x7f ]));
+    }
+
+    for (const input of this._inputs) {
+        input.onmidimessage = (event: WebMidi.MIDIMessageEvent) => {
+            this.onMidiMessage(event.data);
+        };
+    }
+};
+
+const onRejected = (e: Error) => { console.error(e); };
+
+if (navigator.requestMIDIAccess !== undefined) {
+    navigator.requestMIDIAccess().then(onFulfilled, onRejected);
+}
+
+
+
+navigator.requestMIDIAccess()
+    .then(onMIDISuccess, onMIDIFailure);
+
+function onMIDISuccess(midiAccess: WebMidi.MIDIAccess) {
+    console.log(midiAccess);
+
+    var inputs = midiAccess.inputs;
+    var outputs = midiAccess.outputs;
+}
+
+function onMIDIFailure() {
+    console.log('Could not access your MIDI devices.');
+}
+
+
+function play() {
+  const output = (() => {
+    const founds = singablePanel.find(s => (s instanceof OutputSingable))
+    if (founds.length === 1) {
+      return founds[0]
+    }
+    else {
+      window.alert("Zero, two or more outputs are detected.")
+      return null
+    }
+  })() as Singable
+
+  if (output === null) {
+    return
+  }
+
+  const timeline = output.sing()
+}
+
 const layoutTab = new class extends Component {
   render(): [HTMLElement, HTMLElement] {
     const newDiv = createDivNode(n => {
@@ -23,9 +99,7 @@ const layoutTab = new class extends Component {
     }, [
       createButtonNode(n => {
         n.innerText = "Play"
-        n.onclick = e => {
-          
-        }
+        n.onclick = play
       })
     ])
     return [newDiv, newDiv]
