@@ -36,7 +36,8 @@ export default class DrumRollEditor extends Component {
           n.onclick = e => {
             const newDR = new DrumRollRowEditor(this, {
               name: "new drumroll row",
-              beats: filled(false, this.data.length),
+              cells: filled(false, this.data.length * this.data.cellsPerBeat),
+              cellsPerBeat: this.data.cellsPerBeat,
               key: 0
             })
             newDR.update()

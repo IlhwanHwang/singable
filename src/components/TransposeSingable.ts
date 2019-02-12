@@ -4,6 +4,7 @@ import {editorBase, editorSingable} from "../renderer"
 import TransposeEditor from "./editor/TransposeEditor";
 import {createDivNode} from "../utils/singable"
 import { InEndpoint, OutEndpoint } from "./Endpoint";
+import {Timeline} from "../Key"
 
 export interface TransposeStructure {
   semitones: number
@@ -47,5 +48,10 @@ export default class TransposeSingable extends Singable {
       })
     )
     return [newDiv, container]
+  }
+
+  sing(): Timeline {
+    const { length, keys } = (this.ip.parent as Singable).sing()
+    return new Timeline(length, keys.map(key => key.replace({tone: key.tone + this.data.semitones})))
   }
 }

@@ -33,16 +33,16 @@ export default class DrumRollRowEditor extends Component {
           )
       ]),
       createDivNode(null, 
-        this.data.beats.map((b, ind) => {
+        this.data.cells.map((b, ind) => {
           return createButtonNode(n => {
-            n.style.backgroundColor = b ? "white" : (ind % 4 === 0 ? "red" : "gray")
+            n.style.backgroundColor = b ? "white" : (ind % this.data.cellsPerBeat === 0 ? "red" : "gray")
             n.style.border = "solid 1px black"
             n.style.margin = "5px"
             n.style.width = "30px"
             n.style.height = "40px"
             n.onclick = e => {
-              this.data.beats[ind] = !this.data.beats[ind]
-              n.style.backgroundColor = this.data.beats[ind] ? "white" : (ind % 4 === 0 ? "red" : "gray")
+              this.data.cells[ind] = !this.data.cells[ind]
+              n.style.backgroundColor = this.data.cells[ind] ? "white" : (ind % 4 === 0 ? "red" : "gray")
             }
           })
         })

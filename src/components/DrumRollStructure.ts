@@ -1,10 +1,12 @@
 export interface DrumRollRowStructure {
   name: string
-  beats: Array<boolean>
+  cells: Array<boolean>
+  cellsPerBeat: number,
   key: number
 }
 
 export default interface DrumRollStructure {
   rows: Array<DrumRollRowStructure>
   length: number
+  cellsPerBeat: number
 }

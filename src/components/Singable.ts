@@ -2,7 +2,7 @@ import Component from "./Component"
 import Draggable from "./Draggable"
 import {createDivNode, createButtonNode, createInputNode} from "../utils/singable"
 import { outConnectionFocus, connections, editorSingable } from "../renderer";
-
+import {Timeline} from "../Key"
 
 export default class Singable extends Draggable {
 	name: string
@@ -51,5 +51,9 @@ export default class Singable extends Draggable {
 			]
 		)
 		return [newDiv, newDiv]
-	}
+  }
+  
+  sing(): Timeline {
+    return new Timeline(0)
+  }
 }

@@ -4,6 +4,8 @@ import DrumRollEditor from "./editor/DrumRollEditor"
 import {editorBase, editorSingable} from "../renderer"
 import Component from "./Component";
 import { OutEndpoint } from "./Endpoint";
+import Key, {Timeline} from "../Key"
+import {flatten} from "lodash"
 
 export default class DrumRollSingable extends Singable {
   data: DrumRollStructure
@@ -12,7 +14,8 @@ export default class DrumRollSingable extends Singable {
   constructor(parent: Component) {
     super(parent)
     this.data = {
-      length: 16,
+      cellsPerBeat: 4,
+      length: 4,
       rows: Array<DrumRollRowStructure>()
     }
     this.name = "new drum roll object"
@@ -32,5 +35,21 @@ export default class DrumRollSingable extends Singable {
         editorSingable.set(this)
       }
     }
+  }
+
+  sing(): Timeline {
+    return new Timeline(
+      this.data.length,
+      flatten<Key>(this.data.rows.map(row => {
+        return row.cells
+          .map((c, ind) => [c, ind])
+          .filter(([c, ind]) => c)
+          .map(([c, ind]) => new Key(
+            (ind as number) / this.data.cellsPerBeat, 
+            1 / this.data.cellsPerBeat,
+            row.key
+            ))
+      })) as Array<Key>
+    )
   }
 }

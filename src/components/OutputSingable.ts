@@ -3,6 +3,7 @@ import OutputEditor from "./editor/OutputEditor"
 import {editorBase, editorSingable} from "../renderer"
 import Component from "./Component";
 import { InEndpoint } from "./Endpoint";
+import { Timeline } from "../Key";
 
 export default class DrumRollSingable extends Singable {
   ip: InEndpoint
@@ -26,5 +27,9 @@ export default class DrumRollSingable extends Singable {
         editorSingable.set(this)
       }
     }
+  }
+
+  sing(): Timeline {
+    return (this.ip.parent as Singable).sing()
   }
 }
