@@ -1,7 +1,7 @@
 import Component from "./Component"
 import Draggable from "./Draggable"
 import {createDivNode, createButtonNode, createInputNode} from "../utils/singable"
-import { outConnectionFocus, connections } from "../renderer";
+import { outConnectionFocus, connections, editorSingable } from "../renderer";
 
 
 export default class Singable extends Draggable {
@@ -42,6 +42,10 @@ export default class Singable extends Draggable {
           n.innerText = "Delete"
           n.onclick = e => {
             this.destroy()
+            if (editorSingable.get() === this) {
+              this.editor.destroy()
+              editorSingable.set(null)
+            }
           }
         })
 			]

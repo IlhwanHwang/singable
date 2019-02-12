@@ -8,33 +8,63 @@ import { drawLine, drawClear } from "./utils/draw"
 import Watchable from "./utils/Watchable"
 import Connection from "./components/Connection"
 import { OutEndpoint, InEndpoint } from "./components/Endpoint";
+import { createDivNode, createButtonNode } from "./utils/singable";
 
 export const editorSingable = new Watchable<Singable>(null)
 export const outConnectionFocus = new Watchable<OutEndpoint>(null)
 
 const root = new Component()
-export const singablePanel = new SingablePanel(root)
-export const editorBase = new EditorBase(root)
+
+const layoutTab = new class extends Component {
+  render(): [HTMLElement, HTMLElement] {
+    const newDiv = createDivNode(n => {
+      n.style.width = "100vw"
+      n.style.height = "24px"
+    }, [
+      createButtonNode(n => {
+        n.innerText = "Play"
+        n.onclick = e => {
+          
+        }
+      })
+    ])
+    return [newDiv, newDiv]
+  }
+}(root)
+
+const layoutPanels = new class extends Component {
+  render(): [HTMLElement, HTMLElement] {
+    const newDiv = createDivNode(n => {
+      n.style.width = "100vw"
+      n.style.height = "calc(100vh - 24px)"
+    })
+    return [newDiv, newDiv]
+  }
+}(root)
+
+const layoutSingablePanel = new class extends Component {
+  render(): [HTMLElement, HTMLElement] {
+    const newDiv = createDivNode(n => {
+      n.style.width = "100%"
+      n.style.height = "50%"
+    })
+    return [newDiv, newDiv]
+  }
+}(layoutPanels)
+
+const layoutEditor = new class extends Component {
+  render(): [HTMLElement, HTMLElement] {
+    const newDiv = createDivNode(n => {
+      n.style.width = "100%"
+      n.style.height = "50%"
+    })
+    return [newDiv, newDiv]
+  }
+}(layoutPanels)
+
+export const singablePanel = new SingablePanel(layoutSingablePanel)
+export const editorBase = new EditorBase(layoutEditor)
 const commonEditor = new CommonEditor(editorBase)
-
-if (navigator.requestMIDIAccess) {
-  navigator.requestMIDIAccess({
-      sysex: false // this defaults to 'false' and we won't be covering sysex in this article. 
-  }).then(onMIDISuccess, onMIDIFailure);
-} else {
-  alert("No MIDI support in your browser.");
-}
-
-// midi functions
-function onMIDISuccess(midiAccess: any) {
-  // when we get a succesful response, run this code
-  console.log('MIDI Access Object', midiAccess);
-}
-
-function onMIDIFailure(e: any) {
-  // when we get a failed response, run this code
-  console.log("No access to MIDI devices or your browser doesn't support WebMIDI API. Please use WebMIDIAPIShim " + e);
-}
 
 const outConnectionFocusActions = {
   clickSet: false,

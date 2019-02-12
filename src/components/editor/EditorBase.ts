@@ -7,8 +7,8 @@ export default class EditorBase extends Component {
     const newDiv = createDivNode(
       n => {
         n.style.border = "solid 1px black",
-        n.style.width = "100vw",
-        n.style.height = "50vh",
+        n.style.width = "100%",
+        n.style.height = "100%",
         n.style.boxSizing = "border-box"
       },
       [

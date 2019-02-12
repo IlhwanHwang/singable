@@ -670,6 +670,11 @@ meow@^3.1.0:
     redent "^1.0.0"
     trim-newlines "^1.0.0"
 
+midi-player-ts@^2.0.1-tm2:
+  version "2.0.1-tm2"
+  resolved "https://registry.yarnpkg.com/midi-player-ts/-/midi-player-ts-2.0.1-tm2.tgz#f69366f2b87a82ea5b76ce5720693c1962c455e3"
+  integrity sha512-8HMy8DDcPLYUH2zH1LoGMzrG+b8DAyqzl7Rh07HQ7lFd75gymcSUrUa/lAbpofu09uWm9NjQEmxDOTYV86Bvzg==
+
 mime-db@~1.37.0:
   version "1.37.0"
   resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.37.0.tgz#0b6a0ce6fdbe9576e25f1f2d2fde8830dc0ad0d8"

@@ -29,6 +29,7 @@
     "@types/react": "^16.8.1",
     "@types/webmidi": "^2.0.2",
     "lodash": "^4.17.11",
+    "midi-player-ts": "^2.0.1-tm2",
     "react": "^16.7.0"
   }
 }
