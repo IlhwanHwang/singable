@@ -5,7 +5,7 @@ import Component from "./Component";
 import { InEndpoint } from "./Endpoint";
 import { Timeline } from "../Key";
 
-export default class DrumRollSingable extends Singable {
+export default class OutputSingable extends Singable {
   ip: InEndpoint
 
   constructor(parent: Component) {
@@ -30,6 +30,6 @@ export default class DrumRollSingable extends Singable {
   }
 
   sing(): Timeline {
-    return (this.ip.parent as Singable).sing()
+    return (this.ip.findOut().parent as Singable).sing()
   }
 }

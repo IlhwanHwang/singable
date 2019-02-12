@@ -1,4 +1,5 @@
 import Component from "./Component"
+import Singable from "./Singable"
 import { createButtonNode } from "../utils/singable";
 import { outConnectionFocus, connections } from "../renderer"
 import { nativeImage } from "electron";
@@ -9,6 +10,8 @@ export class Endpoint extends Component {
 
   constructor(parent: Component, position = 0.5) {
     super(parent)
+    const s = this.parent as Singable
+    s.endpoints.push(this)
     this.position = position
   }
 
@@ -58,5 +61,14 @@ export class InEndpoint extends Endpoint {
       }
     }
     return [newButton, newButton]
+  }
+
+  findOut(): OutEndpoint {
+    try {
+      return connections.get().filter(({ ip }) => ip === this)[0].op
+    }
+    catch (e) {
+      return null
+    }
   }
 }

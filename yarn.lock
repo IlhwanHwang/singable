@@ -130,6 +130,11 @@ buffer-from@^1.0.0:
   resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.1.tgz#32713bc028f75c02fdb710d7c7bcec1f2c6070ef"
   integrity sha512-MQcXEUbCKtEo7bhqEs6560Hyd4XaovZlO/k9V3hjVUF/zwW7KBVdSK4gIt/bzwS9MbR5qob+F5jusZsb0YQK2A==
 
+bufferjs@*:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/bufferjs/-/bufferjs-3.0.1.tgz#0692e829cb10a10550e647390b035eb06c38e8ef"
+  integrity sha1-BpLoKcsQoQVQ5kc5CwNesGw46O8=
+
 builtin-modules@^1.0.0, builtin-modules@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/builtin-modules/-/builtin-modules-1.1.1.tgz#270f076c5a72c02f5b65a47df94c5fe3a278892f"
@@ -669,6 +674,13 @@ meow@^3.1.0:
     read-pkg-up "^1.0.1"
     redent "^1.0.0"
     trim-newlines "^1.0.0"
+
+midi-js@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/midi-js/-/midi-js-0.1.4.tgz#6def739e14a744e64e3871b088c8c48bf6008595"
+  integrity sha1-be9znhSnROZOOHGwiMjEi/YAhZU=
+  dependencies:
+    bufferjs "*"
 
 midi-writer-js@^1.7.0:
   version "1.7.0"

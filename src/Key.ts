@@ -25,10 +25,6 @@ export default class Key {
 }
 
 
-import {MidiWriter} from "midi-writer-js"
-
-MidiPlayer.Player
-
 export class Timeline {
   keys: Array<Key>
   length: number

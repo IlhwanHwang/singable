@@ -22,7 +22,7 @@ export default class Component {
   }
 
   removeChild(child: Component) {
-    this.children = this.parent.children.filter((c) => { return c !== child })
+    this.children = this.children.filter(c => c !== child)
   }
 
   addChild(child: Component) {
@@ -30,7 +30,7 @@ export default class Component {
   }
 
   destroy() {
-    this.target.parentNode.removeChild(this.target)
+    this.target.remove()
     if (this.parent !== null) {
       this.parent.removeChild(this)
     }

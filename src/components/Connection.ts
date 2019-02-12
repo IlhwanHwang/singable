@@ -9,19 +9,20 @@ import { OutEndpoint, InEndpoint } from "./Endpoint";
 export default class Connection extends Component {
   op: OutEndpoint
   ip: InEndpoint
+  lineId: string
 
   constructor(parent: Component, op: OutEndpoint, ip: InEndpoint) {
     super(parent)
     this.op = op
     this.ip = ip
+    this.lineId = `connection-line-${this.op.debugName}-${this.ip.debugName}`
   }
 
   render(): [HTMLElement, HTMLElement] {
     const [x1, y1] = centerOf(this.op.target)
     const [x2, y2] = centerOf(this.ip.target)
 
-    const lineId = `connection-line-${this.op.debugName}-${this.ip.debugName}`
-    const line = drawLine(lineId, x1, y1, x2, y2)
+    const line = drawLine(this.lineId, x1, y1, x2, y2)
     line.style.stroke = "blue"
     line.style.strokeWidth = "3"
 
@@ -34,12 +35,15 @@ export default class Connection extends Component {
       const y = Math.round(((y1 + y2) / 2))
       n.style.transform = `translate3D(${x}px, ${y}px, 0)`
       n.onclick = e => {
-        this.destroy()
-        drawClear(lineId)
         connections.remove(this.op, this.ip)
       }
     })
 
     return [newDiv, newDiv]
+  }
+
+  destroy() {
+    drawClear(this.lineId)
+    super.destroy()
   }
 }

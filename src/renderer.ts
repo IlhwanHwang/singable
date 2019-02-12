@@ -10,67 +10,13 @@ import Watchable from "./utils/Watchable"
 import Connection from "./components/Connection"
 import { OutEndpoint, InEndpoint } from "./components/Endpoint";
 import { createDivNode, createButtonNode } from "./utils/singable";
+import { Track, NoteEvent, Writer } from "midi-writer-js"
+import { flatten } from "lodash"
 
 export const editorSingable = new Watchable<Singable>(null)
 export const outConnectionFocus = new Watchable<OutEndpoint>(null)
 
 const root = new Component()
-
-
-const onFulfilled = (item: WebMidi.MIDIAccess) => {
-    this._midiPort = item;
-
-    item.onstatechange = (event: WebMidi.MIDIConnectionEvent) => {
-        console.log("onstatechange");
-        console.log(event);
-    };
-
-    console.log("sysexenabled");
-    console.log(item.sysexEnabled);
-
-    const inputs = this._midiPort.inputs.values();
-
-    for (const o of inputs) {
-        this._inputs.push(o);
-        console.log(o);
-    }
-
-    const outputs = (item.outputs as any).values();
-    for (const op of outputs) {
-        this._outputs.push(op);
-        op.send([ 0x90, 0x45, 0x7f ]);
-        op.send(new Uint8Array([ 0x90, 0x45, 0x7f ]));
-    }
-
-    for (const input of this._inputs) {
-        input.onmidimessage = (event: WebMidi.MIDIMessageEvent) => {
-            this.onMidiMessage(event.data);
-        };
-    }
-};
-
-const onRejected = (e: Error) => { console.error(e); };
-
-if (navigator.requestMIDIAccess !== undefined) {
-    navigator.requestMIDIAccess().then(onFulfilled, onRejected);
-}
-
-
-
-navigator.requestMIDIAccess()
-    .then(onMIDISuccess, onMIDIFailure);
-
-function onMIDISuccess(midiAccess: WebMidi.MIDIAccess) {
-    console.log(midiAccess);
-
-    var inputs = midiAccess.inputs;
-    var outputs = midiAccess.outputs;
-}
-
-function onMIDIFailure() {
-    console.log('Could not access your MIDI devices.');
-}
-
 
 function play() {
   const output = (() => {
@@ -88,7 +34,19 @@ function play() {
     return
   }
 
+  const track = new Track()
   const timeline = output.sing()
+  const events = flatten(timeline.keys.map(k => [
+    { type: 'note-on', midiNumber: k.tone, velocity: Math.floor(k.velocity * 127), channel: k.channel, timing: k.start },
+    { type: 'note-off', midiNumber: k.tone, velocity: Math.floor(k.velocity * 127), channel: k.channel, timing: k.start + k.length }
+  ])).sort((a, b) => a.timing - b.timing)
+
+  events.forEach(e => {
+    track.addEvent(new NoteEvent(e), {})
+  })
+
+  var write = new Writer(track);
+  console.log(write.dataUri());
 }
 
 const layoutTab = new class extends Component {
@@ -189,9 +147,22 @@ class Connections extends Watchable<Array<Connection>> {
     }
   }
 
-  remove(op: OutEndpoint, ip: InEndpoint) {
-    const removed = this.value.filter(cn => { return !(cn.op === op && cn.ip === ip) })
-    this.set(removed)
+  remove(op: OutEndpoint = null, ip: InEndpoint = null) {
+    if (op !== null && ip !== null) {
+      const removed = this.value.filter(cn => !(cn.op === op && cn.ip === ip))
+      this.value.filter(cn => (cn.op === op && cn.ip === ip)).forEach(cn => cn.destroy())
+      this.set(removed)
+    }
+    else if (ip !== null) {
+      const removed = this.value.filter(cn => !(cn.ip === ip))
+      this.value.filter(cn => cn.ip === ip).forEach(cn => cn.destroy())
+      this.set(removed)
+    }
+    else if (op !== null) {
+      const removed = this.value.filter(cn => !(cn.op === op))
+      this.value.filter(cn => cn.op === op).forEach(cn => cn.destroy())
+      this.set(removed)
+    }
   }
 }
 

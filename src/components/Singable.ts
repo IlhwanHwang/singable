@@ -3,11 +3,13 @@ import Draggable from "./Draggable"
 import {createDivNode, createButtonNode, createInputNode} from "../utils/singable"
 import { outConnectionFocus, connections, editorSingable } from "../renderer";
 import {Timeline} from "../Key"
+import { Endpoint, InEndpoint, OutEndpoint } from "./Endpoint";
 
 export default class Singable extends Draggable {
 	name: string
   nameEditing: boolean
   editor: Component
+  endpoints = Array<Endpoint>()
 
   constructor(parent: Component) {
     super(parent)
@@ -41,11 +43,11 @@ export default class Singable extends Draggable {
         createButtonNode(n => {
           n.innerText = "Delete"
           n.onclick = e => {
-            this.destroy()
             if (editorSingable.get() === this) {
               this.editor.destroy()
               editorSingable.set(null)
             }
+            this.destroy()
           }
         })
 			]
@@ -55,5 +57,18 @@ export default class Singable extends Draggable {
   
   sing(): Timeline {
     return new Timeline(0)
+  }
+
+  destroy() {
+    const obj = (this as any)
+    this.endpoints.forEach(ep => {
+      if (ep instanceof InEndpoint) {
+        connections.remove(null, ep)
+      }
+      if (ep instanceof OutEndpoint) {
+        connections.remove(ep, null)
+      }
+    })
+    super.destroy()
   }
 }
