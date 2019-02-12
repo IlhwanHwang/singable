@@ -11,7 +11,7 @@ import Connection from "./components/Connection"
 import { OutEndpoint, InEndpoint } from "./components/Endpoint";
 import { createDivNode, createButtonNode } from "./utils/singable";
 import { Track, NoteEvent, Writer } from "midi-writer-js"
-import { flatten } from "lodash"
+import { writeFile } from "fs"
 
 export const editorSingable = new Watchable<Singable>(null)
 export const outConnectionFocus = new Watchable<OutEndpoint>(null)
@@ -36,17 +36,14 @@ function play() {
 
   const track = new Track()
   const timeline = output.sing()
-  const events = flatten(timeline.keys.map(k => [
-    { type: 'note-on', midiNumber: k.tone, velocity: Math.floor(k.velocity * 127), channel: k.channel, timing: k.start },
-    { type: 'note-off', midiNumber: k.tone, velocity: Math.floor(k.velocity * 127), channel: k.channel, timing: k.start + k.length }
-  ])).sort((a, b) => a.timing - b.timing)
+  const events = timeline.keys.map(k => { return { midiNumber: k.tone, velocity: Math.floor(k.velocity * 99 + 1), channel: (k.channel + 1), duration: Math.floor(4 / k.length).toString() } })
 
   events.forEach(e => {
     track.addEvent(new NoteEvent(e), {})
   })
 
   var write = new Writer(track);
-  console.log(write.dataUri());
+  writeFile("./test.mid", write.buildFile(), err => {})
 }
 
 const layoutTab = new class extends Component {

@@ -47,7 +47,7 @@ export default class DrumRollSingable extends Singable {
           .map(([c, ind]) => new Key(
             (ind as number) / this.data.cellsPerBeat, 
             1 / this.data.cellsPerBeat,
-            row.key
+            row.key, 1.0, 9
             ))
       })) as Array<Key>
     )

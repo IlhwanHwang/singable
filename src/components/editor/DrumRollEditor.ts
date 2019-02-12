@@ -38,7 +38,7 @@ export default class DrumRollEditor extends Component {
               name: "new drumroll row",
               cells: filled(false, this.data.length * this.data.cellsPerBeat),
               cellsPerBeat: this.data.cellsPerBeat,
-              key: 0
+              key: 35
             })
             newDR.update()
             // TODO: Smarter data sync
