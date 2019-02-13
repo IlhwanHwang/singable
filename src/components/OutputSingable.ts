@@ -1,5 +1,4 @@
 import Singable from "./Singable"
-import OutputEditor from "./editor/OutputEditor"
 import Component from "./Component";
 import { InEndpoint } from "./Endpoint";
 import { Timeline } from "../Key";
@@ -19,5 +18,14 @@ export default class OutputSingable extends Singable {
 
   sing(): Timeline {
     return (this.ip.findOut().parent as Singable).sing()
+  }
+}
+
+import { createDivNode } from "../utils/singable";
+
+export class OutputEditor extends Component {
+  render(): [HTMLElement, HTMLElement] {
+    const newDiv = createDivNode()
+    return [newDiv, newDiv]
   }
 }
