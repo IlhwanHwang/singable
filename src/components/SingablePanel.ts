@@ -4,6 +4,7 @@ import Singable from "./Singable"
 import DrumRollSingable from "./DrumRollSingable";
 import TransposeSingable from "./TransposeSingable";
 import OutputSingable from "./OutputSingable"
+import PianoRollSingable from "./PianoRollSingable"
 import AtChannelSingable from "./AtChannelSingable";
 
 export default class SingablePanel extends Component {
@@ -21,6 +22,13 @@ export default class SingablePanel extends Component {
           n.innerText = "New drum roll"
           n.onclick = e => {
             const newSingable = new DrumRollSingable(this)
+            newSingable.update()
+          }
+        }),
+        createButtonNode(n => {
+          n.innerText = "New piano roll"
+          n.onclick = e => {
+            const newSingable = new PianoRollSingable(this)
             newSingable.update()
           }
         }),
