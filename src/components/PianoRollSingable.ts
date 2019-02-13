@@ -4,6 +4,7 @@ import { OutEndpoint } from "./Endpoint";
 import Key, {Timeline} from "../Key"
 import {flatten} from "lodash"
 import { createDivNode } from "../utils/singable";
+import Draggable from "./Draggable";
 
 export interface PianoRollStructure {
   keys: Array<Key>
@@ -45,6 +46,19 @@ export class PianoRollEditor extends Component {
   }
 
   render(): [HTMLElement, HTMLElement] {
+    const container = createDivNode(n => {
+      n.style.position = "relative"
+      n.style.width = "100%"
+      n.style.height = "300%"
+      n.style.border = "solid 1px red"
+      n.onmousedown = e => {
+        console.log("hello")
+        const pianoKey = new PianoRollKey(this, new Key(0, 2, 0))
+        pianoKey.x = e.x - this.container.getClientRects()[0].left
+        pianoKey.y = e.y - this.container.getClientRects()[0].top
+        pianoKey.update()
+      }
+    })
     const newDiv = createDivNode(n => {
       n.style.width = "100%"
       n.style.height = "100%"
@@ -58,9 +72,34 @@ export class PianoRollEditor extends Component {
       createDivNode(n => {
         n.style.width = "calc(100% - 40px)"
         n.style.height = "100%"
-        n.style.border = "solid 1px blue"
-      })
+        n.style.overflow = "scroll"
+      }, [
+        container
+      ])
     ])
+    return [newDiv, container]
+  }
+}
+
+class PianoRollKey extends Draggable {
+  key: Key
+  x: number
+  y: number
+
+  constructor(parent: Component, key: Key) {
+    super(parent)
+    this.key = key
+  }
+
+  render(): [HTMLElement, HTMLElement] {
+    const newDiv = createDivNode(n => {
+      n.style.position = "absolute"
+      n.style.left = `${this.x}px`
+      n.style.top = `${this.y}px`
+      n.style.width = `${this.key.length * 48}px`
+      n.style.height = "10px"
+      n.style.backgroundColor = "red"
+    })
     return [newDiv, newDiv]
   }
 }

@@ -16,7 +16,7 @@ export default class Draggable extends Component {
     super.create()
 
     const targetNode = this.target 
-    const dragNode = targetNode.querySelector("[draggable-target='true']") as HTMLElement
+    const dragNode = (targetNode.querySelector("[draggable-target='true']") as HTMLElement) || this.target
 
     if (this.__translateX !== undefined && this.__translateY !== undefined) {
       targetNode.style.transform = `translate3D(${this.__translateX}px, ${this.__translateY}px, 0)`
