@@ -40,6 +40,8 @@ export default class PianoRollSingable extends Singable {
 export class PianoRollEditor extends Component {
   data: PianoRollStructure
   mouseEnteredCount: number = 0
+  unitBeatLength = 48
+  unitPitchHeight = 10
 
   constructor(parent: Component, data: PianoRollStructure) {
     super(parent)
@@ -97,17 +99,18 @@ class PianoRollKey extends Draggable {
 
   render(): [HTMLElement, HTMLElement] {
     const newDiv = createDivNode(n => {
+      const parent = (this.parent as PianoRollEditor)
       n.style.position = "absolute"
       n.style.left = `${this.x}px`
       n.style.top = `${this.y}px`
-      n.style.width = `${this.key.length * 48}px`
-      n.style.height = "10px"
+      n.style.width = `${this.key.length * parent.unitBeatLength}px`
+      n.style.height = `${parent.unitPitchHeight}px`
       n.style.backgroundColor = "red"
       n.onmouseenter = e => {
-        (this.parent as PianoRollEditor).mouseEnteredCount += 1
+        parent.mouseEnteredCount += 1
       }
       n.onmouseleave = e => {
-        (this.parent as PianoRollEditor).mouseEnteredCount -= 1
+        parent.mouseEnteredCount -= 1
       }
     })
     return [newDiv, newDiv]
