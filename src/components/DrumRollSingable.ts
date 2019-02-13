@@ -1,7 +1,6 @@
 import Singable from "./Singable"
 import DrumRollStructure, { DrumRollRowStructure } from "./DrumRollStructure"
 import DrumRollEditor from "./editor/DrumRollEditor"
-import {editorBase, editorSingable} from "../renderer"
 import Component from "./Component";
 import { OutEndpoint } from "./Endpoint";
 import Key, {Timeline} from "../Key"
@@ -22,19 +21,8 @@ export default class DrumRollSingable extends Singable {
     this.op = new OutEndpoint(this)
   }
 
-  create() {
-    super.create()
-    const target = this.target
-    target.onmousedown = e => {
-      if (editorSingable.get() !== this) {
-        if (editorSingable.get() !== null) {
-          editorSingable.get().editor.destroy()
-        }
-        this.editor = new DrumRollEditor(editorBase, this.data)
-        this.editor.update()
-        editorSingable.set(this)
-      }
-    }
+  getEditor(parent: Component): Component {
+    return new DrumRollEditor(parent, this.data)
   }
 
   sing(): Timeline {

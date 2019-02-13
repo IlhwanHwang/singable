@@ -25,19 +25,8 @@ export default class TransposeSingable extends Singable {
     this.ip = new InEndpoint(this)
   }
 
-  create() {
-    super.create()
-    const target = this.target
-    target.onmousedown = e => {
-      if (editorSingable.get() !== this) {
-        if (editorSingable.get() !== null) {
-          editorSingable.get().editor.destroy()
-        }
-        this.editor = new TransposeEditor(editorBase, this.data)
-        this.editor.update()
-        editorSingable.set(this)
-      }
-    }
+  getEditor(parent: Component): Component {
+    return new TransposeEditor(editorBase, this.data)
   }
 
   render(): [HTMLElement, HTMLElement] {

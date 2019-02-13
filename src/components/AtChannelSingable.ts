@@ -1,6 +1,5 @@
 import Component from "./Component"
 import Singable from "./Singable"
-import {editorBase, editorSingable} from "../renderer"
 import AtChannelEditor from "./editor/AtChannelEditor";
 import {createDivNode} from "../utils/singable"
 import { InEndpoint, OutEndpoint } from "./Endpoint";
@@ -25,19 +24,8 @@ export default class AtChannelSingable extends Singable {
     this.ip = new InEndpoint(this)
   }
 
-  create() {
-    super.create()
-    const target = this.target
-    target.onmousedown = e => {
-      if (editorSingable.get() !== this) {
-        if (editorSingable.get() !== null) {
-          editorSingable.get().editor.destroy()
-        }
-        this.editor = new AtChannelEditor(editorBase, this.data)
-        this.editor.update()
-        editorSingable.set(this)
-      }
-    }
+  getEditor(parent: Component): Component {
+    return new AtChannelEditor(parent, this.data)
   }
 
   render(): [HTMLElement, HTMLElement] {

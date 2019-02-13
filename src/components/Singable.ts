@@ -1,7 +1,7 @@
 import Component from "./Component"
 import Draggable from "./Draggable"
 import {createDivNode, createButtonNode, createInputNode} from "../utils/singable"
-import { outConnectionFocus, connections, editorSingable } from "../renderer";
+import { outConnectionFocus, connections, editorSingable, editorBase } from "../renderer";
 import {Timeline} from "../Key"
 import { Endpoint, InEndpoint, OutEndpoint } from "./Endpoint";
 
@@ -19,6 +19,10 @@ export default class Singable extends Draggable {
     }
   }
 
+  getEditor(parent: Component): Component {
+    return null
+  }
+
 	render(): [HTMLElement, HTMLElement] {
 		const newDiv = createDivNode(
 			n => {
@@ -30,6 +34,16 @@ export default class Singable extends Draggable {
         n.style.left = "100px"
         n.style.top = "100px"
         n.style.pointerEvents = "auto"
+        n.onmousedown = e => {
+          if (editorSingable.get() !== this) {
+            if (editorSingable.get() !== null) {
+              editorSingable.get().editor.destroy()
+            }
+            this.editor = this.getEditor(editorBase)
+            this.editor.update()
+            editorSingable.set(this)
+          }
+        }
       },
 			[
         createDivNode(n => {
