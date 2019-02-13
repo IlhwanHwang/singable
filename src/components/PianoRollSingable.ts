@@ -39,6 +39,7 @@ export default class PianoRollSingable extends Singable {
 
 export class PianoRollEditor extends Component {
   data: PianoRollStructure
+  mouseEnteredCount: number = 0
 
   constructor(parent: Component, data: PianoRollStructure) {
     super(parent)
@@ -52,11 +53,14 @@ export class PianoRollEditor extends Component {
       n.style.height = "300%"
       n.style.border = "solid 1px red"
       n.onmousedown = e => {
+        if (this.mouseEnteredCount === 0) {
+          const pianoKey = new PianoRollKey(this, new Key(0, 2, 0))
+          pianoKey.x = e.x - this.container.getClientRects()[0].left
+          pianoKey.y = e.y - this.container.getClientRects()[0].top
+          pianoKey.update()
+          pianoKey.target.onmousedown(e)
+        }
         console.log("hello")
-        const pianoKey = new PianoRollKey(this, new Key(0, 2, 0))
-        pianoKey.x = e.x - this.container.getClientRects()[0].left
-        pianoKey.y = e.y - this.container.getClientRects()[0].top
-        pianoKey.update()
       }
     })
     const newDiv = createDivNode(n => {
@@ -99,6 +103,12 @@ class PianoRollKey extends Draggable {
       n.style.width = `${this.key.length * 48}px`
       n.style.height = "10px"
       n.style.backgroundColor = "red"
+      n.onmouseenter = e => {
+        (this.parent as PianoRollEditor).mouseEnteredCount += 1
+      }
+      n.onmouseleave = e => {
+        (this.parent as PianoRollEditor).mouseEnteredCount -= 1
+      }
     })
     return [newDiv, newDiv]
   }
