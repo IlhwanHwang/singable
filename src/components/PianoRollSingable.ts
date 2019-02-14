@@ -61,15 +61,18 @@ export class PianoRollEditor extends Component {
         const overlapped = this.children.filter(c => c instanceof PianoRollKey).filter(c => checkInside(c.target, e.pageX, e.pageY)).length > 0
         if (!overlapped) {
           const snapped = this.snap(e.x - this.container.getClientRects()[0].left, e.y - this.container.getClientRects()[0].top)
-          const pianoKey = new PianoRollKey(this, new Key(snapped.timing, this.lengthPrev, snapped.pitch))
+          const key = new Key(snapped.timing, this.lengthPrev, snapped.pitch)
+          const pianoKey = new PianoRollKey(this, key)
           pianoKey.x = snapped.x
           pianoKey.y = snapped.y
           pianoKey.update()
           pianoKey.target.onmousedown(e)
+          this.data.keys.push(key)
           // pianoKey.entered = true
         }
       }
     })
+
     const newDiv = createDivNode(n => {
       n.style.width = "100%"
       n.style.height = "100%"
@@ -88,7 +91,18 @@ export class PianoRollEditor extends Component {
         container
       ])
     ])
+
     return [newDiv, container]
+  }
+
+  create() {
+    super.create()
+    this.data.keys.forEach(k => {
+      const pianoKey = new PianoRollKey(this, k)
+      const snapped = this.unsnap(k.tone, k.start)
+      pianoKey.x = snapped.x
+      pianoKey.y = snapped.y
+    })
   }
 
   snap(x: number, y: number): {x: number, y: number, pitch: number, timing: number} {
@@ -101,6 +115,13 @@ export class PianoRollEditor extends Component {
       y: pitch * this.unitPitchHeight,
       pitch: pitch,
       timing: timing
+    }
+  }
+
+  unsnap(pitch: number, timing: number): {x: number, y: number} {
+    return {
+      x: timing * this.unitBeatLength,
+      y: pitch * this.unitPitchHeight
     }
   }
 }
@@ -129,6 +150,8 @@ class PianoRollKey extends Draggable {
       n.style.backgroundColor = "red"
       n.oncontextmenu = e => {
         e.preventDefault()
+        // TODO: smarter data sync
+        parent.data.keys = parent.data.keys.filter(k => k !== this.key)
         this.destroy()
       }
     })
@@ -145,8 +168,10 @@ class PianoRollKey extends Draggable {
     const snapped = parent.snap(this.xStart + e.deltaX, this.yStart + e.deltaY + parent.unitPitchHeight / 2)
     this.x = snapped.x
     this.y = snapped.y
-    this.key.tone = snapped.pitch
-    this.key.start = snapped.timing
+    const oldKey = this.key
+    const newKey = this.key.replace({ tone: snapped.pitch, start: snapped.timing })
+    this.key = newKey
+    parent.data.keys = parent.data.keys.map(k => k === oldKey ? newKey : k)
     this.update()
   }
 }
