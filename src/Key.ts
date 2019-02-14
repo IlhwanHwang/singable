@@ -1,3 +1,6 @@
+import { Track, Writer, Utils, NoteEvent } from "midi-writer-js"
+import { writeFile } from "fs"
+
 export const pitchMax = 127
 export const pitchMin = 0
 
@@ -41,8 +44,25 @@ export class Timeline {
     return new Timeline(this.length, [...this.keys])
   }
 
-  toMidi(fname: string) {
-
+  toFile(fname: string) {
+    const track = new Track()
+    const ticksPerBeat = Utils.getTickDuration("4")
+    const events = this.keys.map(k => { 
+      return { 
+        pitch: k.pitch, 
+        velocity: Math.floor(k.velocity * 99 + 1), 
+        channel: (k.channel + 1), 
+        duration: Math.floor(4 / k.length).toString(),
+        startTick: ticksPerBeat * k.start
+      }
+    })
+  
+    events.forEach(e => {
+      track.addEvent(new NoteEvent(e), {})
+    })
+  
+    const write = new Writer(track);
+    writeFile(fname, write.buildFile(), err => {})
   }
 }
 

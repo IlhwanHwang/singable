@@ -3,15 +3,12 @@ import Singable from "./components/Singable"
 import OutputSingable from "./components/OutputSingable"
 import Component from "./components/Component"
 import EditorBase from "./components/editor/EditorBase"
-import { forEach, centerOf } from "./utils";
+import { forEach, centerOf, playMidi } from "./utils";
 import { drawLine, drawClear } from "./utils/draw"
 import Watchable from "./utils/Watchable"
 import Connection from "./components/Connection"
 import { OutEndpoint, InEndpoint } from "./components/Endpoint";
 import { createDivNode, createButtonNode } from "./utils/singable";
-import { Track, NoteEvent, Writer, Utils } from "midi-writer-js"
-import { writeFile } from "fs"
-import { spawn } from "child_process"
 
 export const editorSingable = new Watchable<Singable>(null)
 export const outConnectionFocus = new Watchable<OutEndpoint>(null)
@@ -31,29 +28,11 @@ function play() {
   })() as Singable
 
   if (output === null) {
-    return
+    return null
   }
 
-  const track = new Track()
-  const timeline = output.sing()
-  const ticksPerBeat = Utils.getTickDuration("4")
-  const events = timeline.keys.map(k => { 
-    return { 
-      pitch: k.pitch, 
-      velocity: Math.floor(k.velocity * 99 + 1), 
-      channel: (k.channel + 1), 
-      duration: Math.floor(4 / k.length).toString(),
-      startTick: ticksPerBeat * k.start
-    }
-  })
-
-  events.forEach(e => {
-    track.addEvent(new NoteEvent(e), {})
-  })
-
-  const write = new Writer(track);
-  writeFile("./test.mid", write.buildFile(), err => {})
-  const timidity = spawn("timidity", ["test.mid"])
+  output.sing().toFile("./test.mid")
+  return playMidi("./test.mid")
 }
 
 const layoutTab = new class extends Component {

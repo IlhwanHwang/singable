@@ -5,7 +5,9 @@ import Key, {Timeline, pitchMax, pitchMin, pitchNotation} from "../Key"
 import { range } from "lodash"
 import { createDivNode, createSpanNode, createButtonNode } from "../utils/singable";
 import Draggable, {DragEvent} from "./Draggable";
-import { checkInside } from "../utils";
+import { checkInside, playMidi } from "../utils";
+import { editorSingable } from "../renderer";
+import { ChildProcess } from "child_process";
 
 export interface PianoRollStructure {
   keys: Array<Key>
@@ -46,6 +48,7 @@ export class PianoRollEditor extends Component {
   snapBeatResolution = 1/4
   snapToGrid = true
   lengthPrev = 2
+  player: ChildProcess = null
 
   constructor(parent: Component, data: PianoRollStructure) {
     super(parent)
@@ -110,6 +113,17 @@ export class PianoRollEditor extends Component {
       }, [
         createButtonNode(n => {
           n.innerText = "Play"
+          n.onclick = e => {
+            if (this.player === null) {
+              editorSingable.get().sing().toFile("./temp.mid")
+              this.player = playMidi("./temp.mid")
+            }
+            else {
+              this.player.kill()
+              this.player = null
+            }
+            n.innerText = this.player === null ? "Play" : "Stop"
+          }
         })
       ]),
       createDivNode(n => {
