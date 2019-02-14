@@ -1,5 +1,3 @@
-import { spawn } from "child_process";
-
 export function fillArray<T>(arr: Array<T>, value: T) {
   for (let i = 0; i < arr.length; i++) {
     arr[i] = value
@@ -29,13 +27,4 @@ export function centerOf(elem: Element) {
 export function checkInside(elem: Element, x: number, y: number) {
   const rect = elem.getClientRects()[0]
   return (rect.left <= x && rect.right > x && rect.top <= y && rect.bottom > y)
-}
-
-export function playMidi(fname: string) {
-  if (navigator.platform.indexOf("Mac") !== -1) {
-    return spawn("timidity", [fname])
-  }
-  else {
-    throw new Error("Not supporting windows yet")
-  }
 }

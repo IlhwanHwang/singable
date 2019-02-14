@@ -2,12 +2,14 @@ import Singable from "./Singable"
 import Component from "./Component";
 import { OutEndpoint } from "./Endpoint";
 import Key, {Timeline, pitchMax, pitchMin, pitchNotation} from "../Key"
-import { range } from "lodash"
-import { createDivNode, createSpanNode, createButtonNode } from "../utils/singable";
+import { range, toPairs } from "lodash"
+import { createDivNode, createSpanNode, createButtonNode, createSelectNode, createOptionNode } from "../utils/singable";
 import Draggable, {DragEvent} from "./Draggable";
-import { checkInside, playMidi } from "../utils";
+import { checkInside } from "../utils";
 import { editorSingable } from "../renderer";
 import { ChildProcess } from "child_process";
+import { instruments } from "../keys";
+import Player from "../utils/Player"
 
 export interface PianoRollStructure {
   keys: Array<Key>
@@ -17,6 +19,8 @@ export interface PianoRollStructure {
 export default class PianoRollSingable extends Singable {
   data: PianoRollStructure
   op: OutEndpoint
+  instrumentKey: number
+  instrumentName: string
 
   constructor(parent: Component) {
     super(parent)
@@ -32,10 +36,26 @@ export default class PianoRollSingable extends Singable {
     return new PianoRollEditor(parent, this.data)
   }
 
+  render(): [HTMLElement, HTMLElement] {
+    const [newDiv, container] = super.render()
+    newDiv.appendChild(
+      createDivNode(n => {
+        n.innerText = this.instrumentName
+      })
+    )
+    return [newDiv, container]
+  }
+
+  setInstrumentKey(key: number) {
+    this.instrumentKey = key
+    this.instrumentName = instruments[key]
+  }
+
   sing(): Timeline {
     return new Timeline(
       this.data.length,
-      [...this.data.keys]
+      [...this.data.keys],
+      this.instrumentKey
     )
   }
 }
@@ -48,7 +68,8 @@ export class PianoRollEditor extends Component {
   snapBeatResolution = 1/4
   snapToGrid = true
   lengthPrev = 2
-  player: ChildProcess = null
+  player: Player = null
+  instrumentKey = 1
 
   constructor(parent: Component, data: PianoRollStructure) {
     super(parent)
@@ -116,15 +137,34 @@ export class PianoRollEditor extends Component {
           n.onclick = e => {
             if (this.player === null) {
               editorSingable.get().sing().toFile("./temp.mid")
-              this.player = playMidi("./temp.mid")
+              this.player = new Player()
+              this.player.play("./test.mid")
             }
             else {
-              this.player.kill()
+              this.player.stop()
               this.player = null
             }
             n.innerText = this.player === null ? "Play" : "Stop"
           }
-        })
+        }),
+        createSelectNode(n => {
+          n.value = this.instrumentKey.toString()
+          n.onchange = e => {
+            this.instrumentKey = parseInt((e.target as HTMLOptionElement).value)
+            const singable = (editorSingable.get() as PianoRollSingable)
+            singable.setInstrumentKey(this.instrumentKey)
+            singable.update()
+          }
+        }, [
+          ...toPairs(instruments)
+            .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
+            .map(([key, name]) => {
+              return createOptionNode(n => {
+                n.innerText = name.toString()
+                n.value = key.toString()
+            })
+          })
+        ])
       ]),
       createDivNode(n => {
         n.style.width = "100%"

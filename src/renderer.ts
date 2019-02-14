@@ -3,7 +3,8 @@ import Singable from "./components/Singable"
 import OutputSingable from "./components/OutputSingable"
 import Component from "./components/Component"
 import EditorBase from "./components/editor/EditorBase"
-import { forEach, centerOf, playMidi } from "./utils";
+import { forEach, centerOf } from "./utils";
+import Player from "./utils/Player"
 import { drawLine, drawClear } from "./utils/draw"
 import Watchable from "./utils/Watchable"
 import Connection from "./components/Connection"
@@ -32,7 +33,9 @@ function play() {
   }
 
   output.sing().toFile("./test.mid")
-  return playMidi("./test.mid")
+  const player = new Player()
+  player.play("./test.mid")
+  return player
 }
 
 const layoutTab = new class extends Component {

@@ -682,6 +682,11 @@ midi-js@^0.1.4:
   dependencies:
     bufferjs "*"
 
+midi-player-js@^2.0.5:
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/midi-player-js/-/midi-player-js-2.0.5.tgz#9e30738ffefd81febeb14b0437b0aec4b0231a1e"
+  integrity sha512-1HrjWzlb6h9Jf0y62WXlBwZE4sq52h7DRNk5yRr0yhUShCnvyavCAogEqzbxuFGweEPaXrBz1G4uEIs/O71Xkg==
+
 midi-writer-js@^1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/midi-writer-js/-/midi-writer-js-1.7.0.tgz#1ddb2727e52f20fcad6ea8233d89dd7dee8cfc1b"

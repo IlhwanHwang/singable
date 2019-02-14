@@ -2,7 +2,7 @@ import Component from "./Component"
 import Singable from "./Singable"
 import {createDivNode} from "../utils/singable"
 import { InEndpoint, OutEndpoint } from "./Endpoint";
-import { Timeline } from "../Key";
+import NoteKey, { Timeline } from "../Key";
 
 export interface AtChannelStructure {
   channel: number
@@ -39,7 +39,11 @@ export default class AtChannelSingable extends Singable {
 
   sing(): Timeline {
     const { length, keys } = (this.ip.findOut().parent as Singable).sing()
-    return new Timeline(length, keys.map(key => key.replace({channel: this.data.channel})))
+    return new Timeline(length, keys.map(key => {
+      return key instanceof NoteKey
+        ? key.replace({channel: this.data.channel})
+        : key
+    }))
   }
 }
 
