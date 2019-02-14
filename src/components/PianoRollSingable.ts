@@ -1,7 +1,7 @@
 import Singable from "./Singable"
 import Component from "./Component";
 import { OutEndpoint } from "./Endpoint";
-import Key, {Timeline, pitchMax, pitchMin, pitchNotation} from "../Key"
+import Key, {Timeline, pitchMax, pitchMin, pitchNotation, ProgramChangeKey} from "../Key"
 import { range, toPairs } from "lodash"
 import { createDivNode, createSpanNode, createButtonNode, createSelectNode, createOptionNode } from "../utils/singable";
 import Draggable, {DragEvent} from "./Draggable";
@@ -14,19 +14,22 @@ import Player from "../utils/Player"
 export interface PianoRollStructure {
   keys: Array<Key>
   length: number
+  instrumentKey: number
+  channel: number
 }
 
 export default class PianoRollSingable extends Singable {
   data: PianoRollStructure
   op: OutEndpoint
-  instrumentKey: number
   instrumentName: string
 
   constructor(parent: Component) {
     super(parent)
     this.data = {
+      keys: Array<Key>(),
       length: 16,
-      keys: Array<Key>()
+      instrumentKey: 1,
+      channel: 0
     }
     this.name = "new piano roll object"
     this.op = new OutEndpoint(this)
@@ -46,16 +49,13 @@ export default class PianoRollSingable extends Singable {
     return [newDiv, container]
   }
 
-  setInstrumentKey(key: number) {
-    this.instrumentKey = key
-    this.instrumentName = instruments[key]
-  }
-
   sing(): Timeline {
     return new Timeline(
       this.data.length,
-      [...this.data.keys],
-      this.instrumentKey
+      [
+        new ProgramChangeKey(this.data.instrumentKey, this.data.channel),
+        ...this.data.keys
+      ]
     )
   }
 }
@@ -69,7 +69,6 @@ export class PianoRollEditor extends Component {
   snapToGrid = true
   lengthPrev = 2
   player: Player = null
-  instrumentKey = 1
 
   constructor(parent: Component, data: PianoRollStructure) {
     super(parent)
@@ -148,11 +147,11 @@ export class PianoRollEditor extends Component {
           }
         }),
         createSelectNode(n => {
-          n.value = this.instrumentKey.toString()
+          n.value = this.data.instrumentKey.toString()
           n.onchange = e => {
-            this.instrumentKey = parseInt((e.target as HTMLOptionElement).value)
+            this.data.instrumentKey = parseInt((e.target as HTMLOptionElement).value)
             const singable = (editorSingable.get() as PianoRollSingable)
-            singable.setInstrumentKey(this.instrumentKey)
+            singable.instrumentName = instruments[this.data.instrumentKey]
             singable.update()
           }
         }, [

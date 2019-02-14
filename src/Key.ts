@@ -8,8 +8,13 @@ export const pitchMin = 0
 interface BaseKey {}
 
 export class ProgramChangeKey implements BaseKey {
-  instrument: 0
-  channel: 0
+  instrument: number
+  channel: number
+
+  constructor(instrument: number, channel: number) {
+    this.instrument = instrument
+    this.channel = channel
+  }
 }
 
 export default class Key implements BaseKey {
@@ -42,12 +47,10 @@ export default class Key implements BaseKey {
 export class Timeline {
   keys: Array<BaseKey>
   length: number
-  instrument: number
 
-  constructor(length: number, keys: Array<BaseKey> = new Array<BaseKey>(), instrument: number = 1) {
+  constructor(length: number, keys: Array<BaseKey> = new Array<BaseKey>()) {
     this.length = length
     this.keys = keys
-    this.instrument = instrument
   }
 
   clone() {
