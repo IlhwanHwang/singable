@@ -45,3 +45,11 @@ export class Timeline {
 
   }
 }
+
+
+
+export function pitchNotation(pitch: number) {
+  const octave = Math.floor(pitch / 12) - 1
+  const tone = [ "C", "C#", "D", "D#", "E", "E#", "F", "F#", "G", "G#", "A", "A#", "B"][pitch % 12]
+  return `${tone}${octave}`
+}

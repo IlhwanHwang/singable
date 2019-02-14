@@ -1,9 +1,9 @@
 import Singable from "./Singable"
 import Component from "./Component";
 import { OutEndpoint } from "./Endpoint";
-import Key, {Timeline, pitchMax, pitchMin} from "../Key"
-import {flatten} from "lodash"
-import { createDivNode } from "../utils/singable";
+import Key, {Timeline, pitchMax, pitchMin, pitchNotation} from "../Key"
+import { range } from "lodash"
+import { createDivNode, createSpanNode } from "../utils/singable";
 import Draggable, {DragEvent} from "./Draggable";
 import { checkInside } from "../utils";
 
@@ -42,6 +42,7 @@ export class PianoRollEditor extends Component {
   data: PianoRollStructure
   unitBeatLength = 48
   unitPitchHeight = 10
+  beatsPerBar = 4
   snapBeatResolution = 1/4
   snapToGrid = true
   lengthPrev = 2
@@ -54,7 +55,7 @@ export class PianoRollEditor extends Component {
   render(): [HTMLElement, HTMLElement] {
     const container = createDivNode(n => {
       n.style.position = "relative"
-      n.style.width = "100%"
+      n.style.width = `${this.unitBeatLength * this.data.length}px`
       n.style.height = `${this.unitPitchHeight * (pitchMax - pitchMin + 1)}px`
       n.style.border = "solid 1px red"
       n.onmousedown = e => {
@@ -68,10 +69,36 @@ export class PianoRollEditor extends Component {
           pianoKey.update()
           pianoKey.target.onmousedown(e)
           this.data.keys.push(key)
-          // pianoKey.entered = true
         }
       }
-    })
+    }, [
+      ...range(pitchMin, pitchMax + 1).map(p => {
+        return createDivNode(n => {
+          n.style.position = "absolute"
+          n.style.width = "100%"
+          n.style.height = `${this.unitPitchHeight}px`
+          n.style.left = "0px"
+          n.style.top = `${(pitchMax - p) * this.unitPitchHeight}px`
+          const isBlack = (p % 12) == 1 || (p % 12) == 3 || (p % 12) == 6 || (p % 12) == 8 || (p % 12) == 10
+          n.style.backgroundColor = isBlack
+            ? "lightgray"
+            : "white"
+        })
+      }),
+      ...range(0, this.data.length).map(b => {
+        return createDivNode(n => {
+          n.style.position = "absolute"
+          n.style.width = `${this.unitBeatLength}px`
+          n.style.height = "100%"
+          n.style.left = `${b * this.unitBeatLength}px`
+          n.style.top = "0px"
+          const isBar = ((b + 1) % this.beatsPerBar) == 0
+          n.style.borderRight = isBar
+            ? "solid 1px gray"
+            : "solid 1px lightgray"
+        })
+      })
+    ])
 
     const newDiv = createDivNode(n => {
       n.style.width = "100%"
@@ -79,14 +106,35 @@ export class PianoRollEditor extends Component {
       n.style.display = "flex"
     }, [
       createDivNode(n => {
+        n.style.position = "relative"
         n.style.width = "40px"
         n.style.height = "100%"
         n.style.border = "solid 1px blue"
-      }),
+        n.style.overflow = "hidden"
+        n.classList.add("pianoroll-pitch-notation")
+      }, [
+        ...range(pitchMin, pitchMax + 1).map(p => {
+          return createSpanNode(n => {
+            n.style.position = "absolute"
+            n.style.width = "100%"
+            n.style.height = `${this.unitPitchHeight}px`
+            n.style.left = "0px"
+            n.style.top = `${(pitchMax - p) * this.unitPitchHeight}px`
+            n.style.fontSize = "8px"
+            n.style.textAlign = "right"
+            n.innerText = pitchNotation(p)
+          })
+        })
+      ]),
       createDivNode(n => {
         n.style.width = "calc(100% - 40px)"
         n.style.height = "100%"
         n.style.overflow = "scroll"
+        n.onscroll = e => {
+          const pitchNotation = this.target.querySelector(".pianoroll-pitch-notation")
+          pitchNotation.scroll(0, n.scrollTop)
+          console.log(n.scrollTop)
+        }
       }, [
         container
       ])
@@ -148,6 +196,7 @@ class PianoRollKey extends Draggable {
       n.style.width = `${this.key.length * parent.unitBeatLength}px`
       n.style.height = `${parent.unitPitchHeight}px`
       n.style.backgroundColor = "red"
+      n.style.resize = "horizontal"
       n.oncontextmenu = e => {
         e.preventDefault()
         // TODO: smarter data sync

@@ -3,7 +3,6 @@ import Singable from "./components/Singable"
 import OutputSingable from "./components/OutputSingable"
 import Component from "./components/Component"
 import EditorBase from "./components/editor/EditorBase"
-import CommonEditor from "./components/editor/CommonEditor"
 import { forEach, centerOf } from "./utils";
 import { drawLine, drawClear } from "./utils/draw"
 import Watchable from "./utils/Watchable"
@@ -104,7 +103,7 @@ const layoutEditor = new class extends Component {
 
 export const singablePanel = new SingablePanel(layoutSingablePanel)
 export const editorBase = new EditorBase(layoutEditor)
-const commonEditor = new CommonEditor(editorBase)
+// const commonEditor = new CommonEditor(editorBase)
 
 const outConnectionFocusActions = {
   clickSet: false,
@@ -181,5 +180,5 @@ connections.watch(() => {
 })
 
 root.update()
-editorSingable.watch(commonEditor)
+editorSingable.watch(editorBase)
 eval("window.rootComp = root")
