@@ -3,7 +3,7 @@ import Component from "./Component";
 import { OutEndpoint } from "./Endpoint";
 import Key, {Timeline, pitchMax, pitchMin, pitchNotation} from "../Key"
 import { range } from "lodash"
-import { createDivNode, createSpanNode } from "../utils/singable";
+import { createDivNode, createSpanNode, createButtonNode } from "../utils/singable";
 import Draggable, {DragEvent} from "./Draggable";
 import { checkInside } from "../utils";
 
@@ -103,40 +103,55 @@ export class PianoRollEditor extends Component {
     const newDiv = createDivNode(n => {
       n.style.width = "100%"
       n.style.height = "100%"
-      n.style.display = "flex"
     }, [
       createDivNode(n => {
-        n.style.position = "relative"
-        n.style.width = "40px"
-        n.style.height = "100%"
-        n.style.border = "solid 1px blue"
-        n.style.overflow = "hidden"
-        n.classList.add("pianoroll-pitch-notation")
+        n.style.width = "100%"
+        n.style.height = "24px"
       }, [
-        ...range(pitchMin, pitchMax + 1).map(p => {
-          return createSpanNode(n => {
-            n.style.position = "absolute"
-            n.style.width = "100%"
-            n.style.height = `${this.unitPitchHeight}px`
-            n.style.left = "0px"
-            n.style.top = `${(pitchMax - p) * this.unitPitchHeight}px`
-            n.style.fontSize = "8px"
-            n.style.textAlign = "right"
-            n.innerText = pitchNotation(p)
-          })
+        createButtonNode(n => {
+          n.innerText = "Play"
         })
       ]),
       createDivNode(n => {
-        n.style.width = "calc(100% - 40px)"
-        n.style.height = "100%"
-        n.style.overflow = "scroll"
-        n.onscroll = e => {
-          const pitchNotation = this.target.querySelector(".pianoroll-pitch-notation")
-          pitchNotation.scroll(0, n.scrollTop)
-          console.log(n.scrollTop)
-        }
+        n.style.width = "100%"
+        n.style.height = "calc(100% - 24px)"
+        n.style.display = "flex"
       }, [
-        container
+        createDivNode(n => {
+          n.style.position = "relative"
+          n.style.width = "40px"
+          n.style.height = "100%"
+          n.style.border = "solid 1px blue"
+          n.style.overflow = "hidden"
+          n.classList.add("pianoroll-pitch-notation")
+        }, [
+          ...range(pitchMin, pitchMax + 1).map(p => {
+            return createSpanNode(n => {
+              n.style.position = "absolute"
+              n.style.width = "100%"
+              n.style.height = `${this.unitPitchHeight}px`
+              n.style.left = "0px"
+              n.style.top = `${(pitchMax - p) * this.unitPitchHeight}px`
+              n.style.fontSize = "8px"
+              n.style.textAlign = "right"
+              n.innerText = pitchNotation(p)
+            })
+          })
+        ]),
+        createDivNode(n => {
+          n.style.width = "calc(100% - 40px)"
+          n.style.height = "100%"
+          n.style.overflow = "scroll"
+          n.onscroll = e => {
+            const pitchNotation = this.target.querySelector(".pianoroll-pitch-notation")
+            pitchNotation.scroll(0, n.scrollTop)
+          }
+          n.onload = e => {
+            n.scroll(0, 480)
+          }
+        }, [
+          container
+        ])
       ])
     ])
 
