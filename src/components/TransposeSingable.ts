@@ -40,7 +40,7 @@ export default class TransposeSingable extends Singable {
 
   sing(): Timeline {
     const { length, keys } = (this.ip.findOut().parent as Singable).sing()
-    return new Timeline(length, keys.map(key => key.replace({tone: key.tone + this.data.semitones})))
+    return new Timeline(length, keys.map(key => key.replace({pitch: key.pitch + this.data.semitones})))
   }
 }
 

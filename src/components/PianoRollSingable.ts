@@ -1,7 +1,7 @@
 import Singable from "./Singable"
 import Component from "./Component";
 import { OutEndpoint } from "./Endpoint";
-import Key, {Timeline} from "../Key"
+import Key, {Timeline, pitchMax, pitchMin} from "../Key"
 import {flatten} from "lodash"
 import { createDivNode } from "../utils/singable";
 import Draggable, {DragEvent} from "./Draggable";
@@ -55,7 +55,7 @@ export class PianoRollEditor extends Component {
     const container = createDivNode(n => {
       n.style.position = "relative"
       n.style.width = "100%"
-      n.style.height = "300%"
+      n.style.height = `${this.unitPitchHeight * (pitchMax - pitchMin + 1)}px`
       n.style.border = "solid 1px red"
       n.onmousedown = e => {
         const overlapped = this.children.filter(c => c instanceof PianoRollKey).filter(c => checkInside(c.target, e.pageX, e.pageY)).length > 0
@@ -99,7 +99,7 @@ export class PianoRollEditor extends Component {
     super.create()
     this.data.keys.forEach(k => {
       const pianoKey = new PianoRollKey(this, k)
-      const snapped = this.unsnap(k.tone, k.start)
+      const snapped = this.unsnap(k.pitch, k.start)
       pianoKey.x = snapped.x
       pianoKey.y = snapped.y
     })
@@ -109,10 +109,10 @@ export class PianoRollEditor extends Component {
     const timing = this.snapToGrid
       ? Math.floor(x / this.unitBeatLength / this.snapBeatResolution) * this.snapBeatResolution
       : x / this.unitBeatLength
-    const pitch = Math.floor(y / this.unitPitchHeight)
+    const pitch = pitchMax - Math.floor(y / this.unitPitchHeight)
     return {
       x: timing * this.unitBeatLength,
-      y: pitch * this.unitPitchHeight,
+      y: (pitchMax - pitch) * this.unitPitchHeight,
       pitch: pitch,
       timing: timing
     }
@@ -121,7 +121,7 @@ export class PianoRollEditor extends Component {
   unsnap(pitch: number, timing: number): {x: number, y: number} {
     return {
       x: timing * this.unitBeatLength,
-      y: pitch * this.unitPitchHeight
+      y: (pitchMax - pitch) * this.unitPitchHeight
     }
   }
 }
@@ -169,7 +169,7 @@ class PianoRollKey extends Draggable {
     this.x = snapped.x
     this.y = snapped.y
     const oldKey = this.key
-    const newKey = this.key.replace({ tone: snapped.pitch, start: snapped.timing })
+    const newKey = this.key.replace({ pitch: snapped.pitch, start: snapped.timing })
     this.key = newKey
     parent.data.keys = parent.data.keys.map(k => k === oldKey ? newKey : k)
     this.update()

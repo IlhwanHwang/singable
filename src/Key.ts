@@ -1,14 +1,17 @@
+export const pitchMax = 127
+export const pitchMin = 0
+
 export default class Key {
   start: number
   length: number
-  tone: number
+  pitch: number
   velocity: number
   channel: number
 
   constructor(start: number, length: number, tone: number, velocity: number = 1, channel: number = 0) {
     this.start = start
     this.length = length
-    this.tone = tone
+    this.pitch = tone
     this.velocity = velocity
     this.channel = channel
   }
@@ -17,7 +20,7 @@ export default class Key {
     return new Key(
       part.start || this.start, 
       part.length || this.length, 
-      part.tone || this.tone, 
+      part.pitch || this.pitch, 
       part.velocity || this.velocity, 
       part.channel || this.channel
     )

@@ -40,7 +40,7 @@ function play() {
   const ticksPerBeat = Utils.getTickDuration("4")
   const events = timeline.keys.map(k => { 
     return { 
-      pitch: k.tone, 
+      pitch: k.pitch, 
       velocity: Math.floor(k.velocity * 99 + 1), 
       channel: (k.channel + 1), 
       duration: Math.floor(4 / k.length).toString(),
