@@ -4,7 +4,8 @@ import { OutEndpoint } from "./Endpoint";
 import Key, {Timeline} from "../Key"
 import {flatten} from "lodash"
 import { createDivNode } from "../utils/singable";
-import Draggable from "./Draggable";
+import Draggable, {DragEvent} from "./Draggable";
+import { checkInside } from "../utils";
 
 export interface PianoRollStructure {
   keys: Array<Key>
@@ -39,9 +40,11 @@ export default class PianoRollSingable extends Singable {
 
 export class PianoRollEditor extends Component {
   data: PianoRollStructure
-  mouseEnteredCount: number = 0
   unitBeatLength = 48
   unitPitchHeight = 10
+  snapBeatResolution = 1/4
+  snapToGrid = true
+  lengthPrev = 2
 
   constructor(parent: Component, data: PianoRollStructure) {
     super(parent)
@@ -55,14 +58,16 @@ export class PianoRollEditor extends Component {
       n.style.height = "300%"
       n.style.border = "solid 1px red"
       n.onmousedown = e => {
-        if (this.mouseEnteredCount === 0) {
-          const pianoKey = new PianoRollKey(this, new Key(0, 2, 0))
-          pianoKey.x = e.x - this.container.getClientRects()[0].left
-          pianoKey.y = e.y - this.container.getClientRects()[0].top
+        const overlapped = this.children.filter(c => c instanceof PianoRollKey).filter(c => checkInside(c.target, e.pageX, e.pageY)).length > 0
+        if (!overlapped) {
+          const snapped = this.snap(e.x - this.container.getClientRects()[0].left, e.y - this.container.getClientRects()[0].top)
+          const pianoKey = new PianoRollKey(this, new Key(snapped.timing, this.lengthPrev, snapped.pitch))
+          pianoKey.x = snapped.x
+          pianoKey.y = snapped.y
           pianoKey.update()
           pianoKey.target.onmousedown(e)
+          // pianoKey.entered = true
         }
-        console.log("hello")
       }
     })
     const newDiv = createDivNode(n => {
@@ -85,16 +90,32 @@ export class PianoRollEditor extends Component {
     ])
     return [newDiv, container]
   }
+
+  snap(x: number, y: number): {x: number, y: number, pitch: number, timing: number} {
+    const timing = this.snapToGrid
+      ? Math.floor(x / this.unitBeatLength / this.snapBeatResolution) * this.snapBeatResolution
+      : x / this.unitBeatLength
+    const pitch = Math.floor(y / this.unitPitchHeight)
+    return {
+      x: timing * this.unitBeatLength,
+      y: pitch * this.unitPitchHeight,
+      pitch: pitch,
+      timing: timing
+    }
+  }
 }
 
 class PianoRollKey extends Draggable {
   key: Key
   x: number
   y: number
+  xStart: number
+  yStart: number
 
   constructor(parent: Component, key: Key) {
     super(parent)
     this.key = key
+    this.allowTransform = false
   }
 
   render(): [HTMLElement, HTMLElement] {
@@ -106,13 +127,26 @@ class PianoRollKey extends Draggable {
       n.style.width = `${this.key.length * parent.unitBeatLength}px`
       n.style.height = `${parent.unitPitchHeight}px`
       n.style.backgroundColor = "red"
-      n.onmouseenter = e => {
-        parent.mouseEnteredCount += 1
-      }
-      n.onmouseleave = e => {
-        parent.mouseEnteredCount -= 1
+      n.oncontextmenu = e => {
+        e.preventDefault()
+        this.destroy()
       }
     })
     return [newDiv, newDiv]
+  }
+
+  onDragStart(e: DragEvent) {
+    this.xStart = this.x
+    this.yStart = this.y
+  }
+
+  onDragging(e: DragEvent) {
+    const parent = (this.parent as PianoRollEditor)
+    const snapped = parent.snap(this.xStart + e.deltaX, this.yStart + e.deltaY + parent.unitPitchHeight / 2)
+    this.x = snapped.x
+    this.y = snapped.y
+    this.key.tone = snapped.pitch
+    this.key.start = snapped.timing
+    this.update()
   }
 }
