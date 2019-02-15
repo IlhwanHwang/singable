@@ -16,9 +16,10 @@ export default class Player {
     }
   }
 
-  play(fname: string) {
+  play(fname: string, onclose?: (code: number) => void) {
     if (this.OS === "mac") {
       this.macPlayer = spawn("timidity", [fname])
+      this.macPlayer.on('close', onclose);
     }
     else if (this.OS === "windows") {
       const player = new MidiPlayer()

@@ -133,18 +133,20 @@ export class PianoRollEditor extends Component {
       }, [
         createButtonNode(n => {
           n.innerText = "Play"
-          n.onclick = e => {
-            if (this.player === null) {
-              editorSingable.get().sing().toFile("./temp.mid")
-              this.player = new Player()
-              this.player.play("./test.mid")
-            }
-            else {
+          const stop = () => {
+            if (this.player) {
               this.player.stop()
               this.player = null
+              n.innerText = "Play"
             }
-            n.innerText = this.player === null ? "Play" : "Stop"
           }
+          const play = () => {
+            editorSingable.get().sing().toFile("./temp.mid")
+            this.player = new Player()
+            this.player.play("./temp.mid", _ => stop())
+            n.innerText = "Stop"
+          }
+          n.onclick = e => this.player === null ? play() : stop()
         }),
         createSelectNode(n => {
           n.value = this.data.instrumentKey.toString()

@@ -65,14 +65,14 @@ export class Timeline {
         return new NoteEvent({ 
           pitch: k.pitch, 
           velocity: Math.floor(k.velocity * 99 + 1), 
-          channel: (k.channel + 1), 
+          channel: k.channel + 1, 
           duration: Math.floor(4 / k.length).toString(),
           startTick: ticksPerBeat * k.start
         })
       }
       else if (k instanceof ProgramChangeKey) {
-        const programChangeKey = ProgramChangeEvent({
-          instrument: k.instrument
+        const programChangeKey = new ProgramChangeEvent({
+          instrument: k.instrument - 1
         }) as any as {type: string, data: Uint8Array}
         programChangeKey.data[1] = 0xC0 + k.channel
         return programChangeKey
@@ -92,6 +92,6 @@ export class Timeline {
 
 export function pitchNotation(pitch: number) {
   const octave = Math.floor(pitch / 12) - 1
-  const tone = [ "C", "C#", "D", "D#", "E", "E#", "F", "F#", "G", "G#", "A", "A#", "B"][pitch % 12]
+  const tone = [ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"][pitch % 12]
   return `${tone}${octave}`
 }
