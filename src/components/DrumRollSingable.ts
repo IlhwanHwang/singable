@@ -30,13 +30,14 @@ export default class DrumRollSingable extends Singable {
       this.data.length,
       flatten<Key>(this.data.rows.map(row => {
         return row.cells
-          .map((c, ind) => [c, ind])
-          .filter(([c, ind]) => c)
-          .map(([c, ind]) => new Key(
-            (ind as number) / this.data.cellsPerBeat, 
-            1 / this.data.cellsPerBeat,
-            row.key, 1.0, 9
-            ))
+          .map((c, ind) => c
+            ? new Key(
+                (ind as number) / this.data.cellsPerBeat, 
+                1 / this.data.cellsPerBeat,
+                row.key, 1.0, 10
+              )
+            : null)
+          .filter(k => k !== null)
       })) as Array<Key>
     )
   }

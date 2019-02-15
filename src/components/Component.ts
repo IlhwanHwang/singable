@@ -31,6 +31,7 @@ export default class Component {
 
   destroy() {
     this.target.remove()
+    this.target = null
     if (this.parent !== null) {
       this.parent.removeChild(this)
     }

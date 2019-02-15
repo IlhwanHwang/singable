@@ -70,7 +70,7 @@ export default class Draggable extends Component {
         this.__mousePrevX = me.x
         this.__mousePrevY = me.y
 
-        if (this.onDragging) {
+        if (this.onDragging && this.target) {
           this.onDragging({
             deltaX: this.__deltaX, 
             deltaY: this.__deltaY, 
@@ -85,16 +85,13 @@ export default class Draggable extends Component {
         window.removeEventListener("mouseup", dragStop)
         this.dragging = false
         
-        try {
+        if (this.target) {
           this.onDragStop({
             deltaX: this.__deltaX, 
             deltaY: this.__deltaY, 
             x: me.x + this.target.getClientRects()[0].left, 
             y: me.y + this.target.getClientRects()[0].right
           })
-        }
-        catch (e) {
-
         }
       }
 

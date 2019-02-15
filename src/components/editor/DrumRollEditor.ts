@@ -2,11 +2,13 @@ import Component from "../Component"
 import {createDivNode, createButtonNode} from "../../utils/singable"
 import DrumRollStructure from "../DrumRollStructure"
 import DrumRollRowEditor from "./DrumRollRowEditor";
-import { fillArray, filled } from "../../utils";
-
+import { filled } from "../../utils";
+import Player from "../../utils/Player";
+import { editorSingable } from "../../renderer"
 
 export default class DrumRollEditor extends Component {
   data: DrumRollStructure
+  player: Player = null
 
   constructor(parent: Component, data: DrumRollStructure) {
     super(parent)
@@ -31,6 +33,23 @@ export default class DrumRollEditor extends Component {
         n.style.boxSizing = "border-box"
       },
       [
+        createButtonNode(n => {
+          n.innerText = "Play"
+          const stop = () => {
+            if (this.player) {
+              this.player.stop()
+              this.player = null
+              n.innerText = "Play"
+            }
+          }
+          const play = () => {
+            editorSingable.get().sing().toFile("./temp.mid")
+            this.player = new Player()
+            this.player.play("./temp.mid", _ => stop())
+            n.innerText = "Stop"
+          }
+          n.onclick = e => this.player === null ? play() : stop()
+        }),
         createButtonNode(n => {
           n.innerText = "Add new drumroll row"
           n.onclick = e => {

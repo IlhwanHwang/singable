@@ -24,10 +24,10 @@ export default class DrumRollRowEditor extends Component {
         },
           toPairs(drumKeys)
             .sort()
-            .map(([name, key]) => {
+            .map(([key, name]) => {
               return createOptionNode(n => {
                 n.innerText = name
-                n.value = key.toString()
+                n.value = key
               })
             })
           )
