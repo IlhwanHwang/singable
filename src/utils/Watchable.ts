@@ -1,7 +1,9 @@
 import Component from "../components/Component"
 
+type Watcher = Component | (() => void)
+
 export default class Watchable<T> {
-  watchers = Array<Component | (() => void)>()
+  watchers = Array<Watcher>()
   value: T
 
   constructor(initial: T) {
@@ -28,7 +30,11 @@ export default class Watchable<T> {
     return this.value
   }
 
-  watch(c: Component | (() => void)) {
+  watch(c: Watcher) {
     this.watchers.push(c)
+  }
+
+  unwatch(c: Watcher) {
+    this.watchers = this.watchers.filter(d => c !== d)
   }
 }

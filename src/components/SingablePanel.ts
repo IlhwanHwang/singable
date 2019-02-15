@@ -6,6 +6,7 @@ import TransposeSingable from "./TransposeSingable";
 import OutputSingable from "./OutputSingable"
 import PianoRollSingable from "./PianoRollSingable"
 import AtChannelSingable from "./AtChannelSingable";
+import ParallelSingable from "./ParallelSingable";
 
 export default class SingablePanel extends Component {
 
@@ -50,6 +51,13 @@ export default class SingablePanel extends Component {
           n.innerText = "New output"
           n.onclick = e => {
             const newSingable = new OutputSingable(this)
+            newSingable.update()
+          }
+        }),
+        createButtonNode(n => {
+          n.innerText = "New parallel"
+          n.onclick = e => {
+            const newSingable = new ParallelSingable(this)
             newSingable.update()
           }
         })

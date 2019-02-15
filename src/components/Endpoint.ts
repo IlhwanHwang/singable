@@ -15,6 +15,12 @@ export class Endpoint extends Component {
     this.position = position
   }
 
+  destroy() {
+    super.destroy()
+    const s = this.parent as Singable
+    s.endpoints = s.endpoints.filter(e => e !== this)
+  }
+
   render(): [HTMLElement, HTMLElement] {
     const newButton = createButtonNode(n => {
       n.style.color = this.color
@@ -64,11 +70,15 @@ export class InEndpoint extends Endpoint {
   }
 
   findOut(): OutEndpoint {
-    try {
-      return connections.get().filter(({ ip }) => ip === this)[0].op
+    const matched = connections.get().filter(({ ip }) => ip === this)
+    if (matched.length == 1) {
+      return matched[0].op
     }
-    catch (e) {
+    else if (matched.length == 0) {
       return null
+    }
+    else {
+      throw Error("Two or more output detected")
     }
   }
 }

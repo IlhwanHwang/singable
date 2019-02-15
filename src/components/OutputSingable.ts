@@ -2,6 +2,7 @@ import Singable from "./Singable"
 import Component from "./Component";
 import { InEndpoint } from "./Endpoint";
 import { Timeline } from "../Key";
+import { NullEditor } from "./NullEditor";
 
 export default class OutputSingable extends Singable {
   ip: InEndpoint
@@ -13,19 +14,10 @@ export default class OutputSingable extends Singable {
   }
 
   getEditor(parent: Component): Component {
-    return new OutputEditor(parent)
+    return new NullEditor(parent)
   }
 
   sing(): Timeline {
     return (this.ip.findOut().parent as Singable).sing()
-  }
-}
-
-import { createDivNode } from "../utils/singable";
-
-export class OutputEditor extends Component {
-  render(): [HTMLElement, HTMLElement] {
-    const newDiv = createDivNode()
-    return [newDiv, newDiv]
   }
 }
