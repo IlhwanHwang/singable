@@ -3,7 +3,7 @@ import Component from "./Component";
 import { OutEndpoint } from "./Endpoint";
 import NoteKey, {Timeline, pitchMax, pitchMin, pitchNotation, ProgramChangeKey} from "../Key"
 import { range, toPairs } from "lodash"
-import { createDivNode, createSpanNode, createButtonNode, createSelectNode, createOptionNode } from "../utils/singable";
+import { createDivNode, createSpanNode, createButtonNode, createSelectNode, createOptionNode, createInputNode } from "../utils/singable";
 import Draggable, {DragEvent} from "./Draggable";
 import { checkInside } from "../utils";
 import { editorSingable } from "../renderer";
@@ -179,7 +179,15 @@ export class PianoRollEditor extends Component {
               n.innerText = (i + 1).toString()
             })
           })
-        ])
+        ]),
+        createInputNode(n => {
+          n.value = this.data.length.toString()
+          n.onchange = e => {
+            const length = parseInt((e.target as HTMLInputElement).value)
+            this.data.length = length
+            this.update()
+          }
+        })
       ]),
       createDivNode(n => {
         n.style.width = "100%"

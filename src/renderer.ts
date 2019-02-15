@@ -16,29 +16,10 @@ export const outConnectionFocus = new Watchable<OutEndpoint>(null)
 
 const root = new Component()
 
-function play() {
-  const output = (() => {
-    const founds = singablePanel.find(s => (s instanceof OutputSingable))
-    if (founds.length === 1) {
-      return founds[0]
-    }
-    else {
-      window.alert("Zero, two or more outputs are detected.")
-      return null
-    }
-  })() as Singable
-
-  if (output === null) {
-    return null
-  }
-
-  output.sing().toFile("./test.mid")
-  const player = new Player()
-  player.play("./test.mid")
-  return player
-}
 
 const layoutTab = new class extends Component {
+  player: Player = null
+
   render(): [HTMLElement, HTMLElement] {
     const newDiv = createDivNode(n => {
       n.style.width = "100vw"
@@ -46,7 +27,33 @@ const layoutTab = new class extends Component {
     }, [
       createButtonNode(n => {
         n.innerText = "Play"
-        n.onclick = play
+        const play = (): void => {
+          const output = (() => {
+            const founds = singablePanel.find(s => (s instanceof OutputSingable))
+            if (founds.length === 1) {
+              return founds[0]
+            }
+            else {
+              window.alert("Zero, two or more outputs are detected.")
+              return
+            }
+          })() as Singable
+        
+          if (output === null) {
+            return
+          }
+        
+          output.sing().toFile("./test.mid")
+          this.player = new Player()
+          this.player.play("./test.mid", stop)
+          n.innerText = "Stop"
+        }
+        const stop = (): void => {
+          this.player.stop()
+          this.player = null
+          n.innerText = "Play"
+        }
+        n.onclick = e => this.player ? stop() : play()
       })
     ])
     return [newDiv, newDiv]
