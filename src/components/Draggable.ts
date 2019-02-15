@@ -30,10 +30,8 @@ export default class Draggable extends Component {
     }
 
     dragNode.onmousedown = e => {
-      const me = e as MouseEvent
-
-      this.__mousePrevX = me.x
-      this.__mousePrevY = me.y
+      this.__mousePrevX = e.x
+      this.__mousePrevY = e.y
       this.__deltaX = 0
       this.__deltaY = 0
 
@@ -47,16 +45,15 @@ export default class Draggable extends Component {
       this.onDragStart({
         deltaX: this.__deltaX, 
         deltaY: this.__deltaY, 
-        x: me.x + this.target.getClientRects()[0].left, 
-        y: me.y + this.target.getClientRects()[0].right
+        x: e.x,
+        y: e.y
       })
       
-      const dragging = (e: Event) => {
+      const dragging = (e: MouseEvent) => {
         e.preventDefault()
 
-        const me = e as MouseEvent
-        const deltaX = me.x - this.__mousePrevX
-        const deltaY = me.y - this.__mousePrevY
+        const deltaX = e.x - this.__mousePrevX
+        const deltaY = e.y - this.__mousePrevY
 
         this.__deltaX += deltaX
         this.__deltaY += deltaY
@@ -67,20 +64,20 @@ export default class Draggable extends Component {
           targetNode.style.transform = `translate3D(${this.__translateX}px, ${this.__translateY}px, 0)`
         }
 
-        this.__mousePrevX = me.x
-        this.__mousePrevY = me.y
+        this.__mousePrevX = e.x
+        this.__mousePrevY = e.y
 
         if (this.onDragging && this.target) {
           this.onDragging({
             deltaX: this.__deltaX, 
             deltaY: this.__deltaY, 
-            x: me.x + this.target.getClientRects()[0].left, 
-            y: me.y + this.target.getClientRects()[0].right
+            x: e.x + this.target.getClientRects()[0].left, 
+            y: e.y + this.target.getClientRects()[0].right
           })
         }
       }
       
-      const dragStop = (e: Event) => {
+      const dragStop = (e: MouseEvent) => {
         window.removeEventListener("mousemove", dragging)
         window.removeEventListener("mouseup", dragStop)
         this.dragging = false
@@ -89,8 +86,8 @@ export default class Draggable extends Component {
           this.onDragStop({
             deltaX: this.__deltaX, 
             deltaY: this.__deltaY, 
-            x: me.x + this.target.getClientRects()[0].left, 
-            y: me.y + this.target.getClientRects()[0].right
+            x: e.x + this.target.getClientRects()[0].left, 
+            y: e.y + this.target.getClientRects()[0].right
           })
         }
       }

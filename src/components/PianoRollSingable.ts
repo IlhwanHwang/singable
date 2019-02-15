@@ -272,6 +272,9 @@ class PianoRollKey extends Draggable {
   y: number
   xStart: number
   yStart: number
+  lengthStart: number
+  dragEdge: boolean = false
+  justCreated = true
 
   constructor(parent: Component, key: NoteKey) {
     super(parent)
@@ -295,24 +298,43 @@ class PianoRollKey extends Draggable {
         parent.data.keys = parent.data.keys.filter(k => k !== this.key)
         this.destroy()
       }
+      n.onmouseup = e => {
+        this.justCreated = false
+      }
     })
     return [newDiv, newDiv]
   }
 
   onDragStart(e: DragEvent) {
+    const margin = 8
+    const mouseX = e.x - this.target.getClientRects()[0].left
+    const edgeX = this.target.getClientRects()[0].width - margin
+    console.log(mouseX, edgeX)
+    this.dragEdge = !this.justCreated && (mouseX > edgeX)
     this.xStart = this.x
     this.yStart = this.y
+    this.lengthStart = this.key.length
   }
 
   onDragging(e: DragEvent) {
     const parent = (this.parent as PianoRollEditor)
     const snapped = parent.snap(this.xStart + e.deltaX, this.yStart + e.deltaY + parent.unitPitchHeight / 2)
-    this.x = snapped.x
-    this.y = snapped.y
-    const oldKey = this.key
-    const newKey = this.key.replace({ pitch: snapped.pitch, timing: snapped.timing })
-    this.key = newKey
-    parent.data.keys = parent.data.keys.map(k => k === oldKey ? newKey : k)
+    if (this.dragEdge) {
+      const oldKey = this.key
+      const newLength = Math.max(snapped.timing - this.key.timing + this.lengthStart, parent.snapBeatResolution)
+      const newKey = this.key.replace({ length: newLength })
+      this.key = newKey
+      parent.lengthPrev = newLength
+      parent.data.keys = parent.data.keys.map(k => k === oldKey ? newKey : k)
+    }
+    else {
+      this.x = snapped.x
+      this.y = snapped.y
+      const oldKey = this.key
+      const newKey = this.key.replace({ pitch: snapped.pitch, timing: snapped.timing })
+      this.key = newKey
+      parent.data.keys = parent.data.keys.map(k => k === oldKey ? newKey : k)
+    }
     this.update()
   }
 }
