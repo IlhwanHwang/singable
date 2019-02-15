@@ -1,5 +1,6 @@
 import { Track, Writer, Utils, NoteEvent, ProgramChangeEvent } from "midi-writer-js"
 import { writeFile } from "fs"
+import { range } from "lodash"
 
 
 export const pitchMax = 127
@@ -87,7 +88,7 @@ export class Timeline {
           pitch: k.pitch, 
           velocity: Math.floor(k.velocity * 99 + 1), 
           channel: k.channel, 
-          duration: Math.floor(4 / k.length).toString(),
+          duration: range(k.length / 8).map(_ => "32"),
           startTick: ticksPerBeat * k.timing
         })
       }

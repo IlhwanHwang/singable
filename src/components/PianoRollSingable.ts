@@ -72,56 +72,22 @@ export class PianoRollEditor extends Component {
   constructor(parent: Component, data: PianoRollStructure) {
     super(parent)
     this.data = data
+    this.data.keys.forEach(k => {
+      const pianoKey = new PianoRollKey(this, k)
+      const snapped = this.unsnap(k.pitch, k.timing)
+      pianoKey.x = snapped.x
+      pianoKey.y = snapped.y
+    })
   }
 
   render(): [HTMLElement, HTMLElement] {
     const container = createDivNode(n => {
-      n.style.position = "relative"
-      n.style.width = `${this.unitBeatLength * this.data.length}px`
-      n.style.height = `${this.unitPitchHeight * (pitchMax - pitchMin + 1)}px`
-      n.style.border = "solid 1px red"
-      n.onmousedown = e => {
-        const overlapped = this.children.filter(c => c instanceof PianoRollKey).filter(c => checkInside(c.target, e.pageX, e.pageY)).length > 0
-        if (!overlapped) {
-          const snapped = this.snap(e.x - this.container.getClientRects()[0].left, e.y - this.container.getClientRects()[0].top)
-          const key = new NoteKey(snapped.timing, this.lengthPrev, snapped.pitch)
-          const pianoKey = new PianoRollKey(this, key)
-          pianoKey.x = snapped.x
-          pianoKey.y = snapped.y
-          pianoKey.update()
-          pianoKey.target.onmousedown(e)
-          this.data.keys.push(key)
-        }
-      }
-    }, [
-      ...range(pitchMin, pitchMax + 1).map(p => {
-        return createDivNode(n => {
-          n.style.position = "absolute"
-          n.style.width = "100%"
-          n.style.height = `${this.unitPitchHeight}px`
-          n.style.left = "0px"
-          n.style.top = `${(pitchMax - p) * this.unitPitchHeight}px`
-          const isBlack = (p % 12) == 1 || (p % 12) == 3 || (p % 12) == 6 || (p % 12) == 8 || (p % 12) == 10
-          n.style.backgroundColor = isBlack
-            ? "lightgray"
-            : "white"
-        })
-      }),
-      ...range(0, this.data.length).map(b => {
-        return createDivNode(n => {
-          n.style.position = "absolute"
-          n.style.width = `${this.unitBeatLength}px`
-          n.style.height = "100%"
-          n.style.left = `${b * this.unitBeatLength}px`
-          n.style.top = "0px"
-          const isBar = ((b + 1) % this.beatsPerBar) == 0
-          n.style.borderRight = isBar
-            ? "solid 1px gray"
-            : "solid 1px lightgray"
-        })
-      })
-    ])
-
+      n.style.width = "100%"
+      n.style.height = "100%"
+      n.style.position = "absolute"
+      n.style.left = "0px"
+      n.style.top = "0px"
+    })
     
     const newDiv = createDivNode(n => {
       n.style.width = "100%"
@@ -187,6 +153,20 @@ export class PianoRollEditor extends Component {
             this.data.length = length
             this.update()
           }
+        }),
+        createButtonNode(n => {
+          n.innerText = "+"
+          n.onclick = e => {
+            this.unitBeatLength *= 1.5
+            this.update()
+          }
+        }),
+        createButtonNode(n => {
+          n.innerText = "-"
+          n.onclick = e => {
+            this.unitBeatLength /= 1.5
+            this.update()
+          }
         })
       ]),
       createDivNode(n => {
@@ -227,7 +207,51 @@ export class PianoRollEditor extends Component {
             n.scroll(0, 480)
           }
         }, [
-          container
+          createDivNode(n => {
+            n.style.position = "relative"
+            n.style.width = `${this.unitBeatLength * this.data.length}px`
+            n.style.height = `${this.unitPitchHeight * (pitchMax - pitchMin + 1)}px`
+            n.style.border = "solid 1px red"
+            n.onmousedown = e => {
+              const overlapped = this.children.filter(c => c instanceof PianoRollKey).filter(c => checkInside(c.target, e.pageX, e.pageY)).length > 0
+              if (!overlapped) {
+                const snapped = this.snap(e.x - this.container.getClientRects()[0].left, e.y - this.container.getClientRects()[0].top)
+                const key = new NoteKey(snapped.timing, this.lengthPrev, snapped.pitch)
+                const pianoKey = new PianoRollKey(this, key)
+                pianoKey.update()
+                pianoKey.target.onmousedown(e)
+                this.data.keys.push(key)
+              }
+            }
+          }, [
+            ...range(pitchMin, pitchMax + 1).map(p => {
+              return createDivNode(n => {
+                n.style.position = "absolute"
+                n.style.width = "100%"
+                n.style.height = `${this.unitPitchHeight}px`
+                n.style.left = "0px"
+                n.style.top = `${(pitchMax - p) * this.unitPitchHeight}px`
+                const isBlack = (p % 12) == 1 || (p % 12) == 3 || (p % 12) == 6 || (p % 12) == 8 || (p % 12) == 10
+                n.style.backgroundColor = isBlack
+                  ? "lightgray"
+                  : "white"
+              })
+            }),
+            ...range(0, this.data.length).map(b => {
+              return createDivNode(n => {
+                n.style.position = "absolute"
+                n.style.width = `${this.unitBeatLength}px`
+                n.style.height = "100%"
+                n.style.left = `${b * this.unitBeatLength}px`
+                n.style.top = "0px"
+                const isBar = ((b + 1) % this.beatsPerBar) == 0
+                n.style.borderRight = isBar
+                  ? "solid 1px gray"
+                  : "solid 1px lightgray"
+              })
+            }),
+            container
+          ])
         ])
       ])
     ])
@@ -235,15 +259,9 @@ export class PianoRollEditor extends Component {
     return [newDiv, container]
   }
 
-  create() {
-    super.create()
-    this.data.keys.forEach(k => {
-      const pianoKey = new PianoRollKey(this, k)
-      const snapped = this.unsnap(k.pitch, k.timing)
-      pianoKey.x = snapped.x
-      pianoKey.y = snapped.y
-    })
-  }
+  // create() {
+  //   super.create()
+  // }
 
   snap(x: number, y: number): {x: number, y: number, pitch: number, timing: number} {
     const timing = this.snapToGrid
@@ -286,6 +304,9 @@ class PianoRollKey extends Draggable {
     const newDiv = createDivNode(n => {
       const parent = (this.parent as PianoRollEditor)
       n.style.position = "absolute"
+      const snapped = parent.unsnap(this.key.pitch, this.key.timing)
+      this.x = snapped.x
+      this.y = snapped.y
       n.style.left = `${this.x}px`
       n.style.top = `${this.y}px`
       n.style.width = `${this.key.length * parent.unitBeatLength}px`
@@ -309,7 +330,6 @@ class PianoRollKey extends Draggable {
     const margin = 8
     const mouseX = e.x - this.target.getClientRects()[0].left
     const edgeX = this.target.getClientRects()[0].width - margin
-    console.log(mouseX, edgeX)
     this.dragEdge = !this.justCreated && (mouseX > edgeX)
     this.xStart = this.x
     this.yStart = this.y
@@ -328,10 +348,10 @@ class PianoRollKey extends Draggable {
       parent.data.keys = parent.data.keys.map(k => k === oldKey ? newKey : k)
     }
     else {
-      this.x = snapped.x
+      this.x = Math.max(snapped.x, 0)
       this.y = snapped.y
       const oldKey = this.key
-      const newKey = this.key.replace({ pitch: snapped.pitch, timing: snapped.timing })
+      const newKey = this.key.replace({ pitch: snapped.pitch, timing: Math.max(snapped.timing, 0) })
       this.key = newKey
       parent.data.keys = parent.data.keys.map(k => k === oldKey ? newKey : k)
     }

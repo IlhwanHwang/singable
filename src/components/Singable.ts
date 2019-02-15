@@ -40,7 +40,7 @@ export default class Singable extends Draggable {
               editorSingable.get().editor.destroy()
             }
             this.editor = this.getEditor(editorBase)
-            this.editor.update()
+            // this.editor.update()
             editorSingable.set(this)
           }
         }
