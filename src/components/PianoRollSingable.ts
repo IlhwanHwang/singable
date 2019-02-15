@@ -54,7 +54,7 @@ export default class PianoRollSingable extends Singable {
       this.data.length,
       [
         new ProgramChangeKey(this.data.instrumentKey, this.data.channel),
-        ...this.data.keys
+        ...this.data.keys.map(k => k.replace({channel: this.data.channel}))
       ]
     )
   }

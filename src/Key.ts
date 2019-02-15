@@ -1,4 +1,4 @@
-import { Track, Writer, Utils, NoteEvent, ProgramChangeEvent } from "midi-writer-js"
+import { Track, Writer, Utils, NoteEvent, ProgramChangeEvent } from "./thirdparty/midi-writer-js"
 import { writeFile } from "fs"
 
 export const pitchMax = 127
@@ -74,7 +74,7 @@ export class Timeline {
         const programChangeKey = new ProgramChangeEvent({
           instrument: k.instrument - 1
         }) as any as {type: string, data: Uint8Array}
-        programChangeKey.data[1] = 0xC0 + k.channel
+        programChangeKey.data[1] = 0xC0 + k.channel - 1
         return programChangeKey
       }
     })
