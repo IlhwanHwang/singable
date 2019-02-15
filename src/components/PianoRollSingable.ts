@@ -259,10 +259,6 @@ export class PianoRollEditor extends Component {
     return [newDiv, container]
   }
 
-  // create() {
-  //   super.create()
-  // }
-
   snap(x: number, y: number): {x: number, y: number, pitch: number, timing: number} {
     const timing = this.snapToGrid
       ? Math.floor(x / this.unitBeatLength / this.snapBeatResolution) * this.snapBeatResolution
@@ -303,10 +299,10 @@ class PianoRollKey extends Draggable {
   render(): [HTMLElement, HTMLElement] {
     const newDiv = createDivNode(n => {
       const parent = (this.parent as PianoRollEditor)
-      n.style.position = "absolute"
       const snapped = parent.unsnap(this.key.pitch, this.key.timing)
       this.x = snapped.x
       this.y = snapped.y
+      n.style.position = "absolute"
       n.style.left = `${this.x}px`
       n.style.top = `${this.y}px`
       n.style.width = `${this.key.length * parent.unitBeatLength}px`

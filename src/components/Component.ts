@@ -27,7 +27,6 @@ export default class Component {
   }
 
   addChild(child: Component) {
-    console.log("Add child", this.debugName, child)
     this.children.push(child)
   }
 
@@ -45,12 +44,10 @@ export default class Component {
       const oldTarget = this.target
       this.parent.container.insertBefore(newTarget, oldTarget)
       if (oldTarget !== null) {
-        console.log("Old target remove", this.debugName, this.container.children)
         oldTarget.remove()
       }
       this.target = newTarget;
       this.container = newContainer;
-      console.log("Create complete", this.debugName, this.children)
     }
   }
 
