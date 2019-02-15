@@ -7,7 +7,6 @@ import { createDivNode, createSpanNode, createButtonNode, createSelectNode, crea
 import Draggable, {DragEvent} from "./Draggable";
 import { checkInside } from "../utils";
 import { editorSingable } from "../renderer";
-import { ChildProcess } from "child_process";
 import { instruments } from "../keys";
 import Player from "../utils/Player"
 
@@ -21,7 +20,7 @@ export interface PianoRollStructure {
 export default class PianoRollSingable extends Singable {
   data: PianoRollStructure
   op: OutEndpoint
-  instrumentName: string
+  instrumentName: string = instruments["1"]
 
   constructor(parent: Component) {
     super(parent)
@@ -123,6 +122,7 @@ export class PianoRollEditor extends Component {
       })
     ])
 
+    
     const newDiv = createDivNode(n => {
       n.style.width = "100%"
       n.style.height = "100%"

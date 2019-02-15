@@ -1,5 +1,6 @@
-import { Track, Writer, Utils, NoteEvent, ProgramChangeEvent } from "./thirdparty/midi-writer-js"
+import { Track, Writer, Utils, NoteEvent, ProgramChangeEvent } from "midi-writer-js"
 import { writeFile } from "fs"
+
 
 export const pitchMax = 127
 export const pitchMin = 0

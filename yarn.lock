@@ -687,6 +687,13 @@ midi-player-js@^2.0.5:
   resolved "https://registry.yarnpkg.com/midi-player-js/-/midi-player-js-2.0.5.tgz#9e30738ffefd81febeb14b0437b0aec4b0231a1e"
   integrity sha512-1HrjWzlb6h9Jf0y62WXlBwZE4sq52h7DRNk5yRr0yhUShCnvyavCAogEqzbxuFGweEPaXrBz1G4uEIs/O71Xkg==
 
+midi-writer-js@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/midi-writer-js/-/midi-writer-js-1.7.0.tgz#1ddb2727e52f20fcad6ea8233d89dd7dee8cfc1b"
+  integrity sha512-HOp2NZFrevKCvaYxakN0tZcSvlfeOVDAW6ORnIGxN4Hc6ZT43HkKzzNi8riiUwh0tMUlwJVbgBaVR3VfR5+xig==
+  dependencies:
+    tonal-midi "^0.69.7"
+
 mime-db@~1.37.0:
   version "1.37.0"
   resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.37.0.tgz#0b6a0ce6fdbe9576e25f1f2d2fde8830dc0ad0d8"
