@@ -16,7 +16,7 @@ export default class AtChannelSingable extends Singable {
   constructor(parent: Component) {
     super(parent)
     this.data = {
-      channel: 0
+      channel: 1
     }
     this.name = "new at-channel object"
     this.op = new OutEndpoint(this)
@@ -78,7 +78,7 @@ export class AtChannelEditor extends Component {
         }, [
           ...fillArray(Array<number>(16), 0).map((_, ind) => {
             return createOptionNode(n => {
-              n.value = ind.toString()
+              n.value = (ind + 1).toString()
               n.innerText = (ind + 1).toString()
             })
           })

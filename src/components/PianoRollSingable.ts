@@ -29,7 +29,7 @@ export default class PianoRollSingable extends Singable {
       keys: Array<Key>(),
       length: 16,
       instrumentKey: 1,
-      channel: 0
+      channel: 1
     }
     this.name = "new piano roll object"
     this.op = new OutEndpoint(this)
@@ -163,6 +163,20 @@ export class PianoRollEditor extends Component {
               return createOptionNode(n => {
                 n.innerText = name.toString()
                 n.value = key.toString()
+            })
+          })
+        ]),
+        createSelectNode(n => {
+          n.value = this.data.channel.toString()
+          n.onchange = e => {
+            this.data.channel = parseInt((e.target as HTMLOptionElement).value)
+            editorSingable.get().update()
+          }
+        }, [
+          ...range(16).map(i => {
+            return createOptionNode(n => {
+              n.value = (i + 1).toString()
+              n.innerText = (i + 1).toString()
             })
           })
         ])

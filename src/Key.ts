@@ -24,7 +24,7 @@ export default class Key implements BaseKey {
   velocity: number
   channel: number
 
-  constructor(start: number, length: number, tone: number, velocity: number = 1, channel: number = 0) {
+  constructor(start: number, length: number, tone: number, velocity: number = 1, channel: number = 1) {
     this.start = start
     this.length = length
     this.pitch = tone
@@ -65,7 +65,7 @@ export class Timeline {
         return new NoteEvent({ 
           pitch: k.pitch, 
           velocity: Math.floor(k.velocity * 99 + 1), 
-          channel: k.channel + 1, 
+          channel: k.channel, 
           duration: Math.floor(4 / k.length).toString(),
           startTick: ticksPerBeat * k.start
         })
