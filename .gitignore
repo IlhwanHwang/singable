@@ -1,2 +1,4 @@
 node_modules
 dist
+!node_modules/midi-writer-js/build/index.d.js
+!node_modules/midi-writer-js/build/index.js
