@@ -6,36 +6,56 @@ export const pitchMax = 127
 export const pitchMin = 0
 
 
-interface BaseKey {}
+export class BaseKey {
+  timing: number
 
-export class ProgramChangeKey implements BaseKey {
-  instrument: number
-  channel: number
+  constructor(timing: number) {
+    this.timing = timing
+  }
 
-  constructor(instrument: number, channel: number) {
-    this.instrument = instrument
-    this.channel = channel
+  replace(part: Partial<BaseKey>) {
+    return new BaseKey(
+      part.timing || this.timing
+    )
   }
 }
 
-export default class Key implements BaseKey {
-  start: number
+export class ProgramChangeKey extends BaseKey {
+  instrument: number
+  channel: number
+
+  constructor(timing: number, instrument: number, channel: number) {
+    super(timing)
+    this.instrument = instrument
+    this.channel = channel
+  }
+
+  replace(part: Partial<ProgramChangeKey>) {
+    return new ProgramChangeKey(
+      part.timing || this.timing, 
+      part.instrument || this.instrument, 
+      part.channel || this.channel,
+    )
+  }
+}
+
+export default class NoteKey extends BaseKey {
   length: number
   pitch: number
   velocity: number
   channel: number
 
-  constructor(start: number, length: number, tone: number, velocity: number = 1, channel: number = 1) {
-    this.start = start
+  constructor(timing: number, length: number, tone: number, velocity: number = 1, channel: number = 1) {
+    super(timing)
     this.length = length
     this.pitch = tone
     this.velocity = velocity
     this.channel = channel
   }
 
-  replace(part: Partial<Key>) {
-    return new Key(
-      part.start || this.start, 
+  replace(part: Partial<NoteKey>) {
+    return new NoteKey(
+      part.timing || this.timing, 
       part.length || this.length, 
       part.pitch || this.pitch, 
       part.velocity || this.velocity, 
@@ -62,13 +82,13 @@ export class Timeline {
     const track = new Track()
     const ticksPerBeat = Utils.getTickDuration("4")
     const events = this.keys.map(k => {
-      if (k instanceof Key) {
+      if (k instanceof NoteKey) {
         return new NoteEvent({ 
           pitch: k.pitch, 
           velocity: Math.floor(k.velocity * 99 + 1), 
           channel: k.channel, 
           duration: Math.floor(4 / k.length).toString(),
-          startTick: ticksPerBeat * k.start
+          startTick: ticksPerBeat * k.timing
         })
       }
       else if (k instanceof ProgramChangeKey) {

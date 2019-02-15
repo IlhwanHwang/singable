@@ -3,7 +3,7 @@ import DrumRollStructure, { DrumRollRowStructure } from "./DrumRollStructure"
 import DrumRollEditor from "./editor/DrumRollEditor"
 import Component from "./Component";
 import { OutEndpoint } from "./Endpoint";
-import Key, {Timeline} from "../Key"
+import NoteKey, {Timeline} from "../Key"
 import {flatten} from "lodash"
 
 export default class DrumRollSingable extends Singable {
@@ -28,17 +28,17 @@ export default class DrumRollSingable extends Singable {
   sing(): Timeline {
     return new Timeline(
       this.data.length,
-      flatten<Key>(this.data.rows.map(row => {
+      flatten<NoteKey>(this.data.rows.map(row => {
         return row.cells
           .map((c, ind) => c
-            ? new Key(
+            ? new NoteKey(
                 (ind as number) / this.data.cellsPerBeat, 
                 1 / this.data.cellsPerBeat,
                 row.key, 1.0, 10
               )
             : null)
           .filter(k => k !== null)
-      })) as Array<Key>
+      })) as Array<NoteKey>
     )
   }
 }

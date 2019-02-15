@@ -1,17 +1,17 @@
 import Component from "./Component"
 import Singable from "./Singable"
 import { OutEndpoint } from "./Endpoint";
-import { Timeline } from "../Key";
+import { Timeline, BaseKey } from "../Key";
 import { NullEditor } from "./NullEditor";
 import MultipleInputSingable from "./MultipleInputSingable";
 
 
-export default class ParallelSingable extends MultipleInputSingable {
+export default class EnumerateSingable extends MultipleInputSingable {
   op: OutEndpoint
 
   constructor(parent: Component) {
     super(parent)
-    this.name = "new parallel object"
+    this.name = "new enumerate object"
     this.op = new OutEndpoint(this)
   }
 
@@ -22,8 +22,13 @@ export default class ParallelSingable extends MultipleInputSingable {
   sing(): Timeline {
     const timelines = this.ipConnected
       .map(ip => (ip.findOut().parent as Singable).sing())
-    const length = Math.max(...timelines.map(tl => tl.length))
-    const keys = timelines.map(tl => tl.keys).reduce((totalKeys, keys) => totalKeys.concat(keys))
-    return new Timeline(length, keys)
+    // const length = timelines.map(tl => tl.length).reduce((acc, x) => acc + x)
+    let time = 0
+    const totalKeys = Array<BaseKey>()
+    for (const { keys, length } of timelines) {
+      totalKeys.push(...keys.map(k => k.replace({ timing: k.timing + time })))
+      time += length
+    }
+    return new Timeline(time, totalKeys)
   }
 }

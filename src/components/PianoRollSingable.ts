@@ -1,7 +1,7 @@
 import Singable from "./Singable"
 import Component from "./Component";
 import { OutEndpoint } from "./Endpoint";
-import Key, {Timeline, pitchMax, pitchMin, pitchNotation, ProgramChangeKey} from "../Key"
+import NoteKey, {Timeline, pitchMax, pitchMin, pitchNotation, ProgramChangeKey} from "../Key"
 import { range, toPairs } from "lodash"
 import { createDivNode, createSpanNode, createButtonNode, createSelectNode, createOptionNode } from "../utils/singable";
 import Draggable, {DragEvent} from "./Draggable";
@@ -11,7 +11,7 @@ import { instruments } from "../keys";
 import Player from "../utils/Player"
 
 export interface PianoRollStructure {
-  keys: Array<Key>
+  keys: Array<NoteKey>
   length: number
   instrumentKey: number
   channel: number
@@ -25,7 +25,7 @@ export default class PianoRollSingable extends Singable {
   constructor(parent: Component) {
     super(parent)
     this.data = {
-      keys: Array<Key>(),
+      keys: Array<NoteKey>(),
       length: 16,
       instrumentKey: 1,
       channel: 1
@@ -52,7 +52,7 @@ export default class PianoRollSingable extends Singable {
     return new Timeline(
       this.data.length,
       [
-        new ProgramChangeKey(this.data.instrumentKey, this.data.channel),
+        new ProgramChangeKey(0, this.data.instrumentKey, this.data.channel),
         ...this.data.keys.map(k => k.replace({channel: this.data.channel}))
       ]
     )
@@ -84,7 +84,7 @@ export class PianoRollEditor extends Component {
         const overlapped = this.children.filter(c => c instanceof PianoRollKey).filter(c => checkInside(c.target, e.pageX, e.pageY)).length > 0
         if (!overlapped) {
           const snapped = this.snap(e.x - this.container.getClientRects()[0].left, e.y - this.container.getClientRects()[0].top)
-          const key = new Key(snapped.timing, this.lengthPrev, snapped.pitch)
+          const key = new NoteKey(snapped.timing, this.lengthPrev, snapped.pitch)
           const pianoKey = new PianoRollKey(this, key)
           pianoKey.x = snapped.x
           pianoKey.y = snapped.y
@@ -231,7 +231,7 @@ export class PianoRollEditor extends Component {
     super.create()
     this.data.keys.forEach(k => {
       const pianoKey = new PianoRollKey(this, k)
-      const snapped = this.unsnap(k.pitch, k.start)
+      const snapped = this.unsnap(k.pitch, k.timing)
       pianoKey.x = snapped.x
       pianoKey.y = snapped.y
     })
@@ -259,13 +259,13 @@ export class PianoRollEditor extends Component {
 }
 
 class PianoRollKey extends Draggable {
-  key: Key
+  key: NoteKey
   x: number
   y: number
   xStart: number
   yStart: number
 
-  constructor(parent: Component, key: Key) {
+  constructor(parent: Component, key: NoteKey) {
     super(parent)
     this.key = key
     this.allowTransform = false
@@ -302,7 +302,7 @@ class PianoRollKey extends Draggable {
     this.x = snapped.x
     this.y = snapped.y
     const oldKey = this.key
-    const newKey = this.key.replace({ pitch: snapped.pitch, start: snapped.timing })
+    const newKey = this.key.replace({ pitch: snapped.pitch, timing: snapped.timing })
     this.key = newKey
     parent.data.keys = parent.data.keys.map(k => k === oldKey ? newKey : k)
     this.update()

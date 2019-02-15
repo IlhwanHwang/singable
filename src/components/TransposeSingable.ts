@@ -3,7 +3,7 @@ import Singable from "./Singable"
 import {editorBase, editorSingable} from "../renderer"
 import { createDivNode, createInputNode, createButtonNode } from "../utils/singable"
 import { InEndpoint, OutEndpoint } from "./Endpoint";
-import Key, {Timeline} from "../Key"
+import NoteKey, {Timeline} from "../Key"
 
 export interface TransposeStructure {
   semitones: number
@@ -41,7 +41,7 @@ export default class TransposeSingable extends Singable {
   sing(): Timeline {
     const { length, keys } = (this.ip.findOut().parent as Singable).sing()
     return new Timeline(length, keys.map(key => {
-      return key instanceof Key
+      return key instanceof NoteKey
         ? key.replace({pitch: key.pitch + this.data.semitones})
         : key
     }))

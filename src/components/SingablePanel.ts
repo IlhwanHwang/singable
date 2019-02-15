@@ -1,12 +1,12 @@
 import Component from "./Component"
 import {createDivNode, createButtonNode} from "../utils/singable"
-import Singable from "./Singable"
 import DrumRollSingable from "./DrumRollSingable";
 import TransposeSingable from "./TransposeSingable";
 import OutputSingable from "./OutputSingable"
 import PianoRollSingable from "./PianoRollSingable"
 import AtChannelSingable from "./AtChannelSingable";
 import ParallelSingable from "./ParallelSingable";
+import EnumerateSingable from "./EnumerateSingable";
 
 export default class SingablePanel extends Component {
 
@@ -58,6 +58,13 @@ export default class SingablePanel extends Component {
           n.innerText = "New parallel"
           n.onclick = e => {
             const newSingable = new ParallelSingable(this)
+            newSingable.update()
+          }
+        }),
+        createButtonNode(n => {
+          n.innerText = "New enumerate"
+          n.onclick = e => {
+            const newSingable = new EnumerateSingable(this)
             newSingable.update()
           }
         })
