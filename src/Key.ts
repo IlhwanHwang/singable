@@ -107,6 +107,32 @@ export class Timeline {
     const write = new Writer(track);
     writeFileSync(fname, write.buildFile())
   }
+
+  slice(timing: number, length: number) {
+    const end = timing + length
+    return new Timeline(length, this.keys
+      .filter(k => {
+        if (k instanceof NoteKey) {
+          const keyEnd = k.timing + k.length
+          return (k.timing >= timing && k.timing < end) || (keyEnd >= timing && keyEnd < end)
+        }
+        else {
+          return true
+        }
+      })
+      .map(k => {
+        if (k instanceof NoteKey) {
+          const keyEnd = k.timing + k.length
+          const keyClipEnd = Math.min(keyEnd, end)
+          const keyClipTiming = Math.max(k.timing, timing)
+          return k.replace({timing: keyClipTiming, length: keyClipEnd - keyClipTiming})
+        }
+        else {
+          return k
+        }
+      })
+    )
+  }
 }
 
 

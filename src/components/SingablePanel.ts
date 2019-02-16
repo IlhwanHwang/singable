@@ -7,6 +7,7 @@ import PianoRollSingable from "./PianoRollSingable"
 import AtChannelSingable from "./AtChannelSingable";
 import ParallelSingable from "./ParallelSingable";
 import EnumerateSingable from "./EnumerateSingable";
+import ReharmonizeSingable from "./ReharmonizeSingable";
 
 export default class SingablePanel extends Component {
 
@@ -65,6 +66,13 @@ export default class SingablePanel extends Component {
           n.innerText = "New enumerate"
           n.onclick = e => {
             const newSingable = new EnumerateSingable(this)
+            newSingable.update()
+          }
+        }),
+        createButtonNode(n => {
+          n.innerText = "New reharmonize"
+          n.onclick = e => {
+            const newSingable = new ReharmonizeSingable(this)
             newSingable.update()
           }
         })
