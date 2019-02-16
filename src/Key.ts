@@ -1,7 +1,6 @@
 import { Track, Writer, Utils, NoteEvent, ProgramChangeEvent } from "midi-writer-js"
-import { writeFile } from "fs"
+import { writeFileSync } from "fs"
 import { range } from "lodash"
-
 
 export const pitchMax = 127
 export const pitchMin = 0
@@ -106,7 +105,7 @@ export class Timeline {
     })
   
     const write = new Writer(track);
-    writeFile(fname, write.buildFile(), err => {})
+    writeFileSync(fname, write.buildFile())
   }
 }
 

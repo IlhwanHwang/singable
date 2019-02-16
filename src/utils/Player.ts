@@ -4,7 +4,7 @@ import {spawn} from "child_process"
 
 export default class Player {
   macPlayer: ChildProcess
-  windowPlayer: MidiPlayer
+  windowPlayer: ChildProcess
   OS: string
 
   constructor() {
@@ -22,10 +22,8 @@ export default class Player {
       this.macPlayer.on('close', onclose);
     }
     else if (this.OS === "windows") {
-      const player = new MidiPlayer()
-      player.loadFile(fname)
-      player.play()
-      this.windowPlayer = player
+      this.windowPlayer = spawn("timidity", [fname])
+      this.windowPlayer.on('close', onclose);
     }
   }
 
@@ -34,7 +32,7 @@ export default class Player {
       this.macPlayer.kill()
     }
     else if (this.OS === "windows") {
-      this.windowPlayer.stop()
+      this.windowPlayer.kill()
     }
   }
 }

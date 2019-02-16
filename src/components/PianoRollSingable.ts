@@ -109,7 +109,7 @@ export class PianoRollEditor extends Component {
           const play = () => {
             editorSingable.get().sing().toFile("./temp.mid")
             this.player = new Player()
-            this.player.play("./temp.mid", _ => stop())
+            this.player.play("temp.mid", _ => stop())
             n.innerText = "Stop"
           }
           n.onclick = e => this.player === null ? play() : stop()

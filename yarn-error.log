@@ -1,30 +1,30 @@
 Arguments: 
-  /usr/local/Cellar/node/11.9.0/bin/node /usr/local/Cellar/yarn/1.13.0/libexec/bin/yarn.js add @types/midi-writer-js
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js add @types/midijs
 
 PATH: 
-  /Users/irai/google-cloud-sdk/bin:/Users/irai/anaconda3/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:/opt/X11/bin:~/.dotnet/tools:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin:/Applications/LilyPond.app/Contents/Resources/bin
+  C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Yarn\bin\;C:\Program Files\nodejs\;C:\Program Files\Git\cmd;C:\WINDOWS\System32\OpenSSH\;C:\Users\ILHWANHWANG\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Bandizip\;C:\Users\ILHWANHWANG\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\ILHWANHWANG\AppData\Local\Yarn\bin;C:\Users\ILHWANHWANG\AppData\Roaming\npm;
 
 Yarn version: 
   1.13.0
 
 Node version: 
-  11.9.0
+  10.15.1
 
 Platform: 
-  darwin x64
+  win32 x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/@types%2fmidi-writer-js: Not found
-      at Request.params.callback [as _callback] (/usr/local/Cellar/yarn/1.13.0/libexec/lib/cli.js:66255:18)
-      at Request.self.callback (/usr/local/Cellar/yarn/1.13.0/libexec/lib/cli.js:129397:22)
-      at Request.emit (events.js:197:13)
-      at Request.<anonymous> (/usr/local/Cellar/yarn/1.13.0/libexec/lib/cli.js:130369:10)
-      at Request.emit (events.js:197:13)
-      at IncomingMessage.<anonymous> (/usr/local/Cellar/yarn/1.13.0/libexec/lib/cli.js:130291:12)
-      at Object.onceWrapper (events.js:285:13)
-      at IncomingMessage.emit (events.js:202:15)
-      at endReadableNT (_stream_readable.js:1129:12)
-      at processTicksAndRejections (internal/process/next_tick.js:76:17)
+  Error: https://registry.yarnpkg.com/@types%2fmidijs: Not found
+      at Request.params.callback [as _callback] (C:\Program Files (x86)\Yarn\lib\cli.js:65364:18)
+      at Request.self.callback (C:\Program Files (x86)\Yarn\lib\cli.js:129397:22)
+      at Request.emit (events.js:189:13)
+      at Request.<anonymous> (C:\Program Files (x86)\Yarn\lib\cli.js:130369:10)
+      at Request.emit (events.js:189:13)
+      at IncomingMessage.<anonymous> (C:\Program Files (x86)\Yarn\lib\cli.js:130291:12)
+      at Object.onceWrapper (events.js:277:13)
+      at IncomingMessage.emit (events.js:194:15)
+      at endReadableNT (_stream_readable.js:1103:12)
+      at process._tickCallback (internal/process/next_tick.js:63:19)
 
 npm manifest: 
   {
@@ -58,8 +58,12 @@ npm manifest:
       "@types/react": "^16.8.1",
       "@types/webmidi": "^2.0.2",
       "lodash": "^4.17.11",
+      "midi-js": "^0.1.4",
+      "midi-player-js": "^2.0.5",
       "midi-writer-js": "^1.7.0",
-      "react": "^16.7.0"
+      "midijs": "^0.12.0",
+      "react": "^16.7.0",
+      "tonal-midi": "^0.69.7"
     }
   }
 
@@ -198,6 +202,18 @@ Lockfile:
     version "1.1.1"
     resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.1.tgz#32713bc028f75c02fdb710d7c7bcec1f2c6070ef"
     integrity sha512-MQcXEUbCKtEo7bhqEs6560Hyd4XaovZlO/k9V3hjVUF/zwW7KBVdSK4gIt/bzwS9MbR5qob+F5jusZsb0YQK2A==
+  
+  buffercursor@0.0.12:
+    version "0.0.12"
+    resolved "https://registry.yarnpkg.com/buffercursor/-/buffercursor-0.0.12.tgz#78a9a7f4343ae7d820a8999acc80de591e25a779"
+    integrity sha1-eKmn9DQ659ggqJmazIDeWR4lp3k=
+    dependencies:
+      verror "^1.4.0"
+  
+  bufferjs@*:
+    version "3.0.1"
+    resolved "https://registry.yarnpkg.com/bufferjs/-/bufferjs-3.0.1.tgz#0692e829cb10a10550e647390b035eb06c38e8ef"
+    integrity sha1-BpLoKcsQoQVQ5kc5CwNesGw46O8=
   
   builtin-modules@^1.0.0, builtin-modules@^1.1.1:
     version "1.1.1"
@@ -375,6 +391,11 @@ Lockfile:
     integrity sha512-7dFHNmqeFSEt2ZBsCriorKnn3Z2pj+fd9kmI6QoWw4//DL+icEBfc0U7qJCisqrTsKTjw4fNFy2pW9OqStD84g==
     dependencies:
       is-arrayish "^0.2.1"
+  
+  es6-promise@^2.0.1:
+    version "2.3.0"
+    resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-2.3.0.tgz#96edb9f2fdb01995822b263dd8aadab6748181bc"
+    integrity sha1-lu258v2wGZWCKyY92KratnSBgbw=
   
   es6-promise@^4.0.5:
     version "4.2.5"
@@ -739,12 +760,32 @@ Lockfile:
       redent "^1.0.0"
       trim-newlines "^1.0.0"
   
+  midi-js@^0.1.4:
+    version "0.1.4"
+    resolved "https://registry.yarnpkg.com/midi-js/-/midi-js-0.1.4.tgz#6def739e14a744e64e3871b088c8c48bf6008595"
+    integrity sha1-be9znhSnROZOOHGwiMjEi/YAhZU=
+    dependencies:
+      bufferjs "*"
+  
+  midi-player-js@^2.0.5:
+    version "2.0.5"
+    resolved "https://registry.yarnpkg.com/midi-player-js/-/midi-player-js-2.0.5.tgz#9e30738ffefd81febeb14b0437b0aec4b0231a1e"
+    integrity sha512-1HrjWzlb6h9Jf0y62WXlBwZE4sq52h7DRNk5yRr0yhUShCnvyavCAogEqzbxuFGweEPaXrBz1G4uEIs/O71Xkg==
+  
   midi-writer-js@^1.7.0:
     version "1.7.0"
     resolved "https://registry.yarnpkg.com/midi-writer-js/-/midi-writer-js-1.7.0.tgz#1ddb2727e52f20fcad6ea8233d89dd7dee8cfc1b"
     integrity sha512-HOp2NZFrevKCvaYxakN0tZcSvlfeOVDAW6ORnIGxN4Hc6ZT43HkKzzNi8riiUwh0tMUlwJVbgBaVR3VfR5+xig==
     dependencies:
       tonal-midi "^0.69.7"
+  
+  midijs@^0.12.0:
+    version "0.12.0"
+    resolved "https://registry.yarnpkg.com/midijs/-/midijs-0.12.0.tgz#bb6ec82c1a500a9adf3dd9465f74dc824da8203f"
+    integrity sha1-u27ILBpQCprfPdlGX3Tcgk2oID8=
+    dependencies:
+      buffercursor "0.0.12"
+      es6-promise "^2.0.1"
   
   mime-db@~1.37.0:
     version "1.37.0"
@@ -1329,7 +1370,7 @@ Lockfile:
       spdx-correct "^3.0.0"
       spdx-expression-parse "^3.0.0"
   
-  verror@1.10.0:
+  verror@1.10.0, verror@^1.4.0:
     version "1.10.0"
     resolved "https://registry.yarnpkg.com/verror/-/verror-1.10.0.tgz#3a105ca17053af55d6e270c1f8288682e18da400"
     integrity sha1-OhBcoXBTr1XW4nDB+CiGguGNpAA=
