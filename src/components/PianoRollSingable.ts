@@ -6,9 +6,9 @@ import { range, toPairs } from "lodash"
 import { createDivNode, createSpanNode, createButtonNode, createSelectNode, createOptionNode, createInputNode } from "../utils/singable";
 import Draggable, {DragEvent} from "./Draggable";
 import { checkInside } from "../utils";
-import { editorSingable } from "../renderer";
 import { instruments } from "../keys";
 import Player from "../utils/Player"
+import BaseEditor from "./BaseEditor";
 
 export interface PianoRollStructure {
   keys: Array<NoteKey>
@@ -59,7 +59,7 @@ export default class PianoRollSingable extends Singable {
   }
 }
 
-export class PianoRollEditor extends Component {
+export class PianoRollEditor extends BaseEditor {
   data: PianoRollStructure
   unitBeatLength = 48
   unitPitchHeight = 10
@@ -69,9 +69,9 @@ export class PianoRollEditor extends Component {
   lengthPrev = 2
   player: Player = null
 
-  constructor(parent: Component, data: PianoRollStructure) {
-    super(parent)
-    this.data = data
+  constructor(parent: Component, singable: PianoRollSingable) {
+    super(parent, singable)
+    this.data = singable.data
     this.data.keys.forEach(k => {
       const pianoKey = new PianoRollKey(this, k)
       const snapped = this.unsnap(k.pitch, k.timing)
@@ -107,7 +107,7 @@ export class PianoRollEditor extends Component {
             }
           }
           const play = () => {
-            editorSingable.get().sing().toFile("./temp.mid")
+            this.singable..sing().toFile("./temp.mid")
             this.player = new Player()
             this.player.play("temp.mid", _ => stop())
             n.innerText = "Stop"
@@ -118,7 +118,7 @@ export class PianoRollEditor extends Component {
           n.value = this.data.instrumentKey.toString()
           n.onchange = e => {
             this.data.instrumentKey = parseInt((e.target as HTMLOptionElement).value)
-            const singable = (editorSingable.get() as PianoRollSingable)
+            const singable = (this.singable as PianoRollSingable)
             singable.instrumentName = instruments[this.data.instrumentKey]
             singable.update()
           }
@@ -139,7 +139,7 @@ export class PianoRollEditor extends Component {
           n.value = this.data.channel.toString()
           n.onchange = e => {
             this.data.channel = parseInt((e.target as HTMLOptionElement).value)
-            editorSingable.get().update()
+            this.singable.update()
           }
         }, [
           ...range(16).map(i => {

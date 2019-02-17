@@ -4,15 +4,16 @@ import DrumRollStructure from "../DrumRollStructure"
 import DrumRollRowEditor from "./DrumRollRowEditor";
 import { filled } from "../../utils";
 import Player from "../../utils/Player";
-import { editorSingable } from "../../renderer"
+import BaseEditor from "../BaseEditor";
+import DrumRollSingable from "../DrumRollSingable";
 
-export default class DrumRollEditor extends Component {
+export default class DrumRollEditor extends BaseEditor {
   data: DrumRollStructure
   player: Player = null
 
-  constructor(parent: Component, data: DrumRollStructure) {
-    super(parent)
-    this.data = data
+  constructor(parent: Component, singable: DrumRollSingable) {
+    super(parent, singable)
+    this.data = singable.data
   }
 
   removeChild(child: Component) {
@@ -43,7 +44,7 @@ export default class DrumRollEditor extends Component {
             }
           }
           const play = () => {
-            editorSingable.get().sing().toFile("./temp.mid")
+            this.singable.sing().toFile("./temp.mid")
             this.player = new Player()
             this.player.play("./temp.mid", _ => stop())
             n.innerText = "Stop"

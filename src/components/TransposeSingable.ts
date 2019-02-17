@@ -1,9 +1,10 @@
 import Component from "./Component"
 import Singable from "./Singable"
-import {editorBase, editorSingable} from "../renderer"
+import {editorBase} from "../renderer"
 import { createDivNode, createInputNode, createButtonNode } from "../utils/singable"
 import { InEndpoint, OutEndpoint } from "./Endpoint";
 import NoteKey, {Timeline} from "../Key"
+import BaseEditor from "./BaseEditor";
 
 export interface TransposeStructure {
   semitones: number
@@ -48,14 +49,14 @@ export default class TransposeSingable extends Singable {
   }
 }
 
-export class TransposeEditor extends Component {
+export class TransposeEditor extends BaseEditor {
   data: TransposeStructure
   editing: boolean = false
   semitonesInput: string
 
-  constructor(parent: Component, data: TransposeStructure) {
-    super(parent)
-    this.data = data
+  constructor(parent: Component, singable: TransposeSingable) {
+    super(parent, singable)
+    this.data = singable.data
   }
 
   render(): [HTMLElement, HTMLElement] {
@@ -83,7 +84,7 @@ export class TransposeEditor extends Component {
             if (this.editing) {
               try {
                 this.data.semitones = parseInt(this.semitonesInput)
-                editorSingable.get().update()
+                this.singable.update()
               } catch (e) {
                 // pass
               }
