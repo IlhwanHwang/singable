@@ -87,7 +87,7 @@ export class Timeline {
           pitch: k.pitch, 
           velocity: Math.floor(k.velocity * 99 + 1), 
           channel: k.channel, 
-          duration: range(k.length / 8).map(_ => "32"),
+          duration: range(k.length * 8).map(_ => "32"),
           startTick: ticksPerBeat * k.timing
         })
       }

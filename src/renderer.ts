@@ -51,7 +51,7 @@ const layoutTab = new class extends Component {
           n.innerText = "Stop"
         }
         const stop = (): void => {
-          this.player.stop()
+          if (this.player) { this.player.stop() }
           this.player = null
           n.innerText = "Play"
         }
