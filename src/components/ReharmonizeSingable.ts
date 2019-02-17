@@ -68,13 +68,16 @@ export default class ReharmonizeSingable extends Singable {
   }
 
   getChordNodes(): Array<ChordNode> {
-    const numeralRestrictions = fromPairs(toPairs(this.data.restrictions)
-      .map(([k, r]) => [k, Numeral.parse(r)]))
+    const numeralRestrictions = fromPairs(
+      toPairs(this.data.restrictions)
+        .filter(([k, r]) => r !== "")
+        .map(([k, r]) => [k, Numeral.parse(r)])
+    )
     const scale = this.getScale()
     const op = this.ip.findOut()
     const singer = op ? op.parent as Singable : null
     const chordNodes = singer
-      ? songToChordNodes(singer.sing(), scale, numeralRestrictions, [1, 2, 4], {advantages: (n: Numeral) => 0})
+      ? songToChordNodes(singer.sing(), scale, numeralRestrictions, [1, 2, 4])
       : []
     return chordNodes
   }
@@ -107,6 +110,7 @@ export class ReharmonizeEditor extends BaseEditor {
     try {
       const chordNodes = this.reharmonizer.getChordNodes()
       const numerals = this.reharmonizer.getScale().possibleNumerals()
+      console.log(this.data.restrictions)
       const newDiv = createDivNode(n => {
           n.style.border = "solid 1px orange",
           n.style.width = "100%",

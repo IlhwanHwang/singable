@@ -2,10 +2,11 @@ import Component from "./Component"
 import Singable from "./Singable"
 import {createDivNode} from "../utils/singable"
 import { InEndpoint, OutEndpoint } from "./Endpoint";
-import NoteKey, { Timeline } from "../Key";
+import NoteKey, { Timeline, ProgramChangeKey } from "../Key";
 
 export interface AtChannelStructure {
   channel: number
+  instrumentKey: number
 }
 
 export default class AtChannelSingable extends Singable {
@@ -16,7 +17,8 @@ export default class AtChannelSingable extends Singable {
   constructor(parent: Component) {
     super(parent)
     this.data = {
-      channel: 1
+      channel: 1,
+      instrumentKey: 1
     }
     this.name = "new at-channel object"
     this.op = new OutEndpoint(this)
@@ -24,14 +26,14 @@ export default class AtChannelSingable extends Singable {
   }
 
   getEditor(parent: Component): Component {
-    return new AtChannelEditor(parent, this.data)
+    return new AtChannelEditor(parent, this)
   }
 
   render(): [HTMLElement, HTMLElement] {
     const [newDiv, container] = super.render()
     newDiv.appendChild(
       createDivNode(n => {
-        n.innerText = `Channel: ${this.data.channel + 1}`
+        n.innerText = `Channel: ${this.data.channel}\nInstrument: ${instruments[this.data.instrumentKey.toString()]}`
       })
     )
     return [newDiv, container]
@@ -39,25 +41,29 @@ export default class AtChannelSingable extends Singable {
 
   sing(): Timeline {
     const { length, keys } = (this.ip.findOut().parent as Singable).sing()
-    return new Timeline(length, keys.map(key => {
-      return key instanceof NoteKey
-        ? key.replace({channel: this.data.channel})
-        : key
-    }))
+    return new Timeline(length, [
+      new ProgramChangeKey(0, this.data.instrumentKey, this.data.channel),
+      ...keys.map(key => {
+        return key instanceof NoteKey
+          ? key.replace({channel: this.data.channel})
+          : key
+      })
+    ])
   }
 }
 
 import {createSelectNode, createOptionNode} from "../utils/singable"
-import { editorSingable } from "../renderer";
-import { range } from "lodash";
+import { range, toPairs } from "lodash";
+import BaseEditor from "./BaseEditor";
+import { instruments } from "../keys";
 
 
-export class AtChannelEditor extends Component {
+export class AtChannelEditor extends BaseEditor {
   data: AtChannelStructure
 
-  constructor(parent: Component, data: AtChannelStructure) {
-    super(parent)
-    this.data = data
+  constructor(parent: Component, singable: AtChannelSingable) {
+    super(parent, singable)
+    this.data = singable.data
   }
 
   render(): [HTMLElement, HTMLElement] {
@@ -70,10 +76,9 @@ export class AtChannelEditor extends Component {
       },
       [
         createSelectNode(n => {
-          n.value = this.data.channel.toString()
           n.onchange = e => {
-            this.data.channel = parseInt((e.target as HTMLOptionElement).value)
-            editorSingable.get().update()
+            this.data.channel = parseInt(n.value)
+            this.singable.update()
           }
         }, [
           ...range(16).map((_, ind) => {
@@ -83,6 +88,24 @@ export class AtChannelEditor extends Component {
               if (ind + 1 === this.data.channel) {
                 n.selected = true
               }
+            })
+          })
+        ]),
+        createSelectNode(n => {
+          n.onchange = e => {
+            this.data.instrumentKey = parseInt(n.value)
+            this.singable.update()
+          }
+        }, [
+          ...toPairs(instruments)
+            .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
+            .map(([key, name]) => {
+              return createOptionNode(n => {
+                n.innerText = name
+                n.value = key
+                if (n.value === this.data.instrumentKey.toString()) {
+                  n.selected = true
+                }
             })
           })
         ])

@@ -31,8 +31,11 @@ export class Numeral {
 
   static parse(notation: string) {
     if (notation) {
-      const [secondaryDominantStr, indexStr, seventhStr] = notation.match(RegExp("(v7/)?(iii|vii|vi|ii|iv|v|i)(7)?"))
-      return new Numeral(parseInt(indexStr), seventhStr ? true : false, secondaryDominantStr ? true : false)
+      const [_, secondaryDominantStr, indexStr, seventhStr] = notation.match(RegExp("(v7/)?(iii|vii|vi|ii|iv|v|i)(7)?"))
+      return new Numeral(
+        ["i", "ii", "iii", "iv", "v", "vi", "vii"].indexOf(indexStr) + 1,
+        seventhStr ? true : false,
+        secondaryDominantStr ? true : false)
     }
     else {
       return null
@@ -111,18 +114,18 @@ function scoreMelody(scale: Scale, melody: Array<NoteKey>, numeral: Numeral, wei
   return score
 }
 
-export function songToChordNodes(timeline: Timeline, scale: Scale, restrictions: { [index: number]: Numeral }, granularity: Array<number>, options: any = {}) {
+export function songToChordNodes(timeline: Timeline, scale: Scale, restrictions: { [index: string]: Numeral }, granularity: Array<number>, options: any = {}) {
   options = {
     cadenceAt: 16,
     cadenceScore: 1,
     restrictionAdvantage: 256,
     advantages: (n: Numeral) => {
       return n.secondaryDominant
-        ? -0.2
+        ? -0.1
         : (
           n.index === 1 || n.index === 4 || n.index === 5
-            ? 0.2
-            : -0.2
+            ? 0.1
+            : -0.1
           )
     },
     ...options
@@ -131,8 +134,9 @@ export function songToChordNodes(timeline: Timeline, scale: Scale, restrictions:
   const cadences = scale.possibleCadences()
   const nodes = granularity.map(g => { 
     return range(0, timeline.length, g).map(timing => {
-      if (restrictions[timing]) {
-        const numeral = restrictions[timing]
+      if (g === 1 && restrictions[timing.toString()]) {
+        const numeral = restrictions[timing.toString()]
+        console.log(numeral)
         return [new ChordNode(numeral, options.restrictionAdvantage, timing, g)]
       }
       else {
