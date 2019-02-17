@@ -6,8 +6,7 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "*": ["node_modules/*"],
-      "midi-writer-js": ["src/thirdparty/midi-writer-js"]
+      "*": ["node_modules/*"]
     }
   },
   "include": [
