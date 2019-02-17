@@ -8,6 +8,8 @@ import AtChannelSingable from "./AtChannelSingable";
 import ParallelSingable from "./ParallelSingable";
 import EnumerateSingable from "./EnumerateSingable";
 import ReharmonizeSingable from "./ReharmonizeSingable";
+import Singable from "./Singable";
+import ArpeggioSingable from "./ArpeggioSingable";
 
 export default class SingablePanel extends Component {
 
@@ -20,63 +22,26 @@ export default class SingablePanel extends Component {
         n.style.boxSizing = "border-box"
       },
       [
+        ["New drum roll", () => new DrumRollSingable(this)],
+        ["New piano roll", () => new PianoRollSingable(this)],
+        ["New transpose", () => new TransposeSingable(this)],
+        ["New at-channel", () => new AtChannelSingable(this)],
+        ["New output", () => new OutputSingable(this)],
+        ["New parallel", () => new ParallelSingable(this)],
+        ["New enumerate", () => new EnumerateSingable(this)],
+        ["New reharmonize", () => new ReharmonizeSingable(this)],
+        ["New arpeggio", () => new ArpeggioSingable(this)],
+      ]
+        .map(x => x as [string, () => Singable])
+        .map(([text, factory]) =>
         createButtonNode(n => {
-          n.innerText = "New drum roll"
+          n.innerText = text
           n.onclick = e => {
-            const newSingable = new DrumRollSingable(this)
-            newSingable.update()
-          }
-        }),
-        createButtonNode(n => {
-          n.innerText = "New piano roll"
-          n.onclick = e => {
-            const newSingable = new PianoRollSingable(this)
-            newSingable.update()
-          }
-        }),
-        createButtonNode(n => {
-          n.innerText = "New transpose"
-          n.onclick = e => {
-            const newSingable = new TransposeSingable(this)
-            newSingable.update()
-          }
-        }),
-        createButtonNode(n => {
-          n.innerText = "New at-channel"
-          n.onclick = e => {
-            const newSingable = new AtChannelSingable(this)
-            newSingable.update()
-          }
-        }),
-        createButtonNode(n => {
-          n.innerText = "New output"
-          n.onclick = e => {
-            const newSingable = new OutputSingable(this)
-            newSingable.update()
-          }
-        }),
-        createButtonNode(n => {
-          n.innerText = "New parallel"
-          n.onclick = e => {
-            const newSingable = new ParallelSingable(this)
-            newSingable.update()
-          }
-        }),
-        createButtonNode(n => {
-          n.innerText = "New enumerate"
-          n.onclick = e => {
-            const newSingable = new EnumerateSingable(this)
-            newSingable.update()
-          }
-        }),
-        createButtonNode(n => {
-          n.innerText = "New reharmonize"
-          n.onclick = e => {
-            const newSingable = new ReharmonizeSingable(this)
+            const newSingable = factory()
             newSingable.update()
           }
         })
-      ]
+      )
     )
     return [newDiv, newDiv]
   }
