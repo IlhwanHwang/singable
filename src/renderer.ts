@@ -195,7 +195,8 @@ push(1, pitch("C5"))
 push(1, pitch("E5"))
 push(1/2, pitch("D5"))
 push(1/2, pitch("C5"))
-push(4, pitch("D5"))
+push(3, pitch("D5"))
+timing += 1
 push(1, pitch("E5"))
 push(1, pitch("E5"))
 push(1, pitch("D5"))
@@ -210,7 +211,7 @@ push(1, pitch("G4"))
 push(1, pitch("G4"))
 push(1/2, pitch("E4"))
 push(1/2, pitch("D4"))
-push(4, pitch("C4"))
+push(3, pitch("C4"))
 
 
 

@@ -114,7 +114,7 @@ export class Timeline {
       .filter(k => {
         if (k instanceof NoteKey) {
           const keyEnd = k.timing + k.length
-          return (k.timing >= timing && k.timing < end) || (keyEnd >= timing && keyEnd < end)
+          return (k.timing >= timing && k.timing < end) || (keyEnd > timing && keyEnd <= end)
         }
         else {
           return true

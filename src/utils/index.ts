@@ -28,3 +28,13 @@ export function checkInside(elem: Element, x: number, y: number) {
   const rect = elem.getClientRects()[0]
   return (rect.left <= x && rect.right > x && rect.top <= y && rect.bottom > y)
 }
+
+
+export function nvl<T>(a: T, b: T) {
+  if (a === null || a === undefined) {
+    return b
+  }
+  else {
+    return a
+  }
+}
