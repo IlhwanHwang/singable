@@ -10,6 +10,7 @@ import EnumerateSingable from "./EnumerateSingable";
 import ReharmonizeSingable from "./ReharmonizeSingable";
 import Singable from "./Singable";
 import ArpeggioSingable from "./ArpeggioSingable";
+import RepeatSingable from "./RepeatSingable";
 
 export default class SingablePanel extends Component {
 
@@ -31,6 +32,7 @@ export default class SingablePanel extends Component {
         ["New enumerate", () => new EnumerateSingable(this)],
         ["New reharmonize", () => new ReharmonizeSingable(this)],
         ["New arpeggio", () => new ArpeggioSingable(this)],
+        ["New repeat", () => new RepeatSingable(this)],
       ]
         .map(x => x as [string, () => Singable])
         .map(([text, factory]) =>

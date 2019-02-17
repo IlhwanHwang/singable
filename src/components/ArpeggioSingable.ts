@@ -52,6 +52,9 @@ export default class ArpeggioSingable extends Singable {
           const octave = Math.floor((rk.pitch - this.data.riff.basePitch) / keysAtTime.length)
           return keysAtTime[index].replace({ pitch: keysAtTime[index].pitch + octave * 12 })
         }
+        else {
+          return null
+        }
       })()
       const velocity = targetKey.velocity * rk.velocity
       return rk.replace({ pitch: targetKey.pitch, velocity: velocity })
