@@ -127,8 +127,11 @@ export class PianoRollEditor extends Component {
             .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
             .map(([key, name]) => {
               return createOptionNode(n => {
-                n.innerText = name.toString()
-                n.value = key.toString()
+                n.innerText = name
+                n.value = key
+                if (n.value === this.data.instrumentKey.toString()) {
+                  n.selected = true
+                }
             })
           })
         ]),
@@ -143,6 +146,9 @@ export class PianoRollEditor extends Component {
             return createOptionNode(n => {
               n.value = (i + 1).toString()
               n.innerText = (i + 1).toString()
+              if (n.value === this.data.channel.toString()) {
+                n.selected = true
+              }
             })
           })
         ]),

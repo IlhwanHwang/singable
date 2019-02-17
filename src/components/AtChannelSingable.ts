@@ -49,7 +49,7 @@ export default class AtChannelSingable extends Singable {
 
 import {createSelectNode, createOptionNode} from "../utils/singable"
 import { editorSingable } from "../renderer";
-import { fillArray } from "../utils";
+import { range } from "lodash";
 
 
 export class AtChannelEditor extends Component {
@@ -76,10 +76,13 @@ export class AtChannelEditor extends Component {
             editorSingable.get().update()
           }
         }, [
-          ...fillArray(Array<number>(16), 0).map((_, ind) => {
+          ...range(16).map((_, ind) => {
             return createOptionNode(n => {
               n.value = (ind + 1).toString()
               n.innerText = (ind + 1).toString()
+              if (ind + 1 === this.data.channel) {
+                n.selected = true
+              }
             })
           })
         ])

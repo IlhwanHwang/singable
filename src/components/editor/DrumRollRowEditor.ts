@@ -28,6 +28,9 @@ export default class DrumRollRowEditor extends Component {
               return createOptionNode(n => {
                 n.innerText = name
                 n.value = key
+                if (n.value === this.data.key.toString()) {
+                  n.selected = true
+                }
               })
             })
           )

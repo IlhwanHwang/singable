@@ -200,7 +200,7 @@ export class NaturalMinorScale implements Scale {
 
   chord(numeral: Numeral) {
     if (numeral.secondaryDominant) {
-      const base = this.tone(numeral.index) + 7
+      const base = this.tone(numeral.index) - 5
       return numeral.seventh
         ? [base, base + 4, base + 7, base + 11]
         : [base, base + 4, base + 7]

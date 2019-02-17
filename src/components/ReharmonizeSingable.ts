@@ -53,6 +53,23 @@ export default class ReharmonizeSingable extends Singable {
     }
   }
 
+  getScaleNotation(scaleData: ReharmonizeStructure["scale"] = null) {
+    if (scaleData) {
+      return `${scaleData.tonic}-${scaleData.quality}`
+    }
+    else {
+      return `${this.data.scale.tonic}-${this.data.scale.quality}`
+    }
+  }
+
+  parseScaleNotation(notation: string) {
+    const [tonicStr, qualityStr] = notation.split("-")
+    return {
+      tonic: parseInt(tonicStr),
+      quality: qualityStr
+    }
+  }
+
   getChordNodes(): Array<ChordNode> {
     const scale = this.getScale()
     const op = this.ip.findOut()
@@ -81,15 +98,17 @@ export default class ReharmonizeSingable extends Singable {
 
 export class ReharmonizeEditor extends BaseEditor {
   data: ReharmonizeStructure
+  reharmonizer: ReharmonizeSingable
 
   constructor(parent: Component, singable: Singable, data: ReharmonizeStructure) {
     super(parent, singable)
     this.data = data
+    this.reharmonizer = (this.singable as ReharmonizeSingable)
   }
 
   render(): [HTMLElement, HTMLElement] {
     try {
-      const chordNodes = (this.singable as ReharmonizeSingable).getChordNodes()
+      const chordNodes = this.reharmonizer.getChordNodes()
       const newDiv = createDivNode(n => {
           n.style.border = "solid 1px orange",
           n.style.width = "100%",
@@ -98,32 +117,38 @@ export class ReharmonizeEditor extends BaseEditor {
         }, [
           createDivNode(null, [
             createSelectNode(n => {
-              n.value = `${this.data.scale.tonic},${this.data.scale.quality}`
-              console.log(`${this.data.scale.tonic},${this.data.scale.quality}`)
               n.onchange = e => {
-                const [tonicStr, qualityStr] = (e.target as HTMLSelectElement).value.split(",")
-                this.data.scale.tonic = parseInt(tonicStr)
-                this.data.scale.quality = qualityStr
+                const { tonic, quality } = this.reharmonizer.parseScaleNotation(n.value)
+                this.data.scale.tonic = tonic
+                this.data.scale.quality = quality
                 this.update()
               }
             }, [
               ...range(0, 12).map(p => createOptionNode(n => {
-                n.value = `${p},major`
+                n.value = this.reharmonizer.getScaleNotation({ tonic: p, quality: "major"})
                 n.innerText = `${pitchNotation(p, false)} Major`
+                if (n.value === this.reharmonizer.getScaleNotation()) {
+                  n.selected = true
+                }
               })),
               ...range(0, 12).map(p => createOptionNode(n => {
-                n.value = `${p},minor`
+                n.value = this.reharmonizer.getScaleNotation({ tonic: p, quality: "minor"})
                 n.innerText = `${pitchNotation(p, false)} Minor`
+                if (n.value === this.reharmonizer.getScaleNotation()) {
+                  n.selected = true
+                }
               }))
             ])
           ]),
           createDivNode(null, [
-            ...chordNodes.map(cn => createDivNode(n => {
-              n.innerText = cn.numeral.notation()
-              n.style.display = "inline-block"
-              n.style.width = `${cn.length * 48}px`
-              n.style.border = "solid 1px cyan"
-            }))
+            ...flatten(
+              chordNodes.map(cn => range(cn.length).map(_ => createDivNode(n => {
+                n.innerText = cn.numeral.notation()
+                n.style.display = "inline-block"
+                n.style.width = "48px"
+                n.style.border = "solid 1px cyan"
+              })))
+            )
           ])
         ]
       )
