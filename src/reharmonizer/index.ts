@@ -28,6 +28,16 @@ export class Numeral {
   replace(n: Partial<Numeral>): Numeral {
     return new Numeral(nvl(n.index, this.index), nvl(n.seventh, this.seventh), nvl(n.secondaryDominant, this.secondaryDominant))
   }
+
+  static parse(notation: string) {
+    if (notation) {
+      const [secondaryDominantStr, indexStr, seventhStr] = notation.match(RegExp("(v7/)?(iii|vii|vi|ii|iv|v|i)(7)?"))
+      return new Numeral(parseInt(indexStr), seventhStr ? true : false, secondaryDominantStr ? true : false)
+    }
+    else {
+      return null
+    }
+  }
 }
 
 export function interval(notation: string) {
@@ -105,6 +115,7 @@ export function songToChordNodes(timeline: Timeline, scale: Scale, restrictions:
   options = {
     cadenceAt: 16,
     cadenceScore: 1,
+    restrictionAdvantage: 256,
     advantages: (n: Numeral) => {
       return n.secondaryDominant
         ? -0.2
@@ -122,7 +133,7 @@ export function songToChordNodes(timeline: Timeline, scale: Scale, restrictions:
     return range(0, timeline.length, g).map(timing => {
       if (restrictions[timing]) {
         const numeral = restrictions[timing]
-        return [new ChordNode(numeral, 0, timing, g)]
+        return [new ChordNode(numeral, options.restrictionAdvantage, timing, g)]
       }
       else {
         const melody = timeline

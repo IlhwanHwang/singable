@@ -11,10 +11,7 @@ import { ChordNode } from "../reharmonizer/ChordDag";
 
 export interface ReharmonizeStructure {
   restrictions: {
-    [index: number]: {
-      index: number,
-      secondaryDominant: boolean
-    }
+    [index: string]: string
   }
   scale: {
     tonic: number,
@@ -71,11 +68,11 @@ export default class ReharmonizeSingable extends Singable {
   }
 
   getChordNodes(): Array<ChordNode> {
+    const numeralRestrictions = fromPairs(toPairs(this.data.restrictions)
+      .map(([k, r]) => [k, Numeral.parse(r)]))
     const scale = this.getScale()
     const op = this.ip.findOut()
     const singer = op ? op.parent as Singable : null
-    const numeralRestrictions = fromPairs(toPairs(this.data.restrictions)
-      .map(([k, r]) => [k, new Numeral(r.index, false, r.secondaryDominant)]))
     const chordNodes = singer
       ? songToChordNodes(singer.sing(), scale, numeralRestrictions, [1, 2, 4], {advantages: (n: Numeral) => 0})
       : []
@@ -109,6 +106,7 @@ export class ReharmonizeEditor extends BaseEditor {
   render(): [HTMLElement, HTMLElement] {
     try {
       const chordNodes = this.reharmonizer.getChordNodes()
+      const numerals = this.reharmonizer.getScale().possibleNumerals()
       const newDiv = createDivNode(n => {
           n.style.border = "solid 1px orange",
           n.style.width = "100%",
@@ -142,12 +140,34 @@ export class ReharmonizeEditor extends BaseEditor {
           ]),
           createDivNode(null, [
             ...flatten(
-              chordNodes.map(cn => range(cn.length).map(_ => createDivNode(n => {
-                n.innerText = cn.numeral.notation()
-                n.style.display = "inline-block"
-                n.style.width = "48px"
-                n.style.border = "solid 1px cyan"
-              })))
+              chordNodes.map(cn => range(cn.length).map(i => {
+                const timing = cn.timing + i
+                return createDivNode(n => {
+                  n.innerText = cn.numeral.notation()
+                  n.style.display = "inline-block"
+                  n.style.width = "48px"
+                  n.style.border = "solid 1px cyan"
+                }, [
+                  createSelectNode(n => {
+                    n.onchange = e => {
+                      this.data.restrictions[timing] = n.value
+                      this.update()
+                    }
+                  }, [
+                    createOptionNode(n => {
+                      n.innerText = "None"
+                      n.value = ""
+                    }),
+                    ...numerals.map(numeral => createOptionNode(n => {
+                      n.innerText = numeral.notation()
+                      n.value = numeral.notation()
+                      if (n.value === this.data.restrictions[timing.toString()]) {
+                        n.selected = true
+                      }
+                    }))
+                  ])
+                ])
+              }))
             )
           ])
         ]
