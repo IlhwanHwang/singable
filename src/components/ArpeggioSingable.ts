@@ -41,9 +41,11 @@ export default class ArpeggioSingable extends Singable {
     const chordKeys = timelineChord.keys.filter(k => k instanceof NoteKey).map(k => k as NoteKey) 
     const riffKeys = timelineRiff.keys.filter(k => k instanceof NoteKey).map(k => k as NoteKey)
     return new Timeline(timelineChord.length, riffKeys.map(rk => {
-      const keysAtTime = chordKeys.filter(ck => ck.timing <= rk.timing && ck.timing + ck.length > rk.timing)
+      const keysAtTime = chordKeys
+        .filter(ck => ck.timing <= rk.timing && ck.timing + ck.length > rk.timing)
+        .sort((a, b) => a.pitch - b.pitch)
       const indexRaw = (rk.pitch - this.data.riff.basePitch) % keysAtTime.length
-      const index = indexRaw > 0 ? indexRaw : indexRaw + keysAtTime.length
+      const index = indexRaw >= 0 ? indexRaw : indexRaw + keysAtTime.length
       const targetKey = (() => {
         if (this.data.outliers === "loop") {
           return keysAtTime[index]
