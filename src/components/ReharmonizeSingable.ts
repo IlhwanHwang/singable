@@ -5,7 +5,7 @@ import BaseEditor from "./BaseEditor";
 import NoteKey, { Timeline, pitchNotation } from "../Key";
 import { range, flatten, sum, toPairs, fromPairs } from "lodash"
 import { createDivNode, createSelectNode, createOptionNode } from "../utils/singable";
-import { MajorScale } from "../reharmonizer/Scale";
+import { MajorScale, NaturalMinorScale } from "../reharmonizer/Scale";
 import { Numeral, songToChordNodes } from "../reharmonizer";;
 import { ChordNode } from "../reharmonizer/ChordDag";
 
@@ -46,11 +46,10 @@ export default class ReharmonizeSingable extends Singable {
   }
 
   getScale() {
-    if (this.data.scale.quality === "major") {
-      return new MajorScale(this.data.scale.tonic)
-    }
-    else {
-      return null
+    switch (this.data.scale.quality) {
+      case "major": return new MajorScale(this.data.scale.tonic)
+      case "minor": return new NaturalMinorScale(this.data.scale.tonic)
+      default: return null
     }
   }
 
