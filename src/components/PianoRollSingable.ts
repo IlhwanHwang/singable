@@ -1,6 +1,6 @@
 import Singable from "./Singable"
 import Component from "./Component";
-import { OutEndpoint } from "./Endpoint";
+import { OutEndpoint, InEndpoint } from "./Endpoint";
 import NoteKey, {Timeline, pitchMax, pitchMin, pitchNotation, ProgramChangeKey} from "../Key"
 import { range, toPairs } from "lodash"
 import { createDivNode, createSpanNode, createButtonNode, createSelectNode, createOptionNode, createInputNode } from "../utils/singable";
@@ -20,6 +20,7 @@ export interface PianoRollStructure {
 export default class PianoRollSingable extends Singable {
   data: PianoRollStructure
   op: OutEndpoint
+  ip: InEndpoint
   instrumentName: string = instruments["1"]
 
   constructor(parent: Component) {
@@ -32,6 +33,7 @@ export default class PianoRollSingable extends Singable {
     }
     this.name = "new piano roll object"
     this.op = new OutEndpoint(this)
+    this.ip = new InEndpoint(this)
   }
 
   getEditor(parent: Component): Component {
@@ -72,6 +74,17 @@ export class PianoRollEditor extends BaseEditor {
   constructor(parent: Component, singable: PianoRollSingable) {
     super(parent, singable)
     this.data = singable.data
+    if (singable.ip.findOut()) {
+      const song = (singable.ip.findOut().parent as Singable).sing()
+      song.keys.forEach(k => {
+        if (k instanceof NoteKey) {
+          const pianoKey = new ShadowKey(this, k)
+          const snapped = this.unsnap(k.pitch, k.timing)
+          pianoKey.x = snapped.x
+          pianoKey.y = snapped.y
+        }
+      })
+    }
     this.data.keys.forEach(k => {
       const pianoKey = new PianoRollKey(this, k)
       const snapped = this.unsnap(k.pitch, k.timing)
@@ -315,6 +328,7 @@ class PianoRollKey extends Draggable {
       n.style.height = `${parent.unitPitchHeight}px`
       n.style.backgroundColor = "red"
       n.style.resize = "horizontal"
+      n.style.border = "solid 1px black"
       n.oncontextmenu = e => {
         e.preventDefault()
         // TODO: smarter data sync
@@ -358,5 +372,28 @@ class PianoRollKey extends Draggable {
       parent.data.keys = parent.data.keys.map(k => k === oldKey ? newKey : k)
     }
     this.update()
+  }
+}
+
+class ShadowKey extends PianoRollKey {
+  suppress = false
+
+  render(): [HTMLElement, HTMLElement] {
+    const [target, container] = super.render()
+    target.style.backgroundColor = this.suppress ? "cyan" : "blue"
+    target.oncontextmenu = e => {
+      // const parent = (this.parent as PianoRollEditor)
+      // parent.data.keys = parent.data.push()
+      // this.suppress = !this.suppress
+    }
+    return [target, container]
+  }
+
+  onDragStart(e: DragEvent) {
+
+  }
+
+  onDragging(e: DragEvent) {
+
   }
 }
