@@ -35,7 +35,7 @@ export default class PianoRollSingable extends Singable {
   }
 
   getEditor(parent: Component): Component {
-    return new PianoRollEditor(parent, this.data)
+    return new PianoRollEditor(parent, this)
   }
 
   render(): [HTMLElement, HTMLElement] {
@@ -107,7 +107,7 @@ export class PianoRollEditor extends BaseEditor {
             }
           }
           const play = () => {
-            this.singable..sing().toFile("./temp.mid")
+            this.singable.sing().toFile("./temp.mid")
             this.player = new Player()
             this.player.play("temp.mid", _ => stop())
             n.innerText = "Stop"

@@ -26,7 +26,7 @@ export default class TransposeSingable extends Singable {
   }
 
   getEditor(parent: Component): Component {
-    return new TransposeEditor(editorBase, this.data)
+    return new TransposeEditor(editorBase, this)
   }
 
   render(): [HTMLElement, HTMLElement] {

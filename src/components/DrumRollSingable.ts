@@ -22,7 +22,7 @@ export default class DrumRollSingable extends Singable {
   }
 
   getEditor(parent: Component): Component {
-    return new DrumRollEditor(parent, this.data)
+    return new DrumRollEditor(parent, this)
   }
 
   sing(): Timeline {
