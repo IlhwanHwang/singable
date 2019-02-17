@@ -170,6 +170,50 @@ connections.watch(() => {
   connections.get().forEach(cn => cn.update())
 })
 
+
+import PianoRollSingable from "./components/PianoRollSingable"
+import NoteKey, { pitch } from "./Key";
+
+
+const newSingable = new PianoRollSingable(singablePanel)
+let timing = 0
+newSingable.data.length = 32
+const push = (length: number, pitch: number) => {
+  newSingable.data.keys.push(new NoteKey(timing, length, pitch))
+  timing += length
+}
+push(1, pitch("G4"))
+push(1, pitch("G4"))
+push(1/2, pitch("E4"))
+push(1/2, pitch("F4"))
+push(1, pitch("G4"))
+push(1, pitch("A4"))
+push(1, pitch("A4"))
+push(2, pitch("G4"))
+push(1, pitch("G4"))
+push(1, pitch("C5"))
+push(1, pitch("E5"))
+push(1/2, pitch("D5"))
+push(1/2, pitch("C5"))
+push(4, pitch("D5"))
+push(1, pitch("E5"))
+push(1, pitch("E5"))
+push(1, pitch("D5"))
+push(1, pitch("D5"))
+push(1, pitch("C5"))
+push(1/2, pitch("D5"))
+push(1/2, pitch("C5"))
+push(1, pitch("A4"))
+push(1, pitch("A4"))
+push(1, pitch("G4"))
+push(1, pitch("G4"))
+push(1, pitch("G4"))
+push(1/2, pitch("E4"))
+push(1/2, pitch("D4"))
+push(4, pitch("C4"))
+
+
+
 root.update()
 editorSingable.watch(editorBase)
 eval("window.rootComp = root")

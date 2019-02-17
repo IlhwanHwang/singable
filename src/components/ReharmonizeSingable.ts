@@ -3,17 +3,31 @@ import Singable from "./Singable"
 import { InEndpoint, OutEndpoint } from "./Endpoint";
 import BaseEditor from "./BaseEditor";
 import NoteKey, { Timeline, pitchNotation } from "../Key";
-import { range, zip, flatten, sum } from "lodash"
+import { range, zip, flatten, sum, toPairs, fromPairs } from "lodash"
 import { createDivNode, createSelectNode, createOptionNode } from "../utils/singable";
 import { editorSingable } from "../renderer";
 
 export interface ReharmonizeStructure {
-  restrictions: { [index: number]: Numeral }
+  restrictions: {
+    [index: number]: {
+      index: number,
+      secondaryDominant: boolean
+    }
+  }
   scale: {
     tonic: number,
     quality: string
   }
 }
+
+
+function restrictionNumeralize(restrictions: ReharmonizeStructure["restrictions"]) {
+  return fromPairs(
+    toPairs(restrictions)
+      .map(([k, r]) => [k, new Numeral(r.index, false, r.secondaryDominant)])
+  )
+}
+
 
 export default class ReharmonizeSingable extends Singable {
   data: ReharmonizeStructure
@@ -37,6 +51,34 @@ export default class ReharmonizeSingable extends Singable {
   getEditor(parent: Component): Component {
     return new ReharmonizeEditor(parent, this, this.data)
   }
+
+  getScale() {
+    return selectScale(this.data.scale.tonic, this.data.scale.quality)
+  }
+
+  getChordNodes() {
+    const scale = this.getScale()
+    const op = this.ip.findOut()
+    const singer = op ? op.parent as Singable : null
+    const numeralRestrictions = fromPairs(toPairs(this.data.restrictions)
+      .map(([k, r]) => [k, new Numeral(r.index, false, r.secondaryDominant)]))
+    const chordNodes = singer
+      ? songToChordNodes(singer.sing(), scale, numeralRestrictions, [1, 2, 4])
+      : []
+    return chordNodes
+  }
+
+  sing(): Timeline {
+    const chordNodes = this.getChordNodes()
+    const scale = this.getScale()
+    return new Timeline(
+      sum(chordNodes.map(cn => cn.length)),
+      flatten(
+        chordNodes
+          .map(cn => scale.chord(cn.numeral).map(p => [p, cn.timing, cn.length]))
+      ).map(([pitch, timing, length]) => new NoteKey(timing, length, pitch + 60))
+    )
+  }
 }
 
 
@@ -50,11 +92,13 @@ export class ReharmonizeEditor extends BaseEditor {
 
   render(): [HTMLElement, HTMLElement] {
     try {
-      const scale = new MajorScale(this.data.scale.tonic)
+      const scale = selectScale(this.data.scale.tonic, this.data.scale.quality)
       const op = (this.singable as ReharmonizeSingable).ip.findOut()
       const singer = op ? op.parent as Singable : null
+      const numeralRestrictions = fromPairs(toPairs(this.data.restrictions)
+        .map(([k, r]) => [k, new Numeral(r.index, false, r.secondaryDominant)]))
       const chordNodes = singer
-        ? songToChordNodes(singer.sing(), scale, this.data.restrictions, [1, 2, 4])
+        ? songToChordNodes(singer.sing(), scale, numeralRestrictions, [1, 2, 4])
         : []
       const newDiv = createDivNode(n => {
           n.style.border = "solid 1px orange",
@@ -74,17 +118,20 @@ export class ReharmonizeEditor extends BaseEditor {
             }, [
               ...range(0, 12).map(p => createOptionNode(n => {
                 n.value = `${p},major`
-                n.innerText = `${pitchNotation(p)} Major`
+                n.innerText = `${pitchNotation(p, false)} Major`
               })),
               ...range(0, 12).map(p => createOptionNode(n => {
                 n.value = `${p},minor`
-                n.innerText = `${pitchNotation(p)} Minor`
+                n.innerText = `${pitchNotation(p, false)} Minor`
               }))
             ])
           ]),
           createDivNode(null, [
             ...chordNodes.map(cn => createDivNode(n => {
               n.innerText = cn.numeral.notation()
+              n.style.display = "inline-block"
+              n.style.width = `${cn.length * 48}px`
+              n.style.border = "solid 1px cyan"
             }))
           ])
         ]
@@ -114,6 +161,10 @@ class Numeral {
   notation() {
     return (this.secondaryDominant ? "v7/" : "") + ["i", "ii", "iii", "iv", "v", "vi", "vii"][this.index - 1] + (this.seventh ? "7" : "")
   }
+
+  equals(other: Numeral) {
+    return this.index === other.index && this.secondaryDominant === other.secondaryDominant && this.seventh === other.seventh
+  }
 }
 
 type Pitch = number
@@ -121,6 +172,7 @@ type Pitch = number
 interface Scale {
   tonic: Pitch,
   possibleNumerals: () => Array<Numeral>
+  possibleCadences: () => Array<Numeral>
   chord: (numeral: Numeral) => Array<Pitch>
   availableTensionNotesPrimary: (numeral: Numeral) => Array<Pitch>
   availableTensionNotesSecondary: (numeral: Numeral) => Array<Pitch>
@@ -139,6 +191,16 @@ function interval(notation: string) {
   const pitch = [0, 2, 4, 5, 7, 9, 11][index - 1]
   return pitch + semitones + octave * 12
 } 
+
+
+function selectScale(tonic: number, quality: string) {
+  if (quality === "major") {
+    return new MajorScale(tonic)
+  }
+  else {
+    return null
+  }
+}
 
 
 class MajorScale implements Scale {
@@ -162,6 +224,11 @@ class MajorScale implements Scale {
     new Numeral(6, false, true),
   ]
 
+  cadences = [
+    new Numeral(1, false, false),
+    new Numeral(5, false, false),
+  ]
+
   indexTransitions: { [index: string]: Array<Pitch> } = {
     1: [1, 2, 3, 4, 5, 6],
     2: [2, 3, 5],
@@ -172,6 +239,8 @@ class MajorScale implements Scale {
   }
 
   possibleNumerals() { return this.numerals }
+
+  possibleCadences() { return this.cadences }
 
   isTransitable(n1: Numeral, n2: Numeral) {
     if (n1.secondaryDominant) {
@@ -351,17 +420,36 @@ function getMelodyWeight(melody: Array<NoteKey>) {
 }
 
 
-function scoreMelody(scale: Scale, melody: Array<NoteKey>, numeral: Numeral, weight: Array<number>, options: { [index: string]: number } = {}) {
+interface ScoreMelodyOption {
+  scoreFundamental: number
+  scoreConsonance: number
+  scorePrimary: number
+  scoreSecondary: number
+  scoreDissonance: number
+  advantages: (n: Numeral) => number
+}
+
+
+function scoreMelody(scale: Scale, melody: Array<NoteKey>, numeral: Numeral, weight: Array<number>, options: Partial<ScoreMelodyOption> = {}) {
   if (melody.length === 0) {
     return 0
   }
   
   options = {
-    "scoreFundamental": 1,
-    "scoreConsonance": 0.5,
-    "scorePrimary": 0.25,
-    "scoreSecondary": 0.125,
-    "scoreDissonance": -1,
+    scoreFundamental: 1,
+    scoreConsonance: 0.5,
+    scorePrimary: 0.25,
+    scoreSecondary: 0.125,
+    scoreDissonance: -1,
+    advantages: (n: Numeral) => {
+      return n.secondaryDominant
+        ? -0.2
+        : (
+          n.index === 1 || n.index === 4 || n.index === 5
+            ? 0.2
+            : -0.2
+          )
+    },
     ...options
   }
 
@@ -389,12 +477,18 @@ function scoreMelody(scale: Scale, melody: Array<NoteKey>, numeral: Numeral, wei
       }
     })
   
-  return sum(zip(scores, weight).map(([s, w]) => s * w)) / sum(weight)
+  return sum(zip(scores, weight).map(([s, w]) => s * w)) / sum(weight) + options.advantages(numeral)
 }
 
-function songToChordNodes(timeline: Timeline, scale: Scale, restrictions: { [index: number]: Numeral }, granularity: Array<number>) {
+function songToChordNodes(timeline: Timeline, scale: Scale, restrictions: { [index: number]: Numeral }, granularity: Array<number>, options: any = {}) {
+  options = {
+    cadenceAt: 16,
+    cadenceScore: 1,
+    ...options
+  }
   const numerals = scale.possibleNumerals()
-  const nodes = granularity.map(g => {
+  const cadences = scale.possibleCadences()
+  const nodes = granularity.map(g => { 
     return range(0, timeline.length, g).map(timing => {
       if (restrictions[timing]) {
         const numeral = restrictions[timing]
@@ -407,8 +501,17 @@ function songToChordNodes(timeline: Timeline, scale: Scale, restrictions: { [ind
           .filter(k => k instanceof NoteKey)
           .map(k => k as NoteKey)
         const weight = getMelodyWeight(melody)
+        const isCadence = (timing + g) % options.cadenceAt === 0
         const scores = numerals.map(n => scoreMelody(scale, melody, n, weight))
-        return zip(numerals, scores).map(([n, s]) => new ChordNode(n, s, timing, g))
+        if (isCadence) {
+          return zip(numerals, scores)
+            .map(([n, s]) => [n, s + (cadences.some(m => m.equals(n)) ? options.cadenceScore : 0)] as [Numeral, number])
+            .map(([n, s]) => new ChordNode(n, s, timing, g))
+        }
+        else {
+          return zip(numerals, scores)
+            .map(([n, s]) => new ChordNode(n, s, timing, g))
+        }
       }
     })
   })

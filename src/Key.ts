@@ -45,10 +45,10 @@ export default class NoteKey extends BaseKey {
   velocity: number
   channel: number
 
-  constructor(timing: number, length: number, tone: number, velocity: number = 1, channel: number = 1) {
+  constructor(timing: number, length: number, pitch: number, velocity: number = 1, channel: number = 1) {
     super(timing)
     this.length = length
-    this.pitch = tone
+    this.pitch = pitch
     this.velocity = velocity
     this.channel = channel
   }
@@ -137,8 +137,17 @@ export class Timeline {
 
 
 
-export function pitchNotation(pitch: number) {
+export function pitchNotation(pitch: number, includeOctave: boolean = true) {
   const octave = Math.floor(pitch / 12) - 1
   const tone = [ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"][pitch % 12]
-  return `${tone}${octave}`
+  return includeOctave ? `${tone}${octave}` : `${tone}`
+}
+
+
+export function pitch(notation: string) {
+  const [_, tone, accidential, octave] = notation.match(RegExp("([A-G])([#bx]*)(-?[0-9]*)"))
+  const countOccurance = (s: string, c: string) => s.split("").filter(d => d === c).length
+  const semitones = countOccurance(accidential, "#") + countOccurance(accidential, "x") * 2 - countOccurance(accidential, "b")
+  const basepitch = ({ C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 } as { [index: string]: number })[tone]
+  return basepitch + semitones + (parseInt(octave) + 1) * 12
 }
