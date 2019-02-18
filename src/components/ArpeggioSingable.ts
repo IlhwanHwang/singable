@@ -25,7 +25,7 @@ export default class ArpeggioSingable extends Singable {
         basePitch: 60
       }
     }
-    this.name = "new at-channel object"
+    this.name = "new arpeggio object"
     this.op = new OutEndpoint(this)
     this.ipChord = new InEndpoint(this, 1/3)
     this.ipRiff = new InEndpoint(this, 2/3)
