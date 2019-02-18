@@ -17,6 +17,10 @@ export default class Draggable extends Component {
   allowTransform = true
   dragging = false
 
+  moveTo(x: number, y: number) {
+    this.target.style.transform = `translate(${x}px, ${y}px)`
+  }
+
   create() {
     super.create()
 
@@ -25,7 +29,7 @@ export default class Draggable extends Component {
 
     if (this.__translateX !== undefined && this.__translateY !== undefined) {
       if (this.allowTransform) {
-        targetNode.style.transform = `translate3D(${this.__translateX}px, ${this.__translateY}px, 0)`
+        this.moveTo(this.__translateX, this.__translateY)
       }
     }
 
@@ -61,7 +65,7 @@ export default class Draggable extends Component {
         this.__translateX += deltaX
         this.__translateY += deltaY
         if (this.allowTransform) {
-          targetNode.style.transform = `translate3D(${this.__translateX}px, ${this.__translateY}px, 0)`
+          this.moveTo(this.__translateX, this.__translateY)
         }
 
         this.__mousePrevX = e.x

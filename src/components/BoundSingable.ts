@@ -2,7 +2,7 @@ import Component from "./Component"
 import Singable from "./Singable"
 import {createDivNode} from "../utils/singable"
 import { InEndpoint, OutEndpoint } from "./Endpoint";
-import NoteKey, { Timeline, ProgramChangeKey, pitchNotation } from "../Key";
+import NoteKey, { Timeline, ProgramChangeKey, pitchNotation, pitchMax, pitchMin } from "../Key";
 
 export interface BoundStructure {
   upper: number
@@ -83,7 +83,7 @@ export class BoundEditor extends BaseEditor {
             this.singable.update()
           }
         }, [
-          ...range(127, 0, -1).map(pitch => {
+          ...range(pitchMax, pitchMin, -1).map(pitch => {
             return createOptionNode(n => {
               n.value = pitch.toString()
               n.innerText = pitchNotation(pitch)
@@ -99,7 +99,7 @@ export class BoundEditor extends BaseEditor {
             this.singable.update()
           }
         }, [
-          ...range(127, 0, -1).map(pitch => {
+          ...range(pitchMax, pitchMin, -1).map(pitch => {
             return createOptionNode(n => {
               n.value = pitch.toString()
               n.innerText = pitchNotation(pitch)

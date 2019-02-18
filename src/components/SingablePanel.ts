@@ -12,10 +12,29 @@ import Singable from "./Singable";
 import ArpeggioSingable from "./ArpeggioSingable";
 import RepeatSingable from "./RepeatSingable";
 import BoundSingable from "./BoundSingable";
+import Draggable, {DragEvent} from "./Draggable";
 
-export default class SingablePanel extends Component {
+export default class SingablePanel extends Draggable {
+  zoom = 1
+
+  constructor(parent: Component) {
+    super(parent)
+    this.allowTransform = false
+  }
+
+  transform() {
+    this.container.style.transform = `matrix(${this.zoom}, 0, 0, ${this.zoom}, ${this.__translateX}, ${this.__translateY})`
+    this.update()
+  }
+
+  onDragging(e: DragEvent) {
+    this.transform()
+  }
 
   render(): [HTMLElement, HTMLElement] {
+    const container = createDivNode(n => {
+      n.style.transform = `matrix(${this.zoom}, 0, 0, ${this.zoom}, ${this.__translateX}, ${this.__translateY})`
+    })
     const newDiv = createDivNode(
       n => {
         n.style.border = "solid 1px black",
@@ -23,31 +42,42 @@ export default class SingablePanel extends Component {
         n.style.height = "100%",
         n.style.boxSizing = "border-box"
         n.style.overflow = "hidden"
+        n.onwheel = e => {
+          if (e.deltaY > 0) { this.zoom /= 1.5 }
+          if (e.deltaY < 0) { this.zoom *= 1.5 }
+          this.transform()
+        }
+        n.style.width = "100%"
+        n.style.height = "100%"
+        n.style.position = "relative"
       },
       [
-        ["New drum roll", () => new DrumRollSingable(this)],
-        ["New piano roll", () => new PianoRollSingable(this)],
-        ["New transpose", () => new TransposeSingable(this)],
-        ["New at-channel", () => new AtChannelSingable(this)],
-        ["New output", () => new OutputSingable(this)],
-        ["New parallel", () => new ParallelSingable(this)],
-        ["New enumerate", () => new EnumerateSingable(this)],
-        ["New reharmonize", () => new ReharmonizeSingable(this)],
-        ["New arpeggio", () => new ArpeggioSingable(this)],
-        ["New repeat", () => new RepeatSingable(this)],
-        ["New bound", () => new BoundSingable(this)],
+        container,
+        ...[
+          ["New drum roll", () => new DrumRollSingable(this)],
+          ["New piano roll", () => new PianoRollSingable(this)],
+          ["New transpose", () => new TransposeSingable(this)],
+          ["New at-channel", () => new AtChannelSingable(this)],
+          ["New output", () => new OutputSingable(this)],
+          ["New parallel", () => new ParallelSingable(this)],
+          ["New enumerate", () => new EnumerateSingable(this)],
+          ["New reharmonize", () => new ReharmonizeSingable(this)],
+          ["New arpeggio", () => new ArpeggioSingable(this)],
+          ["New repeat", () => new RepeatSingable(this)],
+          ["New bound", () => new BoundSingable(this)],
+        ]
+          .map(x => x as [string, () => Singable])
+          .map(([text, factory]) =>
+          createButtonNode(n => {
+            n.innerText = text
+            n.onclick = e => {
+              const newSingable = factory()
+              newSingable.update()
+            }
+          })
+        )
       ]
-        .map(x => x as [string, () => Singable])
-        .map(([text, factory]) =>
-        createButtonNode(n => {
-          n.innerText = text
-          n.onclick = e => {
-            const newSingable = factory()
-            newSingable.update()
-          }
-        })
-      )
     )
-    return [newDiv, newDiv]
+    return [newDiv, container]
   }
 }
