@@ -222,9 +222,9 @@ export class PianoRollEditor extends BaseEditor {
             const pitchNotation = this.target.querySelector(".pianoroll-pitch-notation")
             pitchNotation.scroll(0, n.scrollTop)
           }
-          n.onload = e => {
-            n.scroll(0, 480)
-          }
+          setTimeout(() => {
+            n.scroll(0, 480) // TODO: elegant way to handle scroll
+          }, 100);
         }, [
           createDivNode(n => {
             n.style.position = "relative"
@@ -329,6 +329,7 @@ class PianoRollKey extends Draggable {
       n.style.backgroundColor = "red"
       n.style.resize = "horizontal"
       n.style.border = "solid 1px black"
+      n.style.boxSizing = "border-box"
       n.oncontextmenu = e => {
         e.preventDefault()
         // TODO: smarter data sync
