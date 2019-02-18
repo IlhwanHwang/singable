@@ -21,6 +21,10 @@ export default class Draggable extends Component {
     this.target.style.transform = `translate(${x}px, ${y}px)`
   }
 
+  dragCriteria(e: DragEvent): boolean {
+    return true
+  }
+
   create() {
     super.create()
 
@@ -42,6 +46,15 @@ export default class Draggable extends Component {
       if (this.__translateX === undefined && this.__translateY === undefined) {
         this.__translateX = 0
         this.__translateY = 0
+      }
+
+      if (!this.dragCriteria({
+        deltaX: this.__deltaX, 
+        deltaY: this.__deltaY, 
+        x: e.x,
+        y: e.y
+      })) {
+        return
       }
 
       this.dragging = true

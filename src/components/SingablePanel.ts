@@ -13,6 +13,7 @@ import ArpeggioSingable from "./ArpeggioSingable";
 import RepeatSingable from "./RepeatSingable";
 import BoundSingable from "./BoundSingable";
 import Draggable, {DragEvent} from "./Draggable";
+import { checkInside } from "../utils";
 
 export default class SingablePanel extends Draggable {
   zoom = 1
@@ -29,6 +30,12 @@ export default class SingablePanel extends Draggable {
 
   onDragging(e: DragEvent) {
     this.transform()
+  }
+
+  dragCriteria(e: DragEvent): boolean {
+    return !this.children.some(c => {
+      return checkInside(c.target, e.x, e.y)
+    })
   }
 
   render(): [HTMLElement, HTMLElement] {

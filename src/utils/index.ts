@@ -24,6 +24,13 @@ export function centerOf(elem: Element) {
   return [rect.left + rect.width / 2, rect.top + rect.height / 2]
 }
 
+export function localCenterOf(elem: Element) {
+  const rect = elem.getClientRects()[0]
+  const rectParent = elem.parentElement.getClientRects()[0]
+  return [rect.left - rectParent.left + rect.width / 2, rect.top - rectParent.top + rect.height / 2]
+}
+
+
 export function checkInside(elem: Element, x: number, y: number) {
   const rect = elem.getClientRects()[0]
   return (rect.left <= x && rect.right > x && rect.top <= y && rect.bottom > y)
