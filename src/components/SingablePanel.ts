@@ -21,6 +21,7 @@ export default class SingablePanel extends Component {
         n.style.width = "100%",
         n.style.height = "100%",
         n.style.boxSizing = "border-box"
+        n.style.overflow = "hidden"
       },
       [
         ["New drum roll", () => new DrumRollSingable(this)],

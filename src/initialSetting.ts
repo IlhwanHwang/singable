@@ -114,14 +114,14 @@ push = (length: number, pitch: number) => {
 }
 newRiff.initX = 10
 newRiff.initY = 0
-push(1/2, pitch("C5"))
-push(1/2, pitch("C##5"))
-push(1/2, pitch("C#5"))
-push(1/2, pitch("C##5"))
-push(1/2, pitch("C5"))
-push(1/2, pitch("C##5"))
-push(1/2, pitch("C#5"))
-push(1/2, pitch("C##5"))
+push(1/2, pitch("C4"))
+push(1/2, pitch("C##4"))
+push(1/2, pitch("C#4"))
+push(1/2, pitch("C##4"))
+push(1/2, pitch("C4"))
+push(1/2, pitch("C##4"))
+push(1/2, pitch("C#4"))
+push(1/2, pitch("C##4"))
 
 
 const newRepeat = new RepeatSingable(singablePanel)
