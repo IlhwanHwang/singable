@@ -15,6 +15,7 @@ export interface PianoRollStructure {
   length: number
   instrumentKey: number
   channel: number
+  screen: Array<{ timing: number, length: number }>
 }
 
 export default class PianoRollSingable extends Singable {
@@ -29,7 +30,8 @@ export default class PianoRollSingable extends Singable {
       keys: Array<NoteKey>(),
       length: 16,
       instrumentKey: 1,
-      channel: 1
+      channel: 1,
+      screen: Array<{ timing: number, length: number }>()
     }
     this.name = "new piano roll object"
     this.op = new OutEndpoint(this)
@@ -91,6 +93,45 @@ export class PianoRollEditor extends BaseEditor {
       pianoKey.x = snapped.x
       pianoKey.y = snapped.y
     })
+  }
+
+  addScreen(timing: number, length: number) {
+    const end = timing + length
+    const mergeFront = this.data.screen.filter(s => timing > s.timing && timing <= s.timing + s.length)
+    const mergeEnd = this.data.screen.filter(s => end >= s.timing && end < s.timing + s.length)
+    const unmerged = this.data.screen.filter(s => timing > s.timing + s.length || end < s.timing)
+
+    const mergedTiming = mergeFront.length > 0 ? mergeFront[0].timing : timing
+    const mergedEnd = mergeEnd.length > 0 ? mergeEnd[0].timing + mergeEnd[0].length : end
+
+    this.data.screen = unmerged.concat({ timing: mergedTiming, length: mergedEnd - mergedTiming })
+    this.update()
+  }
+
+  removeScreen(timing: number, length: number) {
+    const end = timing + length
+    const mergeFront = this.data.screen.filter(s => timing > s.timing && timing <= s.timing + s.length)
+    const mergeEnd = this.data.screen.filter(s => end >= s.timing && end < s.timing + s.length)
+    const unmerged = this.data.screen.filter(s => timing > s.timing + s.length || end < s.timing)
+
+    const mergedTiming = mergeFront.length > 0 ? mergeFront[0].timing : timing
+    const mergedEnd = mergeEnd.length > 0 ? mergeEnd[0].timing + mergeEnd[0].length : end
+
+    this.data.screen = unmerged
+    
+    if (mergeFront.length > 0) {
+      this.data.screen.push({
+        timing: mergeFront[0].timing,
+        length: timing - mergeFront[0].timing
+      })
+    }
+    if (mergeEnd.length > 0) {
+      this.data.screen.push({
+        timing: end,
+        length: mergeEnd[0].timing + mergeEnd[0].length - end
+      })
+    }
+    this.update()
   }
 
   render(): [HTMLElement, HTMLElement] {
@@ -234,12 +275,20 @@ export class PianoRollEditor extends BaseEditor {
             n.onmousedown = e => {
               const overlapped = this.children.filter(c => c instanceof PianoRollKey).filter(c => checkInside(c.target, e.pageX, e.pageY)).length > 0
               if (!overlapped) {
-                const snapped = this.snap(e.x - this.container.getClientRects()[0].left, e.y - this.container.getClientRects()[0].top)
-                const key = new NoteKey(snapped.timing, this.lengthPrev, snapped.pitch)
-                const pianoKey = new PianoRollKey(this, key)
-                pianoKey.update()
-                pianoKey.target.onmousedown(e)
-                this.data.keys.push(key)
+                if (e.button === 0) {
+                  const snapped = this.snap(e.x - this.container.getClientRects()[0].left, e.y - this.container.getClientRects()[0].top)
+                  const key = new NoteKey(snapped.timing, this.lengthPrev, snapped.pitch)
+                  const pianoKey = new PianoRollKey(this, key)
+                  pianoKey.update()
+                  pianoKey.target.onmousedown(e)
+                  this.data.keys.push(key)
+                }
+                else if (e.button === 2) {
+                  const snapped = this.snap(e.x - this.container.getClientRects()[0].left, 0)
+                  const screen = new PianoRollScreen(this, snapped.timing, e.ctrlKey)
+                  screen.update()
+                  screen.target.onmousedown(e)
+                }
               }
             }
           }, [
@@ -269,6 +318,18 @@ export class PianoRollEditor extends BaseEditor {
                   : "solid 1px lightgray"
               })
             }),
+            ...this.data.screen.map(s => {
+              return createDivNode(n => {
+                const left = this.unsnap(0, s.timing).x
+                const right = this.unsnap(0, s.timing + s.length).x
+                n.style.backgroundColor = "orange"
+                n.style.position = "absolute"
+                n.style.left = `${left}px`
+                n.style.width = `${right - left}px`
+                n.style.top = "0"
+                n.style.height = "100%"
+              })
+            }),
             container
           ])
         ])
@@ -280,7 +341,7 @@ export class PianoRollEditor extends BaseEditor {
 
   snap(x: number, y: number): {x: number, y: number, pitch: number, timing: number} {
     const timing = this.snapToGrid
-      ? Math.floor(x / this.unitBeatLength / this.snapBeatResolution) * this.snapBeatResolution
+      ? Math.round(x / this.unitBeatLength / this.snapBeatResolution) * this.snapBeatResolution
       : x / this.unitBeatLength
     const pitch = pitchMax - Math.floor(y / this.unitPitchHeight)
     return {
@@ -298,6 +359,59 @@ export class PianoRollEditor extends BaseEditor {
     }
   }
 }
+
+
+class PianoRollScreen extends Draggable {
+  timing: number
+  length: number
+  editorParent: PianoRollEditor
+  remove: boolean
+
+  constructor(parent: Component, timing: number, remove: boolean) {
+    super(parent)
+    this.editorParent = parent as PianoRollEditor
+    this.timing = timing
+    this.allowTransform = false
+    this.remove = remove
+  }
+
+  render(): [HTMLElement, HTMLElement] {
+    const newDiv = createDivNode(n => {
+      const x1 = this.editorParent.unsnap(0, this.timing).x
+      const x2 = this.editorParent.unsnap(0, this.timing + this.length).x
+      const startX = Math.min(x1, x2)
+      const width = Math.max(x1, x2) - Math.min(x1, x2)
+      n.style.position = "absolute"
+      n.style.left = `${startX}px`
+      n.style.width = `${width}px`
+      n.style.top = "0"
+      n.style.height = "100%"
+      n.style.backgroundColor = this.remove ? "pink" : "yellow"
+    })
+
+    return [newDiv, newDiv]
+  }
+
+  onDragging(e: DragEvent) {
+    const { x } = this.editorParent.unsnap(0, this.timing)
+    const { timing } = this.editorParent.snap(x + e.deltaX, 0)
+    this.length = timing - this.timing
+    this.update()
+  }
+
+  onDragStop(e: DragEvent) {
+    const timing = Math.min(this.timing, this.timing + this.length)
+    const length = Math.abs(this.length)
+    if (this.remove) {
+      this.editorParent.removeScreen(timing, length)
+    }
+    else {
+      this.editorParent.addScreen(timing, length)
+    }
+    this.destroy()
+  }
+}
+
 
 class PianoRollKey extends Draggable {
   key: NoteKey
