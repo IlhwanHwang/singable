@@ -6,6 +6,7 @@ import ParallelSingable from "./components/ParallelSingable";
 import RepeatSingable from "./components/RepeatSingable";
 import ArpeggioSingable from "./components/ArpeggioSingable";
 import OutputSingable from "./components/OutputSingable";
+import BoundSingable from "./components/BoundSingable";
 
 
 const newMelody = new PianoRollSingable(singablePanel)
@@ -105,6 +106,11 @@ newReharmonize.initX = 240
 newReharmonize.initY = 100
 
 
+const newBound = new BoundSingable(singablePanel)
+newBound.data.lower = pitch("C3")
+newBound.data.upper = pitch("C4")
+
+
 const newRiff = new PianoRollSingable(singablePanel)
 timing = 0
 newRiff.data.length = 4
@@ -147,6 +153,7 @@ newOutput.initY = 240
 
 newMelody.update()
 newReharmonize.update()
+newBound.update()
 newRiff.update()
 newRepeat.update()
 newArpeggio.update()
@@ -155,7 +162,8 @@ newOutput.update()
 
 connections.add(newMelody.op, newReharmonize.ip)
 connections.add(newRiff.op, newRepeat.ip)
-connections.add(newReharmonize.op, newArpeggio.ipChord)
+connections.add(newReharmonize.op, newBound.ip)
+connections.add(newBound.op, newArpeggio.ipChord)
 connections.add(newRepeat.op, newArpeggio.ipRiff)
 connections.add(newMelody.op, newParallel.ipDummy[0])
 connections.add(newArpeggio.op, newParallel.ipDummy[0])
