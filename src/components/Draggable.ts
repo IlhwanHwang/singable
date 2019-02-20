@@ -10,8 +10,8 @@ export interface DragEvent {
 export default class Draggable extends Component {
   __mousePrevX: number
   __mousePrevY: number
-  __translateX: number
-  __translateY: number
+  __translateX: number = 0
+  __translateY: number = 0
   __deltaX: number
   __deltaY: number
   allowTransform = true

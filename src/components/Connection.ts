@@ -23,8 +23,6 @@ export default class Connection extends Component {
     const [x1, y1] = centerOf(this.op.target)
     const [x2, y2] = centerOf(this.ip.target)
     const parent = (this.parent as SingablePanel)
-    const offsetX = parent.__translateX + parent.target.getClientRects()[0].left
-    const offsetY = parent.__translateY + parent.target.getClientRects()[0].top
 
     const line = drawLine(this.lineId, x1, y1, x2, y2)
     line.style.stroke = "blue"
@@ -33,8 +31,10 @@ export default class Connection extends Component {
     const newDiv = createButtonNode(n => {
       n.innerText = "Delete"
       n.style.position = "absolute"
-      n.style.left = `${(x1 + x2) / 2 - offsetX}px`
-      n.style.top = `${(y1 + y2) / 2 - offsetY}px`
+      const localX = ((x1 + x2) / 2 - parent.__translateX - parent.target.getBoundingClientRect().left) / parent.zoom
+      const localY = ((y1 + y2) / 2 - parent.__translateY - parent.target.getBoundingClientRect().top) / parent.zoom
+      n.style.left = `${localX}px`
+      n.style.top = `${localY}px`
       // n.style.transform = `translate(${x}px, ${y}px)`
       n.onclick = e => {
         connections.remove(this.op, this.ip)
