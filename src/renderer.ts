@@ -10,57 +10,14 @@ import Watchable from "./utils/Watchable"
 import Connection from "./components/Connection"
 import { OutEndpoint, InEndpoint } from "./components/Endpoint";
 import { createDivNode, createButtonNode } from "./utils/singable";
+import MasterTab from "./components/MasterTab"
 
 export const editorSingable = new Watchable<Singable>(null)
 export const outConnectionFocus = new Watchable<OutEndpoint>(null)
 
-const root = new Component()
+export const rootComp = new Component()
 
-
-
-
-const layoutTab = new class extends Component {
-  player: Player = null
-
-  render(): [HTMLElement, HTMLElement] {
-    const newDiv = createDivNode(n => {
-      n.style.width = "100vw"
-      n.style.height = "24px"
-    }, [
-      createButtonNode(n => {
-        n.innerText = "Play"
-        const play = (): void => {
-          const output = (() => {
-            const founds = singablePanel.find(s => (s instanceof OutputSingable))
-            if (founds.length === 1) {
-              return founds[0]
-            }
-            else {
-              window.alert("Zero, two or more outputs are detected.")
-              return
-            }
-          })() as Singable
-        
-          if (output === null) {
-            return
-          }
-        
-          output.sing().toFile("./test.mid")
-          this.player = new Player()
-          this.player.play("./test.mid", stop)
-          n.innerText = "Stop"
-        }
-        const stop = (): void => {
-          if (this.player) { this.player.stop() }
-          this.player = null
-          n.innerText = "Play"
-        }
-        n.onclick = e => this.player ? stop() : play()
-      })
-    ])
-    return [newDiv, newDiv]
-  }
-}(root)
+new MasterTab(rootComp)
 
 const layoutPanels = new class extends Component {
   render(): [HTMLElement, HTMLElement] {
@@ -70,7 +27,7 @@ const layoutPanels = new class extends Component {
     })
     return [newDiv, newDiv]
   }
-}(root)
+}(rootComp)
 
 const layoutSingablePanel = new class extends Component {
   render(): [HTMLElement, HTMLElement] {
@@ -170,9 +127,7 @@ connections.watch(() => {
   connections.get().forEach(cn => cn.update())
 })
 
-root.update()
+rootComp.update()
 editorSingable.watch(editorBase)
-eval("window.rootComp = root")
-
 
 require("./initialSetting")
