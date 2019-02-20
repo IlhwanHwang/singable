@@ -2,7 +2,7 @@ import Singable from "./Singable"
 import Component from "./Component";
 import { OutEndpoint, InEndpoint } from "./Endpoint";
 import NoteKey, {Timeline, pitchMax, pitchMin, pitchNotation, ProgramChangeKey} from "../Key"
-import { range, toPairs } from "lodash"
+import { range, toPairs, zip, flatten } from "lodash"
 import { createDivNode, createSpanNode, createButtonNode, createSelectNode, createOptionNode, createInputNode } from "../utils/singable";
 import Draggable, {DragEvent} from "./Draggable";
 import { checkInside } from "../utils";
@@ -53,11 +53,45 @@ export default class PianoRollSingable extends Singable {
   }
 
   sing(): Timeline {
+    const inherited = this.ip.findOut()
+      ? (this.ip.findOut().parent as Singable).sing().keys
+      : []
+    const screened = flatten(inherited.map(k => {
+      if (k instanceof NoteKey) {
+        const overlapping = this.data.screen.filter(s => s.timing <= k.timing && s.timing + s.length >= k.timing + k.length)
+        if (overlapping[0]) {
+          return []
+        }
+        const crossing = this.data.screen.filter(s => s.timing > k.timing && s.timing + s.length < k.end())
+        const heading = this.data.screen.filter(s => s.timing <= k.timing && s.timing + s.length > k.timing)
+        const tailing = this.data.screen.filter(s => s.timing < k.end() && s.timing + s.length >= k.end())
+        if (crossing.length + heading.length + tailing.length === 0) {
+          return [k]
+        }
+        else {
+          console.log(k.timing, heading, tailing, crossing)
+          crossing.unshift({ timing: 0, length: heading[0] ? heading[0].timing + heading[0].length : k.end() })
+          crossing.push({ timing: tailing[0] ? tailing[0].timing : k.timing + k.length, length: 0 })
+          console.log(k.timing, crossing)
+          return zip(crossing.slice(0, crossing.length - 1), crossing.slice(1, crossing.length))
+            .map(([a, b]) => {
+              const timing = a.timing + a.length
+              const end = b.timing
+              return k.replace({ timing: timing, length: end - timing })
+            })
+            .filter(t => t.length > 0)
+        }
+      }
+      else {
+        return [k]
+      }
+    }))
     return new Timeline(
       this.data.length,
       [
         new ProgramChangeKey(0, this.data.instrumentKey, this.data.channel),
-        ...this.data.keys.map(k => k.replace({channel: this.data.channel}))
+        ...this.data.keys.map(k => k.replace({channel: this.data.channel})),
+        ...screened
       ]
     )
   }
@@ -104,7 +138,9 @@ export class PianoRollEditor extends BaseEditor {
     const mergedTiming = mergeFront.length > 0 ? mergeFront[0].timing : timing
     const mergedEnd = mergeEnd.length > 0 ? mergeEnd[0].timing + mergeEnd[0].length : end
 
-    this.data.screen = unmerged.concat({ timing: mergedTiming, length: mergedEnd - mergedTiming })
+    this.data.screen = unmerged
+      .concat({ timing: mergedTiming, length: mergedEnd - mergedTiming })
+      .sort((a, b) => a.timing - b.timing)
     this.update()
   }
 
@@ -363,7 +399,7 @@ export class PianoRollEditor extends BaseEditor {
 
 class PianoRollScreen extends Draggable {
   timing: number
-  length: number
+  length: number = 0
   editorParent: PianoRollEditor
   remove: boolean
 
@@ -380,7 +416,7 @@ class PianoRollScreen extends Draggable {
       const x1 = this.editorParent.unsnap(0, this.timing).x
       const x2 = this.editorParent.unsnap(0, this.timing + this.length).x
       const startX = Math.min(x1, x2)
-      const width = Math.max(x1, x2) - Math.min(x1, x2)
+      const width = Math.abs(x1 - x2)
       n.style.position = "absolute"
       n.style.left = `${startX}px`
       n.style.width = `${width}px`

@@ -62,6 +62,10 @@ export default class NoteKey extends BaseKey {
       part.channel || this.channel
     )
   }
+
+  end() {
+    return this.timing + this.length
+  }
 }
 
 
