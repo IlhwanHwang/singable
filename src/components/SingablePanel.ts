@@ -40,6 +40,8 @@ export default class SingablePanel extends Draggable {
 
   render(): [HTMLElement, HTMLElement] {
     const container = createDivNode(n => {
+      n.style.width = "0"
+      n.style.height = "0"
       n.style.transform = `matrix(${this.zoom}, 0, 0, ${this.zoom}, ${this.__translateX}, ${this.__translateY})`
     })
     const newDiv = createDivNode(
@@ -50,9 +52,23 @@ export default class SingablePanel extends Draggable {
         n.style.boxSizing = "border-box"
         n.style.overflow = "hidden"
         n.onwheel = e => {
-          if (e.deltaY > 0) { this.zoom /= 1.5 }
-          if (e.deltaY < 0) { this.zoom *= 1.5 }
+          const zoomAfter = (() => {
+            if (e.deltaY > 0) { return this.zoom / 1.5 }
+            else if (e.deltaY < 0) { return this.zoom * 1.5 }
+            else { return this.zoom }
+          })()
+
+          const { left, top } = n.getBoundingClientRect()
+          const localMouseX = ((e.x - left) - this.__translateX) / this.zoom
+          const localMouseY = ((e.y - top) - this.__translateY) / this.zoom
+          this.__translateX -= localMouseX * (zoomAfter - this.zoom)
+          this.__translateY -= localMouseY * (zoomAfter - this.zoom)
+          this.moveTo()
+
+          this.zoom = zoomAfter
           this.transform()
+
+          this.children.forEach(c => { if (c instanceof Singable) { c.dragSpeed = 1 / zoomAfter } })
         }
         n.style.width = "100%"
         n.style.height = "100%"
@@ -80,6 +96,7 @@ export default class SingablePanel extends Draggable {
             n.onclick = e => {
               const newSingable = factory()
               newSingable.update()
+              newSingable.moveTo(-this.__translateX / this.zoom + 320, -this.__translateY / this.zoom + 160)
             }
           })
         )

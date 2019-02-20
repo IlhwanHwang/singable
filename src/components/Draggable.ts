@@ -16,6 +16,7 @@ export default class Draggable extends Component {
   __deltaY: number
   allowTransform = true
   dragging = false
+  dragSpeed = 1
 
   moveTo(x: number = null, y: number = null) {
     if (x === null && y === null) {
@@ -77,8 +78,8 @@ export default class Draggable extends Component {
       const dragging = (e: MouseEvent) => {
         e.preventDefault()
 
-        const deltaX = e.x - this.__mousePrevX
-        const deltaY = e.y - this.__mousePrevY
+        const deltaX = (e.x - this.__mousePrevX) * this.dragSpeed
+        const deltaY = (e.y - this.__mousePrevY) * this.dragSpeed
 
         this.__deltaX += deltaX
         this.__deltaY += deltaY
