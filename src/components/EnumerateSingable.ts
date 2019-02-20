@@ -7,6 +7,7 @@ import MultipleInputSingable from "./MultipleInputSingable";
 
 
 export default class EnumerateSingable extends MultipleInputSingable {
+  className: string = "enumerate"
   op: OutEndpoint
 
   constructor(parent: Component) {

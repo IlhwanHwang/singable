@@ -7,6 +7,7 @@ import { connections } from "../renderer";
 
 
 export default class MultipleInputSingable extends Singable {
+  className: string = "multiple-input"
   ipConnected: Array<InEndpoint>
   ipDummy: Array<InEndpoint>
 
@@ -66,9 +67,11 @@ export default class MultipleInputSingable extends Singable {
     const ipCountTotal = this.ipDummy.length + this.ipConnected.length
     this.ipDummy.forEach((ip, ind) => {
       ip.position = (ind * 2 + 1) / (ipCountTotal + 1)
+      ip.uniqueName = `dummy-endpoint-${ind}`
     })
     this.ipConnected.forEach((ip, ind) => {
       ip.position = (ind * 2 + 2) / (ipCountTotal + 1)
+      ip.uniqueName = `connected-endpoint-${ind}`
     })
 
     super.update()

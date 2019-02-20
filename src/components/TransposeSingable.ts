@@ -11,6 +11,7 @@ export interface TransposeStructure {
 }
 
 export default class TransposeSingable extends Singable {
+  className: string = "transpose"
   data: TransposeStructure
   op: OutEndpoint
   ip: InEndpoint

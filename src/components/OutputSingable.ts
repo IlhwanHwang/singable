@@ -5,6 +5,7 @@ import { Timeline } from "../Key";
 import { NullEditor } from "./NullEditor";
 
 export default class OutputSingable extends Singable {
+  className: string = "output"
   ip: InEndpoint
 
   constructor(parent: Component) {

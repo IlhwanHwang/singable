@@ -4,12 +4,15 @@ import { createDivNode, createButtonNode } from "../utils/singable";
 import { singablePanel, connections, rootComp } from "../renderer";
 import OutputSingable from "./OutputSingable";
 import Singable from "./Singable";
-
+import { remote } from "electron"
+import { writeFileSync, readFileSync } from "fs"
+import { toPairs } from "lodash"
 
 export default class MasterTab extends Component {
   player: Player = null
+  savePath: string = null
 
-  newProject(e: MouseEvent) {
+  newProject() {
     while (connections.get().length > 0) {
       connections.set(connections.get().slice(0, connections.get().length - 1))
     }
@@ -21,10 +24,68 @@ export default class MasterTab extends Component {
     rootComp.update()
   }
 
-  openProject(e: MouseEvent) {
+  openProject() {
+    const path = remote.dialog.showOpenDialog({
+      filters: [
+        { name: "Singable 파일 (*.singable)", extensions: ["singable"] }
+      ]
+    })
+
+    if (path === undefined) {
+      return
+    }
+
+    this.newProject()
+    const data = JSON.parse(readFileSync(path[0], { "encoding": "utf-8" }))
+    const singableData = data["singableData"] as Array<any>
+    singableData.forEach(d => {
+      d
+    })
   }
 
-  saveProject(e: MouseEvent) {
+  saveProject(dialog: boolean) {
+    if (dialog) {
+      const path = remote.dialog.showSaveDialog({
+        filters: [
+          { name: "Singable 파일 (*.singable)", extensions: ["singable"] }
+        ]
+      })
+      if (path !== undefined) {
+        this.savePath = path
+      }
+      else {
+        return
+      }
+    }
+
+    const singableData = singablePanel.children
+      .filter(c => c instanceof Singable)
+      .map(c => c as Singable)
+      .map(singable => {
+        return {
+          type: singable.className,
+          x: singable.__translateX,
+          y: singable.__translateY,
+          name: singable.name,
+          id: singable.systemName,
+          data: singable.data,
+          endpoints: singable.endpoints.map(ep => [ep.systemName, ep.uniqueName]),
+        }
+      })
+
+    const connectionData = connections.get().map(({ op, ip }) => {
+      return {
+        op: [op.systemName, op.uniqueName],
+        ip: [ip.systemName, ip.uniqueName],
+      }
+    })
+
+    const data = {
+      singables: singableData,
+      connections: connectionData
+    }
+
+    writeFileSync(this.savePath, JSON.stringify(data, null, 2))
   }
 
   render(): [HTMLElement, HTMLElement] {
@@ -42,7 +103,11 @@ export default class MasterTab extends Component {
       }),
       createButtonNode(n => {
         n.innerText = "Save"
-        n.onclick = this.saveProject
+        n.onclick = e => { this.saveProject(this.savePath === null) }
+      }),
+      createButtonNode(n => {
+        n.innerText = "Save As"
+        n.onclick = e => { this.saveProject(true) }
       }),
       createButtonNode(n => {
         n.innerText = "Play"

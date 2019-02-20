@@ -20,6 +20,7 @@ export interface ReharmonizeStructure {
 }
 
 export default class ReharmonizeSingable extends Singable {
+  className: string = "reharmonize"
   data: ReharmonizeStructure
   op: OutEndpoint
   ip: InEndpoint

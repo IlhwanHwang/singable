@@ -16,7 +16,7 @@ export default class Connection extends Component {
     super(parent)
     this.op = op
     this.ip = ip
-    this.lineId = `connection-line-${this.op.debugName}-${this.ip.debugName}`
+    this.lineId = `connection-line-${this.op.systemName}-${this.ip.systemName}`
   }
 
   render(): [HTMLElement, HTMLElement] {

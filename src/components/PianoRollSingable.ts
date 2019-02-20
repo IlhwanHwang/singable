@@ -19,6 +19,7 @@ export interface PianoRollStructure {
 }
 
 export default class PianoRollSingable extends Singable {
+  className: string = "pianoroll"
   data: PianoRollStructure
   op: OutEndpoint
   ip: InEndpoint

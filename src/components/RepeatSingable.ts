@@ -12,6 +12,7 @@ export interface RepeatStructure {
 }
 
 export default class RepeatSingable extends Singable {
+  className: string = "repeat"
   data: RepeatStructure
   op: OutEndpoint
   ip: InEndpoint

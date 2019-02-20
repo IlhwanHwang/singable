@@ -10,6 +10,7 @@ export interface BoundStructure {
 }
 
 export default class BoundSingable extends Singable {
+  className: string = "bound"
   data: BoundStructure
   op: OutEndpoint
   ip: InEndpoint

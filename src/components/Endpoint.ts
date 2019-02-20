@@ -7,12 +7,14 @@ import { nativeImage } from "electron";
 export class Endpoint extends Component {
   color: string
   position: number
+  uniqueName: string
 
-  constructor(parent: Component, position = 0.5) {
+  constructor(parent: Component, uniqueName: string, position = 0.5) {
     super(parent)
     const s = this.parent as Singable
     s.endpoints.push(this)
     this.position = position
+    this.uniqueName = uniqueName
   }
 
   destroy() {
@@ -34,8 +36,8 @@ export class Endpoint extends Component {
 }
 
 export class OutEndpoint extends Endpoint {
-  constructor(parent: Component, position = 0.5) {
-    super(parent, position)
+  constructor(parent: Component, uniqueName = "out-endpoint", position = 0.5) {
+    super(parent, uniqueName, position)
     this.color = "blue"
   }
 
@@ -52,8 +54,8 @@ export class OutEndpoint extends Endpoint {
 
 
 export class InEndpoint extends Endpoint {
-  constructor(parent: Component, position = 0.5) {
-    super(parent, position)
+  constructor(parent: Component, uniqueName = "in-endpoint", position = 0.5) {
+    super(parent, uniqueName, position)
     this.color = "red"
   }
 

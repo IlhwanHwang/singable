@@ -7,6 +7,7 @@ import MultipleInputSingable from "./MultipleInputSingable";
 
 
 export default class ParallelSingable extends MultipleInputSingable {
+  className: string = "parallel"
   op: OutEndpoint
 
   constructor(parent: Component) {

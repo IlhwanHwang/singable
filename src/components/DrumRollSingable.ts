@@ -7,6 +7,7 @@ import NoteKey, {Timeline} from "../Key"
 import {flatten} from "lodash"
 
 export default class DrumRollSingable extends Singable {
+  className: string = "drumroll"
   data: DrumRollStructure
   op: OutEndpoint
 

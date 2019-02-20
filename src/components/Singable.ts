@@ -6,14 +6,17 @@ import {Timeline} from "../Key"
 import { Endpoint, InEndpoint, OutEndpoint } from "./Endpoint";
 
 export default class Singable extends Draggable {
+  className: string = "singable"
 	name: string
   nameEditing: boolean
   editor: Component
-  endpoints = Array<Endpoint>()
+  endpoints: Array<Endpoint>
+  data: {}
 
   constructor(parent: Component) {
     super(parent)
     this.name = "new singable object"
+    this.endpoints = Array<Endpoint>()
     this.onDragging = e => {
       connections.update()
     }

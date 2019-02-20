@@ -12,6 +12,7 @@ export interface ArpeggioStructure {
 }
 
 export default class ArpeggioSingable extends Singable {
+  className: string = "arpeggio"
   data: ArpeggioStructure
   op: OutEndpoint
   ipChord: InEndpoint
@@ -27,8 +28,8 @@ export default class ArpeggioSingable extends Singable {
     }
     this.name = "new arpeggio object"
     this.op = new OutEndpoint(this)
-    this.ipChord = new InEndpoint(this, 1/3)
-    this.ipRiff = new InEndpoint(this, 2/3)
+    this.ipChord = new InEndpoint(this, "chord-endpoint", 1/3)
+    this.ipRiff = new InEndpoint(this, "riff-endpoint", 2/3)
   }
 
   getEditor(parent: Component): Component {

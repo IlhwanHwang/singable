@@ -10,6 +10,7 @@ export interface AtChannelStructure {
 }
 
 export default class AtChannelSingable extends Singable {
+  className: string = "at-channel"
   data: AtChannelStructure
   op: OutEndpoint
   ip: InEndpoint

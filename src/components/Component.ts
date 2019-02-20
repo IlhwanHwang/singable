@@ -9,7 +9,7 @@ export default class Component {
   target: HTMLElement = null
   container: HTMLElement = null
   parent: Component = null
-  debugName: string = `component-${id++}`
+  systemName: string = `component-${id++}`
   children = new Array<Component>()
 
   constructor(parent: Component = null) {
