@@ -17,8 +17,16 @@ export default class Draggable extends Component {
   allowTransform = true
   dragging = false
 
-  moveTo(x: number, y: number) {
-    this.target.style.transform = `translate(${x}px, ${y}px)`
+  moveTo(x: number = null, y: number = null) {
+    if (x === null && y === null) {
+      x = this.__translateX
+      y = this.__translateY
+    }
+    else {
+      this.__translateX = x
+      this.__translateY = y
+    }
+    this.target.style.transform = `translate(${x}px, ${y}px)`   
   }
 
   dragCriteria(e: DragEvent): boolean {
@@ -33,7 +41,7 @@ export default class Draggable extends Component {
 
     if (this.__translateX !== undefined && this.__translateY !== undefined) {
       if (this.allowTransform) {
-        this.moveTo(this.__translateX, this.__translateY)
+        this.moveTo()
       }
     }
 
@@ -78,7 +86,7 @@ export default class Draggable extends Component {
         this.__translateX += deltaX
         this.__translateY += deltaY
         if (this.allowTransform) {
-          this.moveTo(this.__translateX, this.__translateY)
+          this.moveTo()
         }
 
         this.__mousePrevX = e.x

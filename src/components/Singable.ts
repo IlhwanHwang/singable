@@ -10,8 +10,6 @@ export default class Singable extends Draggable {
   nameEditing: boolean
   editor: Component
   endpoints = Array<Endpoint>()
-  initX: number
-  initY: number
 
   constructor(parent: Component) {
     super(parent)
@@ -31,11 +29,9 @@ export default class Singable extends Draggable {
         n.style.border = "solid 1px black"
         n.style.width = "160px"
         n.style.height = "120px"
-        // n.style.overflow = "hidden"
         n.style.position = "absolute"
-        n.style.left = `${this.initX}px`
-        n.style.top = `${this.initY}px`
-        n.style.pointerEvents = "auto"
+        n.style.left = "0"
+        n.style.top = "0"
         n.onmousedown = e => {
           if (editorSingable.get() !== this) {
             if (editorSingable.get() !== null) {

@@ -16,8 +16,6 @@ let push = (length: number, pitch: number) => {
   newMelody.data.keys.push(new NoteKey(timing, length, pitch))
   timing += length
 }
-newMelody.initX = 10
-newMelody.initY = 200
 
 push(1, pitch("B4"))
 push(1, pitch("G4"))
@@ -102,14 +100,10 @@ newReharmonize.data.scale = {
   tonic: 4,
   quality: "minor"
 }
-newReharmonize.initX = 240
-newReharmonize.initY = 100
-
 
 const newBound = new BoundSingable(singablePanel)
 newBound.data.lower = pitch("C3")
 newBound.data.upper = pitch("C4")
-
 
 const newRiff = new PianoRollSingable(singablePanel)
 timing = 0
@@ -118,8 +112,6 @@ push = (length: number, pitch: number) => {
   newRiff.data.keys.push(new NoteKey(timing, length, pitch))
   timing += length
 }
-newRiff.initX = 10
-newRiff.initY = 0
 push(1/2, pitch("C4"))
 push(1/2, pitch("C##4"))
 push(1/2, pitch("C#4"))
@@ -128,27 +120,13 @@ push(1/2, pitch("C4"))
 push(1/2, pitch("C##4"))
 push(1/2, pitch("C#4"))
 push(1/2, pitch("C##4"))
-
 
 const newRepeat = new RepeatSingable(singablePanel)
-newRepeat.initX = 240
-newRepeat.initY = 0
 newRepeat.data.repeat = 16
 
-
 const newArpeggio = new ArpeggioSingable(singablePanel)
-newArpeggio.initX = 480
-newArpeggio.initY = 50
-
-
 const newParallel = new ParallelSingable(singablePanel)
-newParallel.initX = 500
-newParallel.initY = 240
-
-
 const newOutput = new OutputSingable(singablePanel)
-newOutput.initX = 750
-newOutput.initY = 240
 
 
 newMelody.update()
@@ -159,6 +137,14 @@ newRepeat.update()
 newArpeggio.update()
 newParallel.update()
 newOutput.update()
+
+newRiff.moveTo(10, 0)
+newRepeat.moveTo(240, 0)
+newReharmonize.moveTo(240, 100)
+newMelody.moveTo(10, 240)
+newParallel.moveTo(500, 240)
+newArpeggio.moveTo(480, 50)
+newOutput.moveTo(750, 240)
 
 connections.add(newMelody.op, newReharmonize.ip)
 connections.add(newRiff.op, newRepeat.ip)
