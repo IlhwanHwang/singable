@@ -52,9 +52,12 @@ export default class Component {
   }
 
   update() {
+    if (this.target !== null) {
+      this.target.remove()
+    }
+    this.target = null
     this.create()
     this.children.forEach((c) => {
-      c.target = null
       c.update()
     })
   }
