@@ -152,9 +152,9 @@ export default class MasterTab extends Component {
             return
           }
         
-          output.sing().toFile("./test.mid")
+          output.sing().toFile("./temp.mid")
           this.player = new Player()
-          this.player.play("./test.mid", stop)
+          this.player.play("./temp.mid", stop)
           n.innerText = "Stop"
         }
         const stop = (): void => {

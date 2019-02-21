@@ -5,4 +5,3 @@ node_modules/midi-writer-js/*
 !node_modules/midi-writer-js/build/
 dist
 temp.mid
-test.mid
