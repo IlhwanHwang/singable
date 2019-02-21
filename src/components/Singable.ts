@@ -1,5 +1,5 @@
 import Component from "./Component"
-import Draggable from "./Draggable"
+import Draggable, { DragEvent } from "./Draggable"
 import {createDivNode, createButtonNode, createInputNode} from "../utils/singable"
 import { outConnectionFocus, connections, editorSingable, editorBase } from "../renderer";
 import {Timeline} from "../Key"
@@ -73,6 +73,10 @@ export default class Singable extends Draggable {
   
   sing(): Timeline {
     return new Timeline(0)
+  }
+
+  onDragStart(e: DragEvent) {
+    this.dragSpeed = 1 / singablePanel.zoom
   }
 
   destroy() {

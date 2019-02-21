@@ -73,8 +73,6 @@ export default class SingablePanel extends Draggable {
 
           this.zoom = zoomAfter
           this.transform()
-
-          this.children.forEach(c => { if (c instanceof Singable) { c.dragSpeed = 1 / zoomAfter } })
         }
         n.style.width = "100%"
         n.style.height = "100%"
