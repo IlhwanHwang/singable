@@ -289,6 +289,7 @@ export class PianoRollEditor extends BaseEditor {
           n.style.boxSizing = "border-box"
         }),
         createDivNode(n => {
+          n.classList.add("pianoroll-time-indicator")
           n.style.position = "absolute"
           n.style.left = "40px"
           n.style.top = "0"
@@ -296,7 +297,26 @@ export class PianoRollEditor extends BaseEditor {
           n.style.height = "20px"
           n.style.border = "solid 1px magenta"
           n.style.boxSizing = "border-box"
-        }),
+          n.style.overflow = "hidden"
+        }, [
+          createDivNode(n => {
+            n.style.position = "absolute"
+            n.style.left = "0"
+            n.style.top = "0"
+            n.style.width = `${this.unitBeatLength * (this.data.length + 1)}px`
+            n.style.height = "20px"
+          }, [
+            ...range(0, this.data.length).map(t => createDivNode(n => {
+              n.innerText = `${Math.floor(t / 4)}-${t % 4}(${t})`
+              n.style.position = "absolute"
+              n.style.left = `${this.unitBeatLength * t}px`
+              n.style.width = `${this.unitBeatLength}px`
+              n.style.top = "0"
+              n.style.height = "20px"
+              n.style.backgroundColor = t % 2 === 0 ? "white" : "lightgray"
+            }))
+          ])
+        ]),
         createDivNode(n => {
           n.style.position = "absolute"
           n.style.left = "0"
@@ -332,6 +352,8 @@ export class PianoRollEditor extends BaseEditor {
           n.onscroll = e => {
             const pitchNotation = this.target.querySelector(".pianoroll-pitch-notation")
             pitchNotation.scroll(0, n.scrollTop)
+            const timeIndicator = this.target.querySelector(".pianoroll-time-indicator")
+            timeIndicator.scroll(n.scrollLeft, 0)
             const singable = (this.singable as PianoRollSingable)
             singable.scrollX = n.scrollLeft
             singable.scrollY = n.scrollTop
