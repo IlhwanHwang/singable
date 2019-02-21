@@ -20,19 +20,21 @@ export default class Connection extends Component {
   }
 
   render(): [HTMLElement, HTMLElement] {
+    const parent = (this.parent as SingablePanel)
+    const parentX = parent.target.getBoundingClientRect().left
+    const parentY = parent.target.getBoundingClientRect().top
+
     const [x1, y1] = centerOf(this.op.target)
     const [x2, y2] = centerOf(this.ip.target)
-    const parent = (this.parent as SingablePanel)
-
-    const line = drawLine(this.lineId, x1, y1, x2, y2)
+    const line = drawLine(this.lineId, x1 - parentX, y1 - parentY, x2 - parentX, y2 - parentY)
     line.style.stroke = "blue"
     line.style.strokeWidth = "3"
 
     const newDiv = createButtonNode(n => {
       n.innerText = "Delete"
       n.style.position = "absolute"
-      const localX = ((x1 + x2) / 2 - parent.__translateX - parent.target.getBoundingClientRect().left) / parent.zoom
-      const localY = ((y1 + y2) / 2 - parent.__translateY - parent.target.getBoundingClientRect().top) / parent.zoom
+      const localX = ((x1 + x2) / 2 - parent.__translateX - parentX) / parent.zoom
+      const localY = ((y1 + y2) / 2 - parent.__translateY - parentY) / parent.zoom
       n.style.left = `${localX}px`
       n.style.top = `${localY}px`
       // n.style.transform = `translate(${x}px, ${y}px)`
