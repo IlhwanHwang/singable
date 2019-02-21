@@ -8,12 +8,13 @@ import AtChannelSingable from "./AtChannelSingable";
 import ParallelSingable from "./ParallelSingable";
 import EnumerateSingable from "./EnumerateSingable";
 import ReharmonizeSingable from "./ReharmonizeSingable";
-import Singable from "./Singable";
+import Singable, { factory } from "./Singable";
 import ArpeggioSingable from "./ArpeggioSingable";
 import RepeatSingable from "./RepeatSingable";
 import BoundSingable from "./BoundSingable";
 import Draggable, {DragEvent} from "./Draggable";
 import { checkInside } from "../utils";
+import { toPairs } from "lodash"
 
 export default class SingablePanel extends Draggable {
   zoom = 1
@@ -76,19 +77,7 @@ export default class SingablePanel extends Draggable {
       },
       [
         container,
-        ...[
-          ["New drum roll", () => new DrumRollSingable(this)],
-          ["New piano roll", () => new PianoRollSingable(this)],
-          ["New transpose", () => new TransposeSingable(this)],
-          ["New at-channel", () => new AtChannelSingable(this)],
-          ["New output", () => new OutputSingable(this)],
-          ["New parallel", () => new ParallelSingable(this)],
-          ["New enumerate", () => new EnumerateSingable(this)],
-          ["New reharmonize", () => new ReharmonizeSingable(this)],
-          ["New arpeggio", () => new ArpeggioSingable(this)],
-          ["New repeat", () => new RepeatSingable(this)],
-          ["New bound", () => new BoundSingable(this)],
-        ]
+        ...toPairs(factory)
           .map(x => x as [string, () => Singable])
           .map(([text, factory]) =>
           createButtonNode(n => {

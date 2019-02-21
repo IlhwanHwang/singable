@@ -17,20 +17,3 @@ export const createPNode = makeCreateNode<HTMLElement>("p")
 export const createSelectNode = makeCreateNode<HTMLSelectElement>("select")
 export const createOptionNode = makeCreateNode<HTMLOptionElement>("option")
 export const createSpanNode = makeCreateNode<HTMLSpanElement>("span")
-
-import { singablePanel } from "../renderer";
-import ArpeggioSingable from "../components/ArpeggioSingable";
-import AtChannelSingable from "../components/AtChannelSingable";
-import BoundSingable from "../components/BoundSingable";
-import DrumRollSingable from "../components/DrumRollSingable";
-
-const factory = {
-  arpeggio: () => new ArpeggioSingable(singablePanel),
-  "at-channel": () => new AtChannelSingable(singablePanel),
-  bound: () => new BoundSingable(singablePanel),
-  drumroll: () => new DrumRollSingable(singablePanel),
-}
-
-export function fromData(type: string, data: any) {
-  const singable = 
-}

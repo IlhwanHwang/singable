@@ -5,6 +5,7 @@ import { outConnectionFocus, connections, editorSingable, editorBase } from "../
 import {Timeline} from "../Key"
 import { Endpoint, InEndpoint, OutEndpoint } from "./Endpoint";
 
+
 export default class Singable extends Draggable {
   className: string = "singable"
 	name: string
@@ -86,4 +87,32 @@ export default class Singable extends Draggable {
     })
     super.destroy()
   }
+}
+
+
+import { singablePanel } from "../renderer";
+import ArpeggioSingable from "./ArpeggioSingable";
+import AtChannelSingable from "./AtChannelSingable";
+import BoundSingable from "./BoundSingable";
+import DrumRollSingable from "./DrumRollSingable";
+import EnumerateSingable from "./EnumerateSingable";
+import OutputSingable from "./OutputSingable";
+import ParallelSingable from "./ParallelSingable";
+import PianoRollSingable from "./PianoRollSingable";
+import RepeatSingable from "./RepeatSingable";
+import TransposeSingable from "./TransposeSingable";
+import ReharmonizeSingable from "./ReharmonizeSingable";
+
+export const factory: { [index: string]: () => Singable } = {
+  arpeggio: () => new ArpeggioSingable(singablePanel),
+  "at-channel": () => new AtChannelSingable(singablePanel),
+  bound: () => new BoundSingable(singablePanel),
+  drumroll: () => new DrumRollSingable(singablePanel),
+  enumerate: () => new EnumerateSingable(singablePanel),
+  output: () => new OutputSingable(singablePanel),
+  parallel: () => new ParallelSingable(singablePanel),
+  pianoroll: () => new PianoRollSingable(singablePanel),
+  repeat: () => new RepeatSingable(singablePanel),
+  reharmonize: () => new ReharmonizeSingable(singablePanel),
+  transpose: () => new TransposeSingable(singablePanel)
 }

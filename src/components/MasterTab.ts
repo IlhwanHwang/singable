@@ -3,10 +3,12 @@ import Player from "../utils/Player";
 import { createDivNode, createButtonNode } from "../utils/singable";
 import { singablePanel, connections, rootComp } from "../renderer";
 import OutputSingable from "./OutputSingable";
-import Singable from "./Singable";
+import Singable, { factory } from "./Singable";
 import { remote } from "electron"
 import { writeFileSync, readFileSync } from "fs"
-import { toPairs } from "lodash"
+import { fromPairs } from "lodash"
+import MultipleInputSingable from "./MultipleInputSingable";
+import { InEndpoint, OutEndpoint } from "./Endpoint";
 
 export default class MasterTab extends Component {
   player: Player = null
@@ -37,9 +39,29 @@ export default class MasterTab extends Component {
 
     this.newProject()
     const data = JSON.parse(readFileSync(path[0], { "encoding": "utf-8" }))
-    const singableData = data["singableData"] as Array<any>
-    singableData.forEach(d => {
-      d
+    
+    const singableData = data.singables as Array<any>
+    const singableMap = fromPairs(singableData.map(d => {
+      const singable = factory[d.type]()
+      singable.data = d.data
+      singable.name = d.name
+      singable.__translateX = d.x
+      singable.__translateY = d.y
+      singable.update()
+      return [d.systemName, singable]
+    })) as { [index: string]: Singable }
+
+    const connectionData = data.connections as Array<{ op: [string, string], ip: [string, string] }>
+    connectionData.forEach(({ op, ip }) => {
+      const [ opSystemName, opUniqueName ] = op
+      const [ ipSystemName, ipUniqueName ] = ip
+      const opSingable = singableMap[opSystemName]
+      const ipSingable = singableMap[ipSystemName]
+      const opInstance = opSingable.endpoints.filter(ep => ep.uniqueName == opUniqueName)[0] as OutEndpoint
+      const ipInstance = ipUniqueName[0] === "@"
+        ? (ipSingable as MultipleInputSingable).ipDummy[0]
+        : ipSingable.endpoints.filter(ep => ep.uniqueName == ipUniqueName)[0] as InEndpoint
+      connections.add(opInstance, ipInstance)
     })
   }
 
@@ -63,6 +85,7 @@ export default class MasterTab extends Component {
       .map(c => c as Singable)
       .map(singable => {
         return {
+          systemName: singable.systemName,
           type: singable.className,
           x: singable.__translateX,
           y: singable.__translateY,
@@ -75,8 +98,8 @@ export default class MasterTab extends Component {
 
     const connectionData = connections.get().map(({ op, ip }) => {
       return {
-        op: [op.systemName, op.uniqueName],
-        ip: [ip.systemName, ip.uniqueName],
+        op: [op.parent.systemName, op.uniqueName],
+        ip: [ip.parent.systemName, ip.uniqueName],
       }
     })
 
@@ -95,11 +118,11 @@ export default class MasterTab extends Component {
     }, [
       createButtonNode(n => {
         n.innerText = "New"
-        n.onclick = this.newProject
+        n.onclick = e => this.newProject()
       }),
       createButtonNode(n => {
         n.innerText = "Open"
-        n.onclick = this.openProject
+        n.onclick = e => this.openProject()
       }),
       createButtonNode(n => {
         n.innerText = "Save"

@@ -71,7 +71,7 @@ export default class MultipleInputSingable extends Singable {
     })
     this.ipConnected.forEach((ip, ind) => {
       ip.position = (ind * 2 + 2) / (ipCountTotal + 1)
-      ip.uniqueName = `connected-endpoint-${ind}`
+      ip.uniqueName = `@connected-endpoint-${ind}`
     })
 
     super.update()
