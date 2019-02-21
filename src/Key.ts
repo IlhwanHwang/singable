@@ -1,6 +1,7 @@
 import { Track, Writer, Utils, NoteEvent, ProgramChangeEvent } from "midi-writer-js"
 import { writeFileSync } from "fs"
 import { range } from "lodash"
+import { nvl } from "./utils";
 
 export const pitchMax = 127
 export const pitchMin = 0
@@ -55,11 +56,11 @@ export default class NoteKey extends BaseKey {
 
   replace(part: Partial<NoteKey>) {
     return new NoteKey(
-      part.timing || this.timing, 
-      part.length || this.length, 
-      part.pitch || this.pitch, 
-      part.velocity || this.velocity, 
-      part.channel || this.channel
+      nvl(part.timing, this.timing), 
+      nvl(part.length, this.length), 
+      nvl(part.pitch, this.pitch), 
+      nvl(part.velocity, this.velocity), 
+      nvl(part.channel, this.channel)
     )
   }
 

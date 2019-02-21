@@ -524,8 +524,8 @@ class PianoRollKey extends Draggable {
       parent.data.keys = parent.data.keys.map(k => k === oldKey ? newKey : k)
     }
     else {
-      this.x = Math.max(snapped.x, 0)
-      this.y = snapped.y
+      // this.x = Math.max(snapped.x, 0)
+      // this.y = snapped.y
       const oldKey = this.key
       const newKey = this.key.replace({ pitch: snapped.pitch, timing: Math.max(snapped.timing, 0) })
       this.key = newKey
