@@ -24,6 +24,8 @@ export default class PianoRollSingable extends Singable {
   op: OutEndpoint
   ip: InEndpoint
   instrumentName: string = instruments["1"]
+  scrollX = 0
+  scrollY = 480
 
   constructor(parent: Component) {
     super(parent)
@@ -171,6 +173,11 @@ export class PianoRollEditor extends BaseEditor {
     this.update()
   }
 
+  onAttached() {
+    const singable = this.singable as PianoRollSingable
+    this.target.querySelector(".pianoroll-scrollarea").scroll(singable.scrollX, singable.scrollY)
+  }
+
   render(): [HTMLElement, HTMLElement] {
     const container = createDivNode(n => {
       n.style.width = "100%"
@@ -293,16 +300,17 @@ export class PianoRollEditor extends BaseEditor {
           })
         ]),
         createDivNode(n => {
+          n.classList.add("pianoroll-scrollarea")
           n.style.width = "calc(100% - 40px)"
           n.style.height = "100%"
           n.style.overflow = "scroll"
           n.onscroll = e => {
             const pitchNotation = this.target.querySelector(".pianoroll-pitch-notation")
             pitchNotation.scroll(0, n.scrollTop)
+            const singable = (this.singable as PianoRollSingable)
+            singable.scrollX = n.scrollLeft
+            singable.scrollY = n.scrollTop
           }
-          setTimeout(() => {
-            n.scroll(0, 480) // TODO: elegant way to handle scroll
-          }, 100);
         }, [
           createDivNode(n => {
             n.style.position = "relative"

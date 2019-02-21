@@ -38,6 +38,10 @@ export default class Component {
     }
   }
 
+  onAttached() {
+
+  }
+
   create() {
     if (this.parent !== null) {
       const [newTarget, newContainer] = this.render()
@@ -47,6 +51,7 @@ export default class Component {
         oldTarget.remove()
       }
       this.target = newTarget;
+      this.onAttached()
       this.container = newContainer;
     }
   }
