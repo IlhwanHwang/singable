@@ -276,13 +276,35 @@ export class PianoRollEditor extends BaseEditor {
       createDivNode(n => {
         n.style.width = "100%"
         n.style.height = "calc(100% - 24px)"
-        n.style.display = "flex"
+        n.style.position = "relative"
+        // n.style.display = ""
       }, [
         createDivNode(n => {
-          n.style.position = "relative"
+          n.style.position = "absolute"
+          n.style.left = "0"
+          n.style.top = "0"
           n.style.width = "40px"
-          n.style.height = "100%"
+          n.style.height = "20px"
+          n.style.border = "solid 1px magenta"
+          n.style.boxSizing = "border-box"
+        }),
+        createDivNode(n => {
+          n.style.position = "absolute"
+          n.style.left = "40px"
+          n.style.top = "0"
+          n.style.width = "calc(100% - 40px)"
+          n.style.height = "20px"
+          n.style.border = "solid 1px magenta"
+          n.style.boxSizing = "border-box"
+        }),
+        createDivNode(n => {
+          n.style.position = "absolute"
+          n.style.left = "0"
+          n.style.top = "20px"
+          n.style.width = "40px"
+          n.style.height = "calc(100% - 20px)"
           n.style.border = "solid 1px blue"
+          n.style.boxSizing = "border-box"
           n.style.overflow = "hidden"
           n.classList.add("pianoroll-pitch-notation")
         }, [
@@ -301,8 +323,11 @@ export class PianoRollEditor extends BaseEditor {
         ]),
         createDivNode(n => {
           n.classList.add("pianoroll-scrollarea")
+          n.style.position = "absolute"
+          n.style.left = "40px"
+          n.style.top = "20px"
           n.style.width = "calc(100% - 40px)"
-          n.style.height = "100%"
+          n.style.height = "calc(100% - 20px)"
           n.style.overflow = "scroll"
           n.onscroll = e => {
             const pitchNotation = this.target.querySelector(".pianoroll-pitch-notation")
