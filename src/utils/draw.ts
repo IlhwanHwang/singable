@@ -1,11 +1,15 @@
 function getSvgCanvas() {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
-  svg.setAttribute("style", "position: absolute; width: 100%; height: 100%; left 0; top 0; z-index: -1")
+  svg.style.position = "absolute"
+  svg.style.width = "100%"
+  svg.style.height = "100%"
+  svg.style.left = "0"
+  svg.style.top = "0"
+  svg.style.zIndex = "-1"
   return svg
 }
 
-const svgBackground = getSvgCanvas()
-document.body.appendChild(svgBackground)
+export const svgBackground = getSvgCanvas()
 
 export function drawLine(id: string, x1: number, y1: number, x2: number, y2: number) {
   const svg = svgBackground

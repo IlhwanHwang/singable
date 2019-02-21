@@ -52,17 +52,19 @@ export default class MasterTab extends Component {
     })) as { [index: string]: Singable }
 
     const connectionData = data.connections as Array<{ op: [string, string], ip: [string, string] }>
-    connectionData.forEach(({ op, ip }) => {
-      const [ opSystemName, opUniqueName ] = op
-      const [ ipSystemName, ipUniqueName ] = ip
-      const opSingable = singableMap[opSystemName]
-      const ipSingable = singableMap[ipSystemName]
-      const opInstance = opSingable.endpoints.filter(ep => ep.uniqueName == opUniqueName)[0] as OutEndpoint
-      const ipInstance = ipUniqueName[0] === "@"
-        ? (ipSingable as MultipleInputSingable).ipDummy[0]
-        : ipSingable.endpoints.filter(ep => ep.uniqueName == ipUniqueName)[0] as InEndpoint
-      connections.add(opInstance, ipInstance)
-    })
+    connectionData
+      .sort((a, b) => a.ip[1] > b.ip[1] ? -1 : +(a.ip[1] < b.ip[1]))
+      .forEach(({ op, ip }) => {
+        const [ opSystemName, opUniqueName ] = op
+        const [ ipSystemName, ipUniqueName ] = ip
+        const opSingable = singableMap[opSystemName]
+        const ipSingable = singableMap[ipSystemName]
+        const opInstance = opSingable.endpoints.filter(ep => ep.uniqueName == opUniqueName)[0] as OutEndpoint
+        const ipInstance = ipUniqueName[0] === "@"
+          ? (ipSingable as MultipleInputSingable).ipDummy[0]
+          : ipSingable.endpoints.filter(ep => ep.uniqueName == ipUniqueName)[0] as InEndpoint
+        connections.add(opInstance, ipInstance)
+      })
   }
 
   saveProject(dialog: boolean) {

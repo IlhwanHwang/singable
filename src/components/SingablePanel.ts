@@ -15,6 +15,7 @@ import BoundSingable from "./BoundSingable";
 import Draggable, {DragEvent} from "./Draggable";
 import { checkInside } from "../utils";
 import { toPairs } from "lodash"
+import { svgBackground } from "../utils/draw";
 
 export default class SingablePanel extends Draggable {
   zoom = 1
@@ -37,6 +38,10 @@ export default class SingablePanel extends Draggable {
     return !this.children.some(c => {
       return checkInside(c.target, e.x, e.y)
     })
+  }
+
+  onAttached() {
+    this.target.appendChild(svgBackground)
   }
 
   render(): [HTMLElement, HTMLElement] {
