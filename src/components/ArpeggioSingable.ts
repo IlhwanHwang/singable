@@ -53,7 +53,6 @@ export default class ArpeggioSingable extends Singable {
         }
         else if (this.data.outliers === "octave") {
           const octave = Math.floor((rk.pitch - this.data.riff.basePitch) / 12)
-          console.log(rk.pitch, this.data.riff.basePitch, octave)
           return keysAtTime[index].replace({ pitch: keysAtTime[index].pitch + octave * 12 })
         }
         else {

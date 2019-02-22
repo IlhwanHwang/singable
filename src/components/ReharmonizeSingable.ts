@@ -111,7 +111,6 @@ export class ReharmonizeEditor extends BaseEditor {
     try {
       const chordNodes = this.reharmonizer.getChordNodes()
       const numerals = this.reharmonizer.getScale().possibleNumerals()
-      console.log(this.data.restrictions)
       const newDiv = createDivNode(n => {
           n.style.border = "solid 1px orange",
           n.style.width = "100%",

@@ -119,15 +119,7 @@ export function songToChordNodes(timeline: Timeline, scale: Scale, restrictions:
     cadenceAt: 16,
     cadenceScore: 1,
     restrictionAdvantage: 256,
-    advantages: (n: Numeral) => {
-      return n.secondaryDominant
-        ? -0.1
-        : (
-          n.index === 1 || n.index === 4 || n.index === 5
-            ? 0.1
-            : -0.1
-          )
-    },
+    advantages: (n: Numeral) => 0,
     ...options
   }
   const numerals = scale.possibleNumerals()
@@ -136,7 +128,6 @@ export function songToChordNodes(timeline: Timeline, scale: Scale, restrictions:
     return range(0, timeline.length, g).map(timing => {
       if (g === 1 && restrictions[timing.toString()]) {
         const numeral = restrictions[timing.toString()]
-        console.log(numeral)
         return [new ChordNode(numeral, options.restrictionAdvantage, timing, g)]
       }
       else {
