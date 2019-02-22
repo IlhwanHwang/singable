@@ -306,16 +306,22 @@ export class PianoRollEditor extends BaseEditor {
         n.onmousedown = e => {
           const overlapped = this.children.filter(c => c instanceof PianoRollKey).filter(c => checkInside(c.target, e.pageX, e.pageY)).length > 0
           if (!overlapped) {
+            const snapped = this.snap(e.x - this.container.getClientRects()[0].left, e.y - this.container.getClientRects()[0].top)
             if (e.button === 0) {
-              const snapped = this.snap(e.x - this.container.getClientRects()[0].left, e.y - this.container.getClientRects()[0].top)
-              const key = new NoteKey(snapped.timing, this.lengthPrev, snapped.pitch)
-              const pianoKey = new PianoRollKey(this, key)
-              pianoKey.update()
-              pianoKey.target.onmousedown(e)
-              this.data.keys.push(key)
+              if (e.shiftKey) {
+                const selectArea = new PianoRollSelectArea(this, snapped.timing, snapped.pitch)
+                selectArea.update()
+                selectArea.target.onmousedown(e)
+              }
+              else {
+                const key = new NoteKey(snapped.timing, this.lengthPrev, snapped.pitch)
+                const pianoKey = new PianoRollKey(this, key)
+                pianoKey.update()
+                pianoKey.target.onmousedown(e)
+                this.data.keys.push(key)
+              }
             }
             else if (e.button === 2) {
-              const snapped = this.snap(e.x - this.container.getClientRects()[0].left, 0)
               const screen = new PianoRollScreen(this, snapped.timing, e.ctrlKey)
               screen.update()
               screen.target.onmousedown(e)
@@ -517,6 +523,77 @@ export class PianoRollEditor extends BaseEditor {
 }
 
 
+class PianoRollSelectArea extends Draggable {
+  timing: number
+  length: number = 0
+  pitch1: number
+  pitch2: number
+  editorParent: PianoRollEditor
+
+  constructor(parent: Component, timing: number, pitch: number) {
+    super(parent)
+    this.editorParent = parent as PianoRollEditor
+    this.timing = timing
+    this.pitch1 = pitch
+    this.allowTransform = false
+  }
+
+  render(): [HTMLElement, HTMLElement] {
+    const newDiv = createDivNode(n => {
+      const pitch1 = Math.min(this.pitch1, this.pitch2)
+      const pitch2 = Math.max(this.pitch1, this.pitch2)
+      const snapped1 = this.editorParent.unsnap(pitch1 - 1, this.timing)
+      const snapped2 = this.editorParent.unsnap(pitch2, this.timing + this.length)
+      const x1 = snapped1.x
+      const y1 = snapped2.y
+      const x2 = snapped2.x
+      const y2 = snapped1.y
+      const startX = Math.min(x1, x2)
+      const width = Math.abs(x1 - x2)
+      n.style.position = "absolute"
+      n.style.left = `${startX}px`
+      n.style.width = `${width}px`
+      n.style.top = `${y1}px`
+      n.style.height = `${y2 - y1}px`
+      n.style.border = "solid 2px blue"
+      n.style.boxSizing = "border-box"
+    })
+
+    return [newDiv, newDiv]
+  }
+
+  onDragging(e: DragEvent) {
+    const { x, y } = this.editorParent.unsnap(this.pitch1, this.timing)
+    const { timing, pitch } = this.editorParent.snap(x + e.deltaX, y + e.deltaY)
+    this.length = timing - this.timing
+    this.pitch2 = pitch
+    this.update()
+  }
+
+  onDragStop(e: DragEvent) {
+    const timing = Math.min(this.timing, this.timing + this.length)
+    const length = Math.abs(this.length)
+    const end = timing + length
+    const pitch1 = Math.min(this.pitch1, this.pitch2)
+    const pitch2 = Math.max(this.pitch1, this.pitch2)
+    this.editorParent.children
+      .filter(c => c instanceof PianoRollKey)
+      .map(c => c as PianoRollKey)
+      .filter(pk => !(
+        pk.key.end() <= timing || 
+        pk.key.timing >= end || 
+        pk.key.pitch < pitch1 ||
+        pk.key.pitch > pitch2)
+      )
+      .forEach(pk => {
+        pk.selected = true
+        pk.update()
+      })
+    this.destroy()
+  }
+}
+
+
 class PianoRollScreen extends Draggable {
   timing: number
   length: number = 0
@@ -578,6 +655,7 @@ class PianoRollKey extends Draggable {
   lengthStart: number
   dragEdge: boolean = false
   justCreated = true
+  selected = false
 
   constructor(parent: Component, key: NoteKey) {
     super(parent)
@@ -596,7 +674,7 @@ class PianoRollKey extends Draggable {
       n.style.top = `${this.y}px`
       n.style.width = `${this.key.length * parent.unitBeatLength}px`
       n.style.height = `${parent.unitPitchHeight}px`
-      n.style.backgroundColor = "red"
+      n.style.backgroundColor = this.selected ? "orange" : "red"
       n.style.resize = "horizontal"
       n.style.border = "solid 1px black"
       n.style.boxSizing = "border-box"
