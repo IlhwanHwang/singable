@@ -1,10 +1,8 @@
 import Component from "./Component"
 
-export interface DragEvent {
+export interface DragEvent extends MouseEvent {
   deltaX: number,
   deltaY: number,
-  x: number,
-  y: number
 }
 
 export default class Draggable extends Component {
@@ -30,7 +28,7 @@ export default class Draggable extends Component {
     this.target.style.transform = `translate(${x}px, ${y}px)`   
   }
 
-  dragCriteria(e: DragEvent): boolean {
+  dragCriteria(e: MouseEvent): boolean {
     return true
   }
 
@@ -57,23 +55,13 @@ export default class Draggable extends Component {
         this.__translateY = 0
       }
 
-      if (!this.dragCriteria({
-        deltaX: this.__deltaX, 
-        deltaY: this.__deltaY, 
-        x: e.x,
-        y: e.y
-      })) {
+      if (!this.dragCriteria(e)) {
         return
       }
 
       this.dragging = true
 
-      this.onDragStart({
-        deltaX: this.__deltaX, 
-        deltaY: this.__deltaY, 
-        x: e.x,
-        y: e.y
-      })
+      this.onDragStart(e)
       
       const dragging = (e: MouseEvent) => {
         e.preventDefault()
@@ -97,8 +85,7 @@ export default class Draggable extends Component {
           this.onDragging({
             deltaX: this.__deltaX, 
             deltaY: this.__deltaY, 
-            x: e.x + this.target.getClientRects()[0].left, 
-            y: e.y + this.target.getClientRects()[0].right
+            ...e
           })
         }
       }
@@ -109,12 +96,7 @@ export default class Draggable extends Component {
         this.dragging = false
         
         if (this.target) {
-          this.onDragStop({
-            deltaX: this.__deltaX, 
-            deltaY: this.__deltaY, 
-            x: e.x + this.target.getClientRects()[0].left, 
-            y: e.y + this.target.getClientRects()[0].right
-          })
+          this.onDragStop(e)
         }
       }
 
@@ -123,7 +105,7 @@ export default class Draggable extends Component {
     }
   }
 
-  onDragStart(e: DragEvent) {
+  onDragStart(e: MouseEvent) {
 
   }
 
@@ -131,7 +113,7 @@ export default class Draggable extends Component {
     
   }
 
-  onDragStop(e: DragEvent) {
+  onDragStop(e: MouseEvent) {
     
   }
 }

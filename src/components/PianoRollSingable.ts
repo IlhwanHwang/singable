@@ -4,7 +4,7 @@ import { OutEndpoint, InEndpoint } from "./Endpoint";
 import NoteKey, {Timeline, pitchMax, pitchMin, pitchNotation, ProgramChangeKey} from "../Key"
 import { range, toPairs, zip, flatten } from "lodash"
 import { createDivNode, createSpanNode, createButtonNode, createSelectNode, createOptionNode, createInputNode } from "../utils/singable";
-import Draggable, {DragEvent} from "./Draggable";
+import Draggable, {DragEvent as DraggableEvent} from "./Draggable";
 import { checkInside } from "../utils";
 import { instruments } from "../keys";
 import Player from "../utils/Player"
@@ -306,6 +306,7 @@ export class PianoRollEditor extends BaseEditor {
         n.onmousedown = e => {
           const overlapped = this.children.filter(c => c instanceof PianoRollKey).filter(c => checkInside(c.target, e.pageX, e.pageY)).length > 0
           if (!overlapped) {
+            e.preventDefault()
             const snapped = this.snap(e.x - this.container.getClientRects()[0].left, e.y - this.container.getClientRects()[0].top)
             if (e.button === 0) {
               if (e.shiftKey) {
@@ -319,6 +320,13 @@ export class PianoRollEditor extends BaseEditor {
                 pianoKey.update()
                 pianoKey.target.onmousedown(e)
                 this.data.keys.push(key)
+                this.children
+                  .filter(c => c instanceof PianoRollKey)
+                  .map(c => c as PianoRollKey)
+                  .forEach(pk => {
+                    pk.selected = false
+                    pk.update()
+                  })
               }
             }
             else if (e.button === 2) {
@@ -562,7 +570,7 @@ class PianoRollSelectArea extends Draggable {
     return [newDiv, newDiv]
   }
 
-  onDragging(e: DragEvent) {
+  onDragging(e: DraggableEvent) {
     const { x, y } = this.editorParent.unsnap(this.pitch1, this.timing)
     const { timing, pitch } = this.editorParent.snap(x + e.deltaX, y + e.deltaY)
     this.length = timing - this.timing
@@ -570,7 +578,7 @@ class PianoRollSelectArea extends Draggable {
     this.update()
   }
 
-  onDragStop(e: DragEvent) {
+  onDragStop(e: MouseEvent) {
     const timing = Math.min(this.timing, this.timing + this.length)
     const length = Math.abs(this.length)
     const end = timing + length
@@ -625,14 +633,14 @@ class PianoRollScreen extends Draggable {
     return [newDiv, newDiv]
   }
 
-  onDragging(e: DragEvent) {
+  onDragging(e: DraggableEvent) {
     const { x } = this.editorParent.unsnap(0, this.timing)
     const { timing } = this.editorParent.snap(x + e.deltaX, 0)
     this.length = timing - this.timing
     this.update()
   }
 
-  onDragStop(e: DragEvent) {
+  onDragStop(e: MouseEvent) {
     const timing = Math.min(this.timing, this.timing + this.length)
     const length = Math.abs(this.length)
     if (this.remove) {
@@ -656,6 +664,7 @@ class PianoRollKey extends Draggable {
   dragEdge: boolean = false
   justCreated = true
   selected = false
+  selectionPivot = true
 
   constructor(parent: Component, key: NoteKey) {
     super(parent)
@@ -691,7 +700,7 @@ class PianoRollKey extends Draggable {
     return [newDiv, newDiv]
   }
 
-  onDragStart(e: DragEvent) {
+  onDragStart(e: MouseEvent) {
     const margin = 8
     const mouseX = e.x - this.target.getClientRects()[0].left
     const edgeX = this.target.getClientRects()[0].width - margin
@@ -699,9 +708,22 @@ class PianoRollKey extends Draggable {
     this.xStart = this.x
     this.yStart = this.y
     this.lengthStart = this.key.length
+    if (this.selectionPivot) {
+      const parent = this.parent as PianoRollEditor
+      parent.children
+        .filter(c => c instanceof PianoRollKey)
+        .map(c => c as PianoRollKey)
+        .filter(pk => pk.selected)
+        .forEach(pk => {
+          pk.selectionPivot = false
+          pk.target.onmousedown(e)
+          pk.dragEdge = this.dragEdge
+          pk.selectionPivot = true
+        })
+    }
   }
 
-  onDragging(e: DragEvent) {
+  onDragging(e: DraggableEvent) {
     const parent = (this.parent as PianoRollEditor)
     const snapped = parent.snap(this.xStart + e.deltaX, this.yStart + e.deltaY + parent.unitPitchHeight / 2)
     if (this.dragEdge) {
@@ -738,11 +760,11 @@ class ShadowKey extends PianoRollKey {
     return [target, container]
   }
 
-  onDragStart(e: DragEvent) {
+  onDragStart(e: DraggableEvent) {
 
   }
 
-  onDragging(e: DragEvent) {
+  onDragging(e: DraggableEvent) {
 
   }
 }

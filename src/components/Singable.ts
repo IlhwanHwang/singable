@@ -75,7 +75,7 @@ export default class Singable extends Draggable {
     return new Timeline(0)
   }
 
-  onDragStart(e: DragEvent) {
+  onDragStart(e: MouseEvent) {
     this.dragSpeed = 1 / singablePanel.zoom
   }
 
