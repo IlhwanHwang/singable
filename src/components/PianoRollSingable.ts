@@ -111,6 +111,8 @@ export class PianoRollEditor extends BaseEditor {
   player: Player = null
   timing = 0
   timingDragging = false
+  timingTracker: number = null
+  bpm = 120
 
   constructor(parent: Component, singable: PianoRollSingable) {
     super(parent, singable)
@@ -388,11 +390,22 @@ export class PianoRollEditor extends BaseEditor {
               this.player = null
               n.innerText = "Play"
             }
+            if (this.timingTracker !== null) {
+              clearInterval(this.timingTracker)
+              this.timingTracker = null
+            }
           }
           const play = () => {
-            this.singable.sing().toFile("./temp.mid")
+            const timeline = this.singable.sing()
+            timeline.slice(this.timing, timeline.length - this.timing).toFile("./temp.mid")
             this.player = new Player()
             this.player.play("temp.mid", _ => stop())
+            const started = Date.now() / 1000
+            const startedTiming = this.timing
+            this.timingTracker = setInterval(() => {
+              const elapsed = Date.now() / 1000 - started
+              this.updateTimeIndicator(startedTiming + elapsed * (this.bpm / 60))
+            })
             n.innerText = "Stop"
           }
           n.onclick = e => this.player === null ? play() : stop()
