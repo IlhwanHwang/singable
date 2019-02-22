@@ -109,6 +109,8 @@ export class PianoRollEditor extends BaseEditor {
   snapToGrid = true
   lengthPrev = 2
   player: Player = null
+  timing = 0
+  timingDragging = false
 
   constructor(parent: Component, singable: PianoRollSingable) {
     super(parent, singable)
@@ -178,6 +180,17 @@ export class PianoRollEditor extends BaseEditor {
     this.target.querySelector(".pianoroll-scrollarea").scroll(singable.scrollX, singable.scrollY)
   }
 
+  updateTimeIndicator(timing: number = null) {
+    if (timing === null) { timing = this.timing }
+    else { this.timing = timing }
+
+    const handle = this.target.querySelector(".pianoroll-time-indicator-handle") as HTMLElement
+    const bar = this.target.querySelector(".pianoroll-time-indicator-bar") as HTMLElement
+
+    handle.style.left = `${this.timing * this.unitBeatLength - 10}px`
+    bar.style.left = `${this.timing * this.unitBeatLength}px`
+  }
+
   render(): [HTMLElement, HTMLElement] {
     const container = createDivNode(n => {
       n.style.width = "100%"
@@ -186,7 +199,179 @@ export class PianoRollEditor extends BaseEditor {
       n.style.left = "0px"
       n.style.top = "0px"
     })
+
+    const timeIndicator = createDivNode(n => {
+      n.classList.add("pianoroll-time-indicator")
+      n.style.position = "absolute"
+      n.style.left = "40px"
+      n.style.top = "0"
+      n.style.width = "calc(100% - 40px)"
+      n.style.height = "20px"
+      n.style.border = "solid 1px magenta"
+      n.style.boxSizing = "border-box"
+      n.style.overflow = "hidden"
+    }, [
+      createDivNode(n => {
+        n.style.position = "absolute"
+        n.style.left = "0"
+        n.style.top = "0"
+        n.style.width = `${this.unitBeatLength * (this.data.length + 1)}px`
+        n.style.height = "20px"
+        const timeIndicatorUpdate = (e: MouseEvent) => {
+          const rectX = n.getBoundingClientRect().left
+          const mouseX = e.x - rectX
+          const snapped = this.snap(mouseX, 0)
+          this.updateTimeIndicator(Math.max(snapped.timing, 0))
+        }
+        n.onmousedown = e => { this.timingDragging = true; timeIndicatorUpdate(e) }
+        window.addEventListener("mousemove", e => {
+          if (this.timingDragging) { timeIndicatorUpdate(e) }
+        })
+        window.addEventListener("mouseup", e => {
+          this.timingDragging = false
+        })
+      }, [
+        ...range(0, this.data.length).map(t => createDivNode(n => {
+          n.innerText = `${Math.floor(t / 4)}-${t % 4}(${t})`
+          n.style.position = "absolute"
+          n.style.left = `${this.unitBeatLength * t}px`
+          n.style.width = `${this.unitBeatLength}px`
+          n.style.top = "0"
+          n.style.height = "20px"
+          n.style.backgroundColor = t % 2 === 0 ? "white" : "lightgray"
+        })),
+        createDivNode(n => {
+          n.classList.add("pianoroll-time-indicator-handle")
+          n.style.width = "20px"
+          n.style.height = "20px"
+          n.style.borderRadius = "10px"
+          n.style.backgroundColor = "blue"
+          n.style.position = "absolute"
+          n.style.left = `${this.timing * this.unitBeatLength - 10}px`
+          n.style.top = "0"
+        })
+      ])
+    ])
     
+    const pitchIndicator = createDivNode(n => {
+      n.style.position = "absolute"
+      n.style.left = "0"
+      n.style.top = "20px"
+      n.style.width = "40px"
+      n.style.height = "calc(100% - 20px)"
+      n.style.border = "solid 1px blue"
+      n.style.boxSizing = "border-box"
+      n.style.overflow = "hidden"
+      n.classList.add("pianoroll-pitch-indicator")
+    }, [
+      ...range(pitchMin, pitchMax + 1).map(p => {
+        return createSpanNode(n => {
+          n.style.position = "absolute"
+          n.style.width = "100%"
+          n.style.height = `${this.unitPitchHeight}px`
+          n.style.left = "0px"
+          n.style.top = `${(pitchMax - p) * this.unitPitchHeight}px`
+          n.style.fontSize = "8px"
+          n.style.textAlign = "right"
+          n.innerText = pitchNotation(p)
+        })
+      })
+    ])
+
+    const scrollArea = createDivNode(n => {
+      n.classList.add("pianoroll-scrollarea")
+      n.style.position = "absolute"
+      n.style.left = "40px"
+      n.style.top = "20px"
+      n.style.width = "calc(100% - 40px)"
+      n.style.height = "calc(100% - 20px)"
+      n.style.overflow = "scroll"
+      n.onscroll = e => {
+        const pitchNotation = this.target.querySelector(".pianoroll-pitch-indicator")
+        pitchNotation.scroll(0, n.scrollTop)
+        const timeIndicator = this.target.querySelector(".pianoroll-time-indicator")
+        timeIndicator.scroll(n.scrollLeft, 0)
+        const singable = (this.singable as PianoRollSingable)
+        singable.scrollX = n.scrollLeft
+        singable.scrollY = n.scrollTop
+      }
+    }, [
+      createDivNode(n => {
+        n.style.position = "relative"
+        n.style.width = `${this.unitBeatLength * this.data.length}px`
+        n.style.height = `${this.unitPitchHeight * (pitchMax - pitchMin + 1)}px`
+        n.style.border = "solid 1px red"
+        n.onmousedown = e => {
+          const overlapped = this.children.filter(c => c instanceof PianoRollKey).filter(c => checkInside(c.target, e.pageX, e.pageY)).length > 0
+          if (!overlapped) {
+            if (e.button === 0) {
+              const snapped = this.snap(e.x - this.container.getClientRects()[0].left, e.y - this.container.getClientRects()[0].top)
+              const key = new NoteKey(snapped.timing, this.lengthPrev, snapped.pitch)
+              const pianoKey = new PianoRollKey(this, key)
+              pianoKey.update()
+              pianoKey.target.onmousedown(e)
+              this.data.keys.push(key)
+            }
+            else if (e.button === 2) {
+              const snapped = this.snap(e.x - this.container.getClientRects()[0].left, 0)
+              const screen = new PianoRollScreen(this, snapped.timing, e.ctrlKey)
+              screen.update()
+              screen.target.onmousedown(e)
+            }
+          }
+        }
+      }, [
+        ...range(pitchMin, pitchMax + 1).map(p => {
+          return createDivNode(n => {
+            n.style.position = "absolute"
+            n.style.width = "100%"
+            n.style.height = `${this.unitPitchHeight}px`
+            n.style.left = "0px"
+            n.style.top = `${(pitchMax - p) * this.unitPitchHeight}px`
+            const isBlack = (p % 12) == 1 || (p % 12) == 3 || (p % 12) == 6 || (p % 12) == 8 || (p % 12) == 10
+            n.style.backgroundColor = isBlack
+              ? "lightgray"
+              : "white"
+          })
+        }),
+        ...range(0, this.data.length).map(b => {
+          return createDivNode(n => {
+            n.style.position = "absolute"
+            n.style.width = `${this.unitBeatLength}px`
+            n.style.height = "100%"
+            n.style.left = `${b * this.unitBeatLength}px`
+            n.style.top = "0px"
+            const isBar = ((b + 1) % this.beatsPerBar) == 0
+            n.style.borderRight = isBar
+              ? "solid 1px gray"
+              : "solid 1px lightgray"
+          })
+        }),
+        ...this.data.screen.map(s => {
+          return createDivNode(n => {
+            const left = this.unsnap(0, s.timing).x
+            const right = this.unsnap(0, s.timing + s.length).x
+            n.style.backgroundColor = "orange"
+            n.style.position = "absolute"
+            n.style.left = `${left}px`
+            n.style.width = `${right - left}px`
+            n.style.top = "0"
+            n.style.height = "100%"
+          })
+        }),
+        container,
+        createDivNode(n => {
+          n.classList.add("pianoroll-time-indicator-bar")
+          n.style.position = "absolute"
+          n.style.borderLeft = "solid 1px black"
+          n.style.width = "0px"
+          n.style.height = "100%"
+          n.style.left = `${this.timing * this.unitBeatLength}px`
+          n.style.top = "0"
+        })
+      ])
+    ])
+
     const newDiv = createDivNode(n => {
       n.style.width = "100%"
       n.style.height = "100%"
@@ -288,143 +473,9 @@ export class PianoRollEditor extends BaseEditor {
           n.style.border = "solid 1px magenta"
           n.style.boxSizing = "border-box"
         }),
-        createDivNode(n => {
-          n.classList.add("pianoroll-time-indicator")
-          n.style.position = "absolute"
-          n.style.left = "40px"
-          n.style.top = "0"
-          n.style.width = "calc(100% - 40px)"
-          n.style.height = "20px"
-          n.style.border = "solid 1px magenta"
-          n.style.boxSizing = "border-box"
-          n.style.overflow = "hidden"
-        }, [
-          createDivNode(n => {
-            n.style.position = "absolute"
-            n.style.left = "0"
-            n.style.top = "0"
-            n.style.width = `${this.unitBeatLength * (this.data.length + 1)}px`
-            n.style.height = "20px"
-          }, [
-            ...range(0, this.data.length).map(t => createDivNode(n => {
-              n.innerText = `${Math.floor(t / 4)}-${t % 4}(${t})`
-              n.style.position = "absolute"
-              n.style.left = `${this.unitBeatLength * t}px`
-              n.style.width = `${this.unitBeatLength}px`
-              n.style.top = "0"
-              n.style.height = "20px"
-              n.style.backgroundColor = t % 2 === 0 ? "white" : "lightgray"
-            }))
-          ])
-        ]),
-        createDivNode(n => {
-          n.style.position = "absolute"
-          n.style.left = "0"
-          n.style.top = "20px"
-          n.style.width = "40px"
-          n.style.height = "calc(100% - 20px)"
-          n.style.border = "solid 1px blue"
-          n.style.boxSizing = "border-box"
-          n.style.overflow = "hidden"
-          n.classList.add("pianoroll-pitch-notation")
-        }, [
-          ...range(pitchMin, pitchMax + 1).map(p => {
-            return createSpanNode(n => {
-              n.style.position = "absolute"
-              n.style.width = "100%"
-              n.style.height = `${this.unitPitchHeight}px`
-              n.style.left = "0px"
-              n.style.top = `${(pitchMax - p) * this.unitPitchHeight}px`
-              n.style.fontSize = "8px"
-              n.style.textAlign = "right"
-              n.innerText = pitchNotation(p)
-            })
-          })
-        ]),
-        createDivNode(n => {
-          n.classList.add("pianoroll-scrollarea")
-          n.style.position = "absolute"
-          n.style.left = "40px"
-          n.style.top = "20px"
-          n.style.width = "calc(100% - 40px)"
-          n.style.height = "calc(100% - 20px)"
-          n.style.overflow = "scroll"
-          n.onscroll = e => {
-            const pitchNotation = this.target.querySelector(".pianoroll-pitch-notation")
-            pitchNotation.scroll(0, n.scrollTop)
-            const timeIndicator = this.target.querySelector(".pianoroll-time-indicator")
-            timeIndicator.scroll(n.scrollLeft, 0)
-            const singable = (this.singable as PianoRollSingable)
-            singable.scrollX = n.scrollLeft
-            singable.scrollY = n.scrollTop
-          }
-        }, [
-          createDivNode(n => {
-            n.style.position = "relative"
-            n.style.width = `${this.unitBeatLength * this.data.length}px`
-            n.style.height = `${this.unitPitchHeight * (pitchMax - pitchMin + 1)}px`
-            n.style.border = "solid 1px red"
-            n.onmousedown = e => {
-              const overlapped = this.children.filter(c => c instanceof PianoRollKey).filter(c => checkInside(c.target, e.pageX, e.pageY)).length > 0
-              if (!overlapped) {
-                if (e.button === 0) {
-                  const snapped = this.snap(e.x - this.container.getClientRects()[0].left, e.y - this.container.getClientRects()[0].top)
-                  const key = new NoteKey(snapped.timing, this.lengthPrev, snapped.pitch)
-                  const pianoKey = new PianoRollKey(this, key)
-                  pianoKey.update()
-                  pianoKey.target.onmousedown(e)
-                  this.data.keys.push(key)
-                }
-                else if (e.button === 2) {
-                  const snapped = this.snap(e.x - this.container.getClientRects()[0].left, 0)
-                  const screen = new PianoRollScreen(this, snapped.timing, e.ctrlKey)
-                  screen.update()
-                  screen.target.onmousedown(e)
-                }
-              }
-            }
-          }, [
-            ...range(pitchMin, pitchMax + 1).map(p => {
-              return createDivNode(n => {
-                n.style.position = "absolute"
-                n.style.width = "100%"
-                n.style.height = `${this.unitPitchHeight}px`
-                n.style.left = "0px"
-                n.style.top = `${(pitchMax - p) * this.unitPitchHeight}px`
-                const isBlack = (p % 12) == 1 || (p % 12) == 3 || (p % 12) == 6 || (p % 12) == 8 || (p % 12) == 10
-                n.style.backgroundColor = isBlack
-                  ? "lightgray"
-                  : "white"
-              })
-            }),
-            ...range(0, this.data.length).map(b => {
-              return createDivNode(n => {
-                n.style.position = "absolute"
-                n.style.width = `${this.unitBeatLength}px`
-                n.style.height = "100%"
-                n.style.left = `${b * this.unitBeatLength}px`
-                n.style.top = "0px"
-                const isBar = ((b + 1) % this.beatsPerBar) == 0
-                n.style.borderRight = isBar
-                  ? "solid 1px gray"
-                  : "solid 1px lightgray"
-              })
-            }),
-            ...this.data.screen.map(s => {
-              return createDivNode(n => {
-                const left = this.unsnap(0, s.timing).x
-                const right = this.unsnap(0, s.timing + s.length).x
-                n.style.backgroundColor = "orange"
-                n.style.position = "absolute"
-                n.style.left = `${left}px`
-                n.style.width = `${right - left}px`
-                n.style.top = "0"
-                n.style.height = "100%"
-              })
-            }),
-            container
-          ])
-        ])
+        timeIndicator,
+        pitchIndicator,
+        scrollArea
       ])
     ])
 
