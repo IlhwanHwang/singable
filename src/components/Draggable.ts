@@ -39,7 +39,7 @@ export default class Draggable extends Component {
 
     const targetNode = this.target 
     const dragNode = (targetNode.querySelector("[draggable-target='true']") as HTMLElement) || this.target
-
+    
     if (this.__translateX !== undefined && this.__translateY !== undefined) {
       if (this.allowTransform) {
         this.moveTo()
