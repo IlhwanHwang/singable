@@ -190,9 +190,10 @@ export class PianoRollEditor extends BaseEditor {
 
     const handle = this.target.querySelector(".pianoroll-time-indicator-handle") as HTMLElement
     const bar = this.target.querySelector(".pianoroll-time-indicator-bar") as HTMLElement
+    const snapped = this.unsnap(0, timing)
 
-    handle.style.left = `${this.timing * this.unitBeatLength - 10}px`
-    bar.style.left = `${this.timing * this.unitBeatLength}px`
+    handle.style.left = `${snapped.x - 10}px`
+    bar.style.left = `${snapped.x}px`
   }
 
   render(): [HTMLElement, HTMLElement] {
@@ -225,7 +226,7 @@ export class PianoRollEditor extends BaseEditor {
           const rectX = n.getBoundingClientRect().left
           const mouseX = e.x - rectX
           const snapped = this.snap(mouseX, 0)
-          this.updateTimeIndicator(Math.max(snapped.timing, 0))
+          this.updateTimeIndicator(Math.max(snapped.timing, -this.data.incompletes))
         }
         n.onmousedown = e => { this.timingDragging = true; timeIndicatorUpdate(e) }
         window.addEventListener("mousemove", e => {
@@ -750,7 +751,7 @@ class PianoRollKey extends Draggable {
       // this.x = Math.max(snapped.x, 0)
       // this.y = snapped.y
       const oldKey = this.key
-      const newKey = this.key.replace({ pitch: snapped.pitch, timing: Math.max(snapped.timing, 0) })
+      const newKey = this.key.replace({ pitch: snapped.pitch, timing: Math.max(snapped.timing, -parent.data.incompletes) })
       this.key = newKey
       parent.data.keys = parent.data.keys.map(k => k === oldKey ? newKey : k)
     }
