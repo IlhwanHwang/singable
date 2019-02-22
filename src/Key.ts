@@ -86,6 +86,7 @@ export class Timeline {
   toFile(fname: string) {
     const track = new Track()
     const ticksPerBeat = Utils.getTickDuration("4")
+    const beatOffset = -Math.min(...this.keys.map(k => k.timing))
     const events = this.keys.map(k => {
       if (k instanceof NoteKey) {
         return new NoteEvent({ 
@@ -93,7 +94,7 @@ export class Timeline {
           velocity: Math.floor(k.velocity * 99 + 1), 
           channel: k.channel, 
           duration: range(k.length * 8).map(_ => "32"),
-          startTick: ticksPerBeat * k.timing
+          startTick: ticksPerBeat * (k.timing + beatOffset)
         })
       }
       else if (k instanceof ProgramChangeKey) {
