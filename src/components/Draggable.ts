@@ -49,6 +49,8 @@ export default class Draggable extends Component {
   }
 
   onDragStart(e: MouseEvent) {
+    e.preventDefault()
+    
     this.__mousePrevX = e.x
     this.__mousePrevY = e.y
     this.__deltaX = 0

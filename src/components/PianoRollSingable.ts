@@ -7,7 +7,7 @@ import { createDivNode, createSpanNode, createButtonNode, createSelectNode, crea
 import Draggable from "./Draggable";
 import { checkInside } from "../utils";
 import { instruments } from "../keys";
-import Player from "../utils/Player"
+import Player, { playKey } from "../utils/Player"
 import BaseEditor from "./BaseEditor";
 
 export interface PianoRollStructure {
@@ -311,7 +311,7 @@ export class PianoRollEditor extends BaseEditor {
               if (e.shiftKey) {
                 const selectArea = new PianoRollSelectArea(this, snapped.timing, snapped.pitch)
                 selectArea.update()
-                selectArea.target.onmousedown(e)
+                selectArea.onDragStart(e)
               }
               else {
                 const key = new NoteKey(snapped.timing, this.lengthPrev, snapped.pitch)
@@ -324,14 +324,15 @@ export class PianoRollEditor extends BaseEditor {
                     pk.selected = false
                     pk.update()
                   })
-                pianoKey.target.onmousedown(e)
+                playKey(new NoteKey(0, 0.5, key.pitch, 1, this.data.channel))
+                pianoKey.onDragStart(e)
                 this.data.keys.push(key)
               }
             }
             else if (e.button === 2) {
               const screen = new PianoRollScreen(this, snapped.timing, e.ctrlKey)
               screen.update()
-              screen.target.onmousedown(e)
+              screen.onDragStart(e)
             }
           }
         }
@@ -717,6 +718,8 @@ class PianoRollKey extends Draggable {
 
     if (e.shiftKey) {
       this.selected = !this.selected
+      this.update()
+      this.onDragStop(e)
     }
     else {
       const margin = 8
@@ -732,9 +735,10 @@ class PianoRollKey extends Draggable {
           .filter(c => c instanceof PianoRollKey)
           .map(c => c as PianoRollKey)
           .filter(pk => pk.selected)
+          .filter(pk => pk !== this)
           .forEach(pk => {
             pk.selectionPivot = false
-            pk.target.onmousedown(e)
+            pk.onDragStart(e)
             pk.dragEdge = this.dragEdge
             pk.selectionPivot = true
           })
@@ -759,6 +763,9 @@ class PianoRollKey extends Draggable {
       // this.y = snapped.y
       const oldKey = this.key
       const newKey = this.key.replace({ pitch: snapped.pitch, timing: Math.max(snapped.timing, -parent.data.incompletes) })
+      if (oldKey.pitch !== newKey.pitch) {
+        playKey(new NoteKey(0, 0.5, newKey.pitch, 1, parent.data.channel))
+      }
       this.key = newKey
       parent.data.keys = parent.data.keys.map(k => k === oldKey ? newKey : k)
     }

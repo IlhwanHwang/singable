@@ -1,6 +1,6 @@
-import {Player as MidiPlayer} from "midi-player-js"
 import { ChildProcess } from "child_process";
 import {spawn} from "child_process"
+import NoteKey, { Timeline, BaseKey } from "../Key";
 
 export default class Player {
   macPlayer: ChildProcess
@@ -35,4 +35,11 @@ export default class Player {
       this.windowPlayer.kill()
     }
   }
+}
+
+
+export function playKey(key: BaseKey) {
+  const timeline = new Timeline(key instanceof NoteKey ? key.length : 0, [key])
+  timeline.toFile("temp.mid")
+  new Player().play("temp.mid", () => {})
 }
