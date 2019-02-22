@@ -13,6 +13,7 @@ import BaseEditor from "./BaseEditor";
 export interface PianoRollStructure {
   keys: Array<NoteKey>
   length: number
+  incompletes: number
   instrumentKey: number
   channel: number
   screen: Array<{ timing: number, length: number }>
@@ -32,6 +33,7 @@ export default class PianoRollSingable extends Singable {
     this.data = {
       keys: Array<NoteKey>(),
       length: 16,
+      incompletes: 0,
       instrumentKey: 1,
       channel: 1,
       screen: Array<{ timing: number, length: number }>()
@@ -217,7 +219,7 @@ export class PianoRollEditor extends BaseEditor {
         n.style.position = "absolute"
         n.style.left = "0"
         n.style.top = "0"
-        n.style.width = `${this.unitBeatLength * (this.data.length + 1)}px`
+        n.style.width = `${this.unitBeatLength * (this.data.length + this.data.incompletes + 1)}px`
         n.style.height = "20px"
         const timeIndicatorUpdate = (e: MouseEvent) => {
           const rectX = n.getBoundingClientRect().left
@@ -233,10 +235,11 @@ export class PianoRollEditor extends BaseEditor {
           this.timingDragging = false
         })
       }, [
-        ...range(0, this.data.length).map(t => createDivNode(n => {
-          n.innerText = `${Math.floor(t / 4)}-${t % 4}(${t})`
+        ...range(-this.data.incompletes, this.data.length).map(t => createDivNode(n => {
+          const snapped = this.unsnap(0, t)
+          n.innerText = `${Math.floor(t / 4)}:${t % 4}(${t})`
           n.style.position = "absolute"
-          n.style.left = `${this.unitBeatLength * t}px`
+          n.style.left = `${snapped.x}px`
           n.style.width = `${this.unitBeatLength}px`
           n.style.top = "0"
           n.style.height = "20px"
@@ -300,7 +303,7 @@ export class PianoRollEditor extends BaseEditor {
     }, [
       createDivNode(n => {
         n.style.position = "relative"
-        n.style.width = `${this.unitBeatLength * this.data.length}px`
+        n.style.width = `${this.unitBeatLength * (this.data.length + this.data.incompletes)}px`
         n.style.height = `${this.unitPitchHeight * (pitchMax - pitchMin + 1)}px`
         n.style.border = "solid 1px red"
         n.onmousedown = e => {
@@ -350,12 +353,13 @@ export class PianoRollEditor extends BaseEditor {
               : "white"
           })
         }),
-        ...range(0, this.data.length).map(b => {
+        ...range(-this.data.incompletes, this.data.length).map(b => {
           return createDivNode(n => {
+            const snapped = this.unsnap(0, b)
             n.style.position = "absolute"
             n.style.width = `${this.unitBeatLength}px`
             n.style.height = "100%"
-            n.style.left = `${b * this.unitBeatLength}px`
+            n.style.left = `${snapped.x}px`
             n.style.top = "0px"
             const isBar = ((b + 1) % this.beatsPerBar) == 0
             n.style.borderRight = isBar
@@ -463,6 +467,14 @@ export class PianoRollEditor extends BaseEditor {
           })
         ]),
         createInputNode(n => {
+          n.value = this.data.incompletes.toString()
+          n.onchange = e => {
+            const incompletes = parseInt((e.target as HTMLInputElement).value)
+            this.data.incompletes = incompletes
+            this.update()
+          }
+        }),
+        createInputNode(n => {
           n.value = this.data.length.toString()
           n.onchange = e => {
             const length = parseInt((e.target as HTMLInputElement).value)
@@ -511,11 +523,11 @@ export class PianoRollEditor extends BaseEditor {
 
   snap(x: number, y: number): {x: number, y: number, pitch: number, timing: number} {
     const timing = this.snapToGrid
-      ? Math.round(x / this.unitBeatLength / this.snapBeatResolution) * this.snapBeatResolution
-      : x / this.unitBeatLength
+      ? Math.round(x / this.unitBeatLength / this.snapBeatResolution) * this.snapBeatResolution - this.data.incompletes
+      : x / this.unitBeatLength - this.data.incompletes
     const pitch = pitchMax - Math.floor(y / this.unitPitchHeight)
     return {
-      x: timing * this.unitBeatLength,
+      x: (timing + this.data.incompletes) * this.unitBeatLength,
       y: (pitchMax - pitch) * this.unitPitchHeight,
       pitch: pitch,
       timing: timing
@@ -524,7 +536,7 @@ export class PianoRollEditor extends BaseEditor {
 
   unsnap(pitch: number, timing: number): {x: number, y: number} {
     return {
-      x: timing * this.unitBeatLength,
+      x: (timing + this.data.incompletes) * this.unitBeatLength,
       y: (pitchMax - pitch) * this.unitPitchHeight
     }
   }
