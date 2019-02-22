@@ -19,6 +19,7 @@ export default class Singable extends Draggable {
     this.name = "new singable object"
     this.endpoints = Array<Endpoint>()
     this.onDragging = e => {
+      super.onDragging(e)
       connections.update()
     }
   }

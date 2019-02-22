@@ -31,6 +31,7 @@ export default class SingablePanel extends Draggable {
   }
 
   onDragging(e: DragEvent) {
+    super.onDragging(e)
     this.transform()
   }
 
