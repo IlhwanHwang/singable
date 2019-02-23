@@ -21,11 +21,11 @@ export default class Connection extends Component {
 
   render(): [HTMLElement, HTMLElement] {
     const parent = (this.parent as SingablePanel)
-    const parentX = parent.target.getBoundingClientRect().left
-    const parentY = parent.target.getBoundingClientRect().top
+    const parentX = parent.element.getBoundingClientRect().left
+    const parentY = parent.element.getBoundingClientRect().top
 
-    const [x1, y1] = centerOf(this.op.target)
-    const [x2, y2] = centerOf(this.ip.target)
+    const [x1, y1] = centerOf(this.op.element)
+    const [x2, y2] = centerOf(this.ip.element)
     const line = drawLine(this.lineId, x1 - parentX, y1 - parentY, x2 - parentX, y2 - parentY)
     line.style.stroke = "blue"
     line.style.strokeWidth = "3"

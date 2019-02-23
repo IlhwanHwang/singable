@@ -6,7 +6,7 @@ let id = 0
 
 
 export default class Component {
-  target: HTMLElement = null
+  element: HTMLElement = null
   container: HTMLElement = null
   parent: Component = null
   systemName: string = `component-${id++}`
@@ -31,8 +31,8 @@ export default class Component {
   }
 
   destroy() {
-    this.target.remove()
-    this.target = null
+    this.element.remove()
+    this.element = null
     if (this.parent !== null) {
       this.parent.removeChild(this)
     }
@@ -45,22 +45,22 @@ export default class Component {
   create() {
     if (this.parent !== null) {
       const [newTarget, newContainer] = this.render()
-      const oldTarget = this.target
+      const oldTarget = this.element
       this.parent.container.insertBefore(newTarget, oldTarget)
       if (oldTarget !== null) {
         oldTarget.remove()
       }
-      this.target = newTarget;
+      this.element = newTarget;
       this.onAttached()
       this.container = newContainer;
     }
   }
 
   update() {
-    if (this.target !== null) {
-      this.target.remove()
+    if (this.element !== null) {
+      this.element.remove()
     }
-    this.target = null
+    this.element = null
     this.create()
     this.children.forEach((c) => {
       c.update()

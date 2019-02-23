@@ -177,15 +177,15 @@ export class PianoRollEditor extends BaseEditor {
 
   onAttached() {
     const singable = this.singable as PianoRollSingable
-    this.target.querySelector(".pianoroll-scrollarea").scroll(singable.scrollX, singable.scrollY)
+    this.element.querySelector(".pianoroll-scrollarea").scroll(singable.scrollX, singable.scrollY)
   }
 
   updateTimeIndicator(timing: number = null) {
     if (timing === null) { timing = this.timing }
     else { this.timing = timing }
 
-    const handle = this.target.querySelector(".pianoroll-time-indicator-handle") as HTMLElement
-    const bar = this.target.querySelector(".pianoroll-time-indicator-bar") as HTMLElement
+    const handle = this.element.querySelector(".pianoroll-time-indicator-handle") as HTMLElement
+    const bar = this.element.querySelector(".pianoroll-time-indicator-bar") as HTMLElement
     const snapped = this.unsnap(0, timing)
 
     handle.style.left = `${snapped.x - 10}px`
@@ -289,9 +289,9 @@ export class PianoRollEditor extends BaseEditor {
       n.style.height = "calc(100% - 20px)"
       n.style.overflow = "scroll"
       n.onscroll = e => {
-        const pitchNotation = this.target.querySelector(".pianoroll-pitch-indicator")
+        const pitchNotation = this.element.querySelector(".pianoroll-pitch-indicator")
         pitchNotation.scroll(0, n.scrollTop)
-        const timeIndicator = this.target.querySelector(".pianoroll-time-indicator")
+        const timeIndicator = this.element.querySelector(".pianoroll-time-indicator")
         timeIndicator.scroll(n.scrollLeft, 0)
         const singable = (this.singable as PianoRollSingable)
         singable.scrollX = n.scrollLeft
@@ -304,7 +304,7 @@ export class PianoRollEditor extends BaseEditor {
         n.style.height = `${this.unitPitchHeight * (pitchMax - pitchMin + 1)}px`
         n.style.border = "solid 1px red"
         n.onmousedown = e => {
-          const overlapped = this.children.filter(c => c instanceof PianoRollKey).filter(c => checkInside(c.target, e.pageX, e.pageY)).length > 0
+          const overlapped = this.children.filter(c => c instanceof PianoRollKey).filter(c => checkInside(c.element, e.pageX, e.pageY)).length > 0
           if (!overlapped) {
             e.preventDefault()
             const snapped = this.snap(e.x - this.container.getClientRects()[0].left, e.y - this.container.getClientRects()[0].top)
@@ -724,8 +724,8 @@ class PianoRollKey extends Draggable {
     }
     else {
       const margin = 8
-      const mouseX = e.x - this.target.getClientRects()[0].left
-      const edgeX = this.target.getClientRects()[0].width - margin
+      const mouseX = e.x - this.element.getClientRects()[0].left
+      const edgeX = this.element.getClientRects()[0].width - margin
       this.dragEdge = !this.justCreated && (mouseX > edgeX)
       this.xStart = this.x
       this.yStart = this.y

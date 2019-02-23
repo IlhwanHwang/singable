@@ -124,9 +124,10 @@ export function songToChordNodes(timeline: Timeline, scale: Scale, restrictions:
   }
   const numerals = scale.possibleNumerals()
   const cadences = scale.possibleCadences()
+  const minimumGrain = Math.min(...granularity)
   const nodes = granularity.map(g => { 
     return range(0, timeline.length, g).map(timing => {
-      if (g === 1 && restrictions[timing.toString()]) {
+      if (g === minimumGrain && restrictions[timing.toString()]) {
         const numeral = restrictions[timing.toString()]
         return [new ChordNode(numeral, options.restrictionAdvantage, timing, g)]
       }

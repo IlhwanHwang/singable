@@ -59,9 +59,9 @@ const outConnectionFocusActions = {
   mousemove(e: Event) {
     const me = e as MouseEvent
     const [x1, y1] = [me.x, me.y]
-    const [x2, y2] = centerOf(outConnectionFocus.get().target)
-    const singablePanelX = singablePanel.target.getBoundingClientRect().left
-    const singablePanelY = singablePanel.target.getBoundingClientRect().top
+    const [x2, y2] = centerOf(outConnectionFocus.get().element)
+    const singablePanelX = singablePanel.element.getBoundingClientRect().left
+    const singablePanelY = singablePanel.element.getBoundingClientRect().top
     const line = drawLine("out-conneciton-focus", x1 - singablePanelX, y1 - singablePanelY, x2 - singablePanelX, y2 - singablePanelY)
     line.style.stroke = "red"
     line.style.strokeWidth = "3"

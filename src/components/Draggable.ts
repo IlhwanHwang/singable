@@ -27,7 +27,7 @@ export default class Draggable extends Component {
       this.__translateX = x
       this.__translateY = y
     }
-    this.target.style.transform = `translate(${x}px, ${y}px)`   
+    this.element.style.transform = `translate(${x}px, ${y}px)`   
   }
 
   dragCriteria(e: MouseEvent): boolean {
@@ -37,8 +37,8 @@ export default class Draggable extends Component {
   create() {
     super.create()
 
-    const targetNode = this.target 
-    const dragNode = (targetNode.querySelector("[draggable-target='true']") as HTMLElement) || this.target
+    const targetNode = this.element 
+    const dragNode = (targetNode.querySelector("[draggable-target='true']") as HTMLElement) || this.element
     
     if (this.__translateX !== undefined && this.__translateY !== undefined) {
       if (this.allowTransform) {
@@ -50,7 +50,7 @@ export default class Draggable extends Component {
 
   onDragStart(e: MouseEvent) {
     e.preventDefault()
-    
+
     this.__mousePrevX = e.x
     this.__mousePrevY = e.y
     this.__deltaX = 0

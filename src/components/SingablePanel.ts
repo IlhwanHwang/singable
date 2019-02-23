@@ -37,12 +37,12 @@ export default class SingablePanel extends Draggable {
 
   dragCriteria(e: DragEvent): boolean {
     return !this.children.some(c => {
-      return checkInside(c.target, e.x, e.y)
+      return checkInside(c.element, e.x, e.y)
     })
   }
 
   onAttached() {
-    this.target.appendChild(svgBackground)
+    this.element.appendChild(svgBackground)
   }
 
   render(): [HTMLElement, HTMLElement] {
