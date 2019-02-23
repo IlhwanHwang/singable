@@ -11,7 +11,7 @@ export default class MultipleInputSingable extends Singable {
   ipConnected: Array<InEndpoint>
   ipDummy: Array<InEndpoint>
 
-  constructor(parent: Component) {
+  constructor(parent: Component, parentTarget: string = "default") {
     super(parent)
     this.ipConnected = new Array<InEndpoint>()
     this.ipDummy = new Array<InEndpoint>()

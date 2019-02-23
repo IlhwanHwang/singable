@@ -1,4 +1,4 @@
-import Component from "./Component"
+import Component, { Container } from "./Component"
 import Singable from "./Singable"
 import {createDivNode, createOptionNode, createSelectNode, createInputNode} from "../utils/singable"
 import { InEndpoint, OutEndpoint } from "./Endpoint";
@@ -18,8 +18,8 @@ export default class ArpeggioSingable extends Singable {
   ipChord: InEndpoint
   ipRiff: InEndpoint
 
-  constructor(parent: Component) {
-    super(parent)
+  constructor(parent: Component, parentTarget: string = "default") {
+    super(parent, parentTarget)
     this.data = {
       outliers: "loop",
       riff: {
@@ -28,12 +28,12 @@ export default class ArpeggioSingable extends Singable {
     }
     this.name = "new arpeggio object"
     this.op = new OutEndpoint(this)
-    this.ipChord = new InEndpoint(this, "chord-endpoint", 1/3)
-    this.ipRiff = new InEndpoint(this, "riff-endpoint", 2/3)
+    this.ipChord = new InEndpoint(this, "default", "chord-endpoint", 1/3)
+    this.ipRiff = new InEndpoint(this, "default", "riff-endpoint", 2/3)
   }
 
-  getEditor(parent: Component): Component {
-    return new ArpeggioEditor(parent, this)
+  getEditor(parent: Component, parentTarget: string = "default"): Component {
+    return new ArpeggioEditor(parent, parentTarget, this)
   }
 
   sing(): Timeline {
@@ -71,12 +71,12 @@ import BaseEditor from "./BaseEditor";
 export class ArpeggioEditor extends BaseEditor {
   data: ArpeggioStructure
 
-  constructor(parent: Component, singable: ArpeggioSingable) {
-    super(parent, singable)
+  constructor(parent: Component, parentTarget: string = "default", singable: ArpeggioSingable) {
+    super(parent, parentTarget, singable)
     this.data = singable.data
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const newDiv = createDivNode(
       n => {
         n.style.border = "solid 1px orange",
@@ -101,6 +101,6 @@ export class ArpeggioEditor extends BaseEditor {
         )
       ]
     )
-    return [newDiv, newDiv]
+    return [newDiv, { default: newDiv }]
   }
 }

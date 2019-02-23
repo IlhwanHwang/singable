@@ -4,8 +4,8 @@ import Singable from "./Singable";
 export default class BaseEditor extends Component {
   singable: Singable
 
-  constructor(parent: Component, singable: Singable) {
-    super(parent)
+  constructor(parent: Component, parentTarget: string = "default", singable: Singable) {
+    super(parent, parentTarget)
     this.singable = singable
   }
 }

@@ -1,4 +1,4 @@
-import Component from "./Component"
+import Component, { Container } from "./Component"
 import {createDivNode, createButtonNode} from "../utils/singable"
 import DrumRollSingable from "./DrumRollSingable";
 import TransposeSingable from "./TransposeSingable";
@@ -20,13 +20,13 @@ import { svgBackground } from "../utils/draw";
 export default class SingablePanel extends Draggable {
   zoom = 1
 
-  constructor(parent: Component) {
+  constructor(parent: Component, parentTarget: string = "default") {
     super(parent)
     this.allowTransform = false
   }
 
   transform() {
-    this.container.style.transform = `matrix(${this.zoom}, 0, 0, ${this.zoom}, ${this.__translateX}, ${this.__translateY})`
+    this.containers["default"].style.transform = `matrix(${this.zoom}, 0, 0, ${this.zoom}, ${this.__translateX}, ${this.__translateY})`
     this.update()
   }
 
@@ -36,7 +36,7 @@ export default class SingablePanel extends Draggable {
   }
 
   dragCriteria(e: DragEvent): boolean {
-    return !this.children.some(c => {
+    return !this.children["default"].some(c => {
       return checkInside(c.element, e.x, e.y)
     })
   }
@@ -45,7 +45,7 @@ export default class SingablePanel extends Draggable {
     this.element.appendChild(svgBackground)
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const container = createDivNode(n => {
       n.style.width = "0"
       n.style.height = "0"
@@ -95,6 +95,6 @@ export default class SingablePanel extends Draggable {
         )
       ]
     )
-    return [newDiv, container]
+    return [newDiv, { default: container }]
   }
 }

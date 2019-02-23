@@ -8,13 +8,13 @@ export default class OutputSingable extends Singable {
   className: string = "output"
   ip: InEndpoint
 
-  constructor(parent: Component) {
+  constructor(parent: Component, parentTarget: string = "default") {
     super(parent)
     this.name = "new output"
     this.ip = new InEndpoint(this)
   }
 
-  getEditor(parent: Component): Component {
+  getEditor(parent: Component, parentTarget: string = "default"): Component {
     return new NullEditor(parent)
   }
 

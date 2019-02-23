@@ -1,4 +1,4 @@
-import Component from "./Component"
+import Component, { Container } from "./Component"
 import Singable from "./Singable"
 import { InEndpoint, OutEndpoint } from "./Endpoint";
 import BaseEditor from "./BaseEditor";
@@ -26,7 +26,7 @@ export default class ReharmonizeSingable extends Singable {
   op: OutEndpoint
   ip: InEndpoint
 
-  constructor(parent: Component) {
+  constructor(parent: Component, parentTarget: string = "default") {
     super(parent)
     this.data = {
       restrictions: {},
@@ -41,8 +41,8 @@ export default class ReharmonizeSingable extends Singable {
     this.ip = new InEndpoint(this)
   }
 
-  getEditor(parent: Component): Component {
-    return new ReharmonizeEditor(parent, this, this.data)
+  getEditor(parent: Component, parentTarget: string = "default"): Component {
+    return new ReharmonizeEditor(parent, parentTarget, this, this.data)
   }
 
   getScale() {
@@ -103,13 +103,13 @@ export class ReharmonizeEditor extends BaseEditor {
   data: ReharmonizeStructure
   reharmonizer: ReharmonizeSingable
 
-  constructor(parent: Component, singable: Singable, data: ReharmonizeStructure) {
-    super(parent, singable)
+  constructor(parent: Component, parentTarget: string = "default", singable: Singable, data: ReharmonizeStructure) {
+    super(parent, parentTarget, singable)
     this.data = data
     this.reharmonizer = (this.singable as ReharmonizeSingable)
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const chordNodes = this.reharmonizer.getChordNodes()
     const numerals = this.reharmonizer.getScale().possibleNumerals()
     const newDiv = createDivNode(n => {
@@ -203,6 +203,6 @@ export class ReharmonizeEditor extends BaseEditor {
         ])
       ]
     )
-    return [newDiv, newDiv]
+    return [newDiv, { default: newDiv }]
   }
 }

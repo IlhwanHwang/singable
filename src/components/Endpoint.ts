@@ -1,4 +1,4 @@
-import Component from "./Component"
+import Component, { Container } from "./Component"
 import Singable from "./Singable"
 import { createButtonNode } from "../utils/singable";
 import { outConnectionFocus, connections } from "../renderer"
@@ -9,7 +9,7 @@ export class Endpoint extends Component {
   position: number
   uniqueName: string
 
-  constructor(parent: Component, uniqueName: string, position = 0.5) {
+  constructor(parent: Component, parentTarget: string = "default", uniqueName: string, position = 0.5) {
     super(parent)
     const s = this.parent as Singable
     s.endpoints.push(this)
@@ -23,7 +23,7 @@ export class Endpoint extends Component {
     s.endpoints = s.endpoints.filter(e => e !== this)
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const newButton = createButtonNode(n => {
       n.style.color = this.color
       n.style.position = "absolute"
@@ -31,35 +31,35 @@ export class Endpoint extends Component {
       n.style.width = "20px"
       n.style.height = "20px"
     })
-    return [newButton, newButton]
+    return [newButton,  { default: newButton }]
   }
 }
 
 export class OutEndpoint extends Endpoint {
-  constructor(parent: Component, uniqueName = "out-endpoint", position = 0.5) {
-    super(parent, uniqueName, position)
+  constructor(parent: Component, parentTarget: string = "default", uniqueName = "out-endpoint", position = 0.5) {
+    super(parent, parentTarget, uniqueName, position)
     this.color = "blue"
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const [newButton, _] = super.render()
     newButton.innerText = "o"
     newButton.style.left = "160px"
     newButton.onclick = e => {
       outConnectionFocus.set(this)
     }
-    return [newButton, newButton]
+    return [newButton, { default: newButton }]
   }
 }
 
 
 export class InEndpoint extends Endpoint {
-  constructor(parent: Component, uniqueName = "in-endpoint", position = 0.5) {
-    super(parent, uniqueName, position)
+  constructor(parent: Component, parentTarget: string = "default", uniqueName = "in-endpoint", position = 0.5) {
+    super(parent, parentTarget, uniqueName, position)
     this.color = "red"
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const [newButton, _] = super.render()
     newButton.innerText = "i"
     newButton.style.right = "160px"
@@ -68,7 +68,7 @@ export class InEndpoint extends Endpoint {
         connections.add(outConnectionFocus.get(), this)
       }
     }
-    return [newButton, newButton]
+    return [newButton, { default: newButton }]
   }
 
   findOut(): OutEndpoint {

@@ -1,5 +1,5 @@
 import Singable from "./Singable"
-import Component from "./Component";
+import Component, { Container } from "./Component";
 import { OutEndpoint, InEndpoint } from "./Endpoint";
 import NoteKey, {Timeline, pitchMax, pitchMin, pitchNotation, ProgramChangeKey, NoteKeyStructure} from "../Key"
 import { range, toPairs, zip, flatten } from "lodash"
@@ -29,7 +29,7 @@ export default class PianoRollSingable extends Singable {
   scrollX = 0
   scrollY = 480
 
-  constructor(parent: Component) {
+  constructor(parent: Component, parentTarget: string = "default") {
     super(parent)
     this.data = {
       keys: Array<NoteKey>(),
@@ -44,11 +44,11 @@ export default class PianoRollSingable extends Singable {
     this.ip = new InEndpoint(this)
   }
 
-  getEditor(parent: Component): Component {
-    return new PianoRollEditor(parent, this)
+  getEditor(parent: Component, parentTarget: string = "default"): Component {
+    return new PianoRollEditor(parent, parentTarget, this)
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const [newDiv, container] = super.render()
     newDiv.appendChild(
       createDivNode(n => {
@@ -115,8 +115,8 @@ export class PianoRollEditor extends BaseEditor {
   timingTracker: number = null
   bpm = 120
 
-  constructor(parent: Component, singable: PianoRollSingable) {
-    super(parent, singable)
+  constructor(parent: Component, parentTarget: string = "default", singable: PianoRollSingable) {
+    super(parent, parentTarget, singable)
     this.data = singable.data
     if (singable.ip.findOut()) {
       const song = (singable.ip.findOut().parent as Singable).sing()
@@ -192,7 +192,7 @@ export class PianoRollEditor extends BaseEditor {
     bar.style.left = `${snapped.x}px`
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const container = createDivNode(n => {
       n.style.width = "100%"
       n.style.height = "100%"
@@ -304,10 +304,10 @@ export class PianoRollEditor extends BaseEditor {
         n.style.height = `${this.unitPitchHeight * (pitchMax - pitchMin + 1)}px`
         n.style.border = "solid 1px red"
         n.onmousedown = e => {
-          const overlapped = this.children.filter(c => c instanceof PianoRollKey).filter(c => checkInside(c.element, e.pageX, e.pageY)).length > 0
+          const overlapped = this.children["default"].filter(c => c instanceof PianoRollKey).filter(c => checkInside(c.element, e.pageX, e.pageY)).length > 0
           if (!overlapped) {
             e.preventDefault()
-            const snapped = this.snap(e.x - this.container.getClientRects()[0].left, e.y - this.container.getClientRects()[0].top)
+            const snapped = this.snap(e.x - this.containers["default"].getClientRects()[0].left, e.y - this.containers["default"].getClientRects()[0].top)
             if (e.button === 0) {
               if (e.shiftKey) {
                 const selectArea = new PianoRollSelectArea(this, snapped.timing, snapped.pitch)
@@ -318,7 +318,7 @@ export class PianoRollEditor extends BaseEditor {
                 const key = new NoteKey(snapped.timing, this.lengthPrev, snapped.pitch)
                 const pianoKey = new PianoRollKey(this, key)
                 pianoKey.update()
-                this.children
+                this.children["default"]
                   .filter(c => c instanceof PianoRollKey)
                   .map(c => c as PianoRollKey)
                   .forEach(pk => {
@@ -516,7 +516,7 @@ export class PianoRollEditor extends BaseEditor {
       ])
     ])
 
-    return [newDiv, container]
+    return [newDiv, { default: container }]
   }
 
   snap(x: number, y: number): {x: number, y: number, pitch: number, timing: number} {
@@ -556,7 +556,7 @@ class PianoRollSelectArea extends Draggable {
     this.allowTransform = false
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const newDiv = createDivNode(n => {
       const pitch1 = Math.min(this.pitch1, this.pitch2)
       const pitch2 = Math.max(this.pitch1, this.pitch2)
@@ -577,7 +577,7 @@ class PianoRollSelectArea extends Draggable {
       n.style.boxSizing = "border-box"
     })
 
-    return [newDiv, newDiv]
+    return [newDiv, { default: newDiv }]
   }
 
   onDragging(e: MouseEvent) {
@@ -596,7 +596,7 @@ class PianoRollSelectArea extends Draggable {
     const end = timing + length
     const pitch1 = Math.min(this.pitch1, this.pitch2)
     const pitch2 = Math.max(this.pitch1, this.pitch2)
-    this.editorParent.children
+    this.editorParent.children["default"]
       .filter(c => c instanceof PianoRollKey)
       .map(c => c as PianoRollKey)
       .filter(pk => !(
@@ -628,7 +628,7 @@ class PianoRollScreen extends Draggable {
     this.remove = remove
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const newDiv = createDivNode(n => {
       const x1 = this.editorParent.unsnap(0, this.timing).x
       const x2 = this.editorParent.unsnap(0, this.timing + this.length).x
@@ -642,7 +642,7 @@ class PianoRollScreen extends Draggable {
       n.style.backgroundColor = this.remove ? "pink" : "yellow"
     })
 
-    return [newDiv, newDiv]
+    return [newDiv, { default: newDiv }]
   }
 
   onDragging(e: MouseEvent) {
@@ -686,7 +686,7 @@ class PianoRollKey extends Draggable {
     this.allowTransform = false
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const newDiv = createDivNode(n => {
       const parent = (this.parent as PianoRollEditor)
       const snapped = parent.unsnap(this.key.pitch, this.key.timing)
@@ -711,7 +711,7 @@ class PianoRollKey extends Draggable {
         this.justCreated = false
       }
     })
-    return [newDiv, newDiv]
+    return [newDiv, { default: newDiv }]
   }
 
   onDragStart(e: MouseEvent) {
@@ -732,7 +732,7 @@ class PianoRollKey extends Draggable {
       this.lengthStart = this.key.length
       if (this.selectionPivot) {
         const parent = this.parent as PianoRollEditor
-        parent.children
+        parent.children["default"]
           .filter(c => c instanceof PianoRollKey)
           .map(c => c as PianoRollKey)
           .filter(pk => pk.selected)
@@ -784,7 +784,7 @@ class PianoRollKey extends Draggable {
 class ShadowKey extends PianoRollKey {
   suppress = false
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const [target, container] = super.render()
     target.style.backgroundColor = this.suppress ? "cyan" : "blue"
     target.oncontextmenu = e => {

@@ -1,4 +1,4 @@
-import Component from "./Component"
+import Component, { Container } from "./Component"
 import Singable from "./Singable"
 import {createDivNode} from "../utils/singable"
 import { InEndpoint, OutEndpoint } from "./Endpoint";
@@ -15,7 +15,7 @@ export default class AtChannelSingable extends Singable {
   op: OutEndpoint
   ip: InEndpoint
 
-  constructor(parent: Component) {
+  constructor(parent: Component, parentTarget: string = "default") {
     super(parent)
     this.data = {
       channel: 1,
@@ -26,11 +26,11 @@ export default class AtChannelSingable extends Singable {
     this.ip = new InEndpoint(this)
   }
 
-  getEditor(parent: Component): Component {
-    return new AtChannelEditor(parent, this)
+  getEditor(parent: Component, parentTarget: string = "default"): Component {
+    return new AtChannelEditor(parent, parentTarget, this)
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const [newDiv, container] = super.render()
     newDiv.appendChild(
       createDivNode(n => {
@@ -62,12 +62,12 @@ import { instruments } from "../keys";
 export class AtChannelEditor extends BaseEditor {
   data: AtChannelStructure
 
-  constructor(parent: Component, singable: AtChannelSingable) {
-    super(parent, singable)
+  constructor(parent: Component, parentTarget: string = "default", singable: AtChannelSingable) {
+    super(parent, parentTarget, singable)
     this.data = singable.data
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const newDiv = createDivNode(
       n => {
         n.style.border = "solid 1px orange",
@@ -112,6 +112,6 @@ export class AtChannelEditor extends BaseEditor {
         ])
       ]
     )
-    return [newDiv, newDiv]
+    return [newDiv, { default: newDiv }]
   }
 }

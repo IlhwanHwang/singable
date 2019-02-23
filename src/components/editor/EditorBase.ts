@@ -1,11 +1,11 @@
-import Component from "../Component"
+import Component, { Container } from "../Component"
 import { createDivNode, createInputNode, createButtonNode } from "../../utils/singable"
 import {editorSingable} from "../../renderer"
 
 export default class EditorBase extends Component {
   nameEditing = false
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const container = createDivNode(n => {
       n.style.width = "100%"
       n.style.height = "calc(100% - 40px)"
@@ -51,6 +51,6 @@ export default class EditorBase extends Component {
       ]
     )
 
-    return [newDiv, container]
+    return [newDiv, { default: container }]
   }
 }

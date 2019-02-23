@@ -1,4 +1,4 @@
-import Component from "../Component";
+import Component, { Container } from "../Component";
 import { DrumRollRowStructure } from "../DrumRollStructure";
 import { createDivNode, createButtonNode, createSelectNode, createOptionNode } from "../../utils/singable";
 import { toPairs } from "lodash"
@@ -12,7 +12,7 @@ export default class DrumRollRowEditor extends Component {
     this.data = data
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const newDiv = createDivNode(n => {
       n.style.border = "solid 1px black"
     }, [
@@ -52,6 +52,6 @@ export default class DrumRollRowEditor extends Component {
       )
       
     ])
-    return [newDiv, newDiv]
+    return [newDiv, { default: newDiv }]
   }
 }

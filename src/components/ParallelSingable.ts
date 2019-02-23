@@ -10,14 +10,14 @@ export default class ParallelSingable extends MultipleInputSingable {
   className: string = "parallel"
   op: OutEndpoint
 
-  constructor(parent: Component) {
+  constructor(parent: Component, parentTarget: string = "default") {
     super(parent)
     this.name = "new parallel object"
     this.op = new OutEndpoint(this)
   }
 
-  getEditor(parent: Component): Component {
-    return new NullEditor(parent)
+  getEditor(parent: Component, parentTarget: string = "default"): Component {
+    return new NullEditor(parent, parentTarget)
   }
 
   sing(): Timeline {

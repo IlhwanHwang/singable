@@ -1,4 +1,4 @@
-import Component from "./Component"
+import Component, { Container } from "./Component"
 import Singable from "./Singable"
 import {createButtonNode} from "../utils/singable"
 import {centerOf} from "../utils"
@@ -19,7 +19,7 @@ export default class Connection extends Component {
     this.lineId = `connection-line-${this.op.systemName}-${this.ip.systemName}`
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const parent = (this.parent as SingablePanel)
     const parentX = parent.element.getBoundingClientRect().left
     const parentY = parent.element.getBoundingClientRect().top
@@ -43,7 +43,7 @@ export default class Connection extends Component {
       }
     })
 
-    return [newDiv, newDiv]
+    return [newDiv, { default: newDiv }]
   }
 
   destroy() {

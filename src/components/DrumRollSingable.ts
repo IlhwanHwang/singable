@@ -11,7 +11,7 @@ export default class DrumRollSingable extends Singable {
   data: DrumRollStructure
   op: OutEndpoint
 
-  constructor(parent: Component) {
+  constructor(parent: Component, parentTarget: string = "default") {
     super(parent)
     this.data = {
       cellsPerBeat: 4,
@@ -22,8 +22,8 @@ export default class DrumRollSingable extends Singable {
     this.op = new OutEndpoint(this)
   }
 
-  getEditor(parent: Component): Component {
-    return new DrumRollEditor(parent, this)
+  getEditor(parent: Component, parentTarget: string = "default"): Component {
+    return new DrumRollEditor(parent, parentTarget, this)
   }
 
   sing(): Timeline {

@@ -1,4 +1,4 @@
-import Component from "./Component";
+import Component, { Container } from "./Component";
 import Player from "../utils/Player";
 import { createDivNode, createButtonNode } from "../utils/singable";
 import { singablePanel, connections, rootComp } from "../renderer";
@@ -6,7 +6,7 @@ import OutputSingable from "./OutputSingable";
 import Singable, { factory } from "./Singable";
 import { remote } from "electron"
 import { writeFileSync, readFileSync } from "fs"
-import { fromPairs } from "lodash"
+import { fromPairs, toPairs } from "lodash"
 import MultipleInputSingable from "./MultipleInputSingable";
 import { InEndpoint, OutEndpoint } from "./Endpoint";
 
@@ -18,8 +18,8 @@ export default class MasterTab extends Component {
     while (connections.get().length > 0) {
       connections.set(connections.get().slice(0, connections.get().length - 1))
     }
-    while (singablePanel.children.length > 0) {
-      singablePanel.children[0].destroy()
+    while (singablePanel.children["default"].length > 0) {
+      singablePanel.children["default"][0].destroy()
     }
     singablePanel.zoom = 1
     singablePanel.moveTo(0, 0)
@@ -82,7 +82,7 @@ export default class MasterTab extends Component {
       }
     }
 
-    const singableData = singablePanel.children
+    const singableData = singablePanel.children["default"]
       .filter(c => c instanceof Singable)
       .map(c => c as Singable)
       .map(singable => {
@@ -113,7 +113,7 @@ export default class MasterTab extends Component {
     writeFileSync(this.savePath, JSON.stringify(data, null, 2))
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const newDiv = createDivNode(n => {
       n.style.width = "100vw"
       n.style.height = "24px"
@@ -165,6 +165,6 @@ export default class MasterTab extends Component {
         n.onclick = e => this.player ? stop() : play()
       })
     ])
-    return [newDiv, newDiv]
+    return [newDiv, { default: newDiv }]
   }
 }

@@ -1,33 +1,42 @@
-import { create } from "domain";
-import { flatten } from "lodash"
-import { PianoRollEditor } from "./PianoRollSingable";
+import { flatten, toPairs } from "lodash"
 
 let id = 0
+
+export type Container = { [target: string]: HTMLElement }
+export type Children = { [target: string]: Array<Component> }
 
 
 export default class Component {
   element: HTMLElement = null
-  container: HTMLElement = null
+  containers: Container = null
   parent: Component = null
+  parentTarget: string = null
   systemName: string = `component-${id++}`
-  children = new Array<Component>()
+  children: Children = {}
 
-  constructor(parent: Component = null) {
+  constructor(parent: Component = null, parentTarget: string = "default") {
     this.parent = parent
+    this.parentTarget = parentTarget
     if (this.parent === null) {
-      this.container = document.querySelector("body")
+      this.containers = { default: document.querySelector("body") }
     }
     else {
-      this.parent.addChild(this)
+      this.parent.addChild(this, parentTarget)
     }
   }
 
   removeChild(child: Component) {
-    this.children = this.children.filter(c => c !== child)
+    try {
+      const [target, array] = toPairs(this.children).filter(([t, a]) => a.some(c => c === child))[0]
+      this.children[target] = array.filter(c => c !== child)
+    }
+    catch (e) {
+      console.error(e)
+    }
   }
 
-  addChild(child: Component) {
-    this.children.push(child)
+  addChild(child: Component, target: string) {
+    this.children[target].push(child)
   }
 
   destroy() {
@@ -44,15 +53,15 @@ export default class Component {
 
   create() {
     if (this.parent !== null) {
-      const [newTarget, newContainer] = this.render()
+      const [newTarget, newContainers] = this.render()
       const oldTarget = this.element
-      this.parent.container.insertBefore(newTarget, oldTarget)
+      this.parent.containers[this.parentTarget].insertBefore(newTarget, oldTarget)
       if (oldTarget !== null) {
         oldTarget.remove()
       }
       this.element = newTarget;
       this.onAttached()
-      this.container = newContainer;
+      this.containers = newContainers;
     }
   }
 
@@ -62,16 +71,16 @@ export default class Component {
     }
     this.element = null
     this.create()
-    this.children.forEach((c) => {
+    toPairs(this.children).forEach(([_, a]) => a.forEach((c) => {
       c.update()
-    })
+    }))
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     return [null, null]
   }
 
   find(predicate: (c: Component) => boolean): Array<Component> {
-    return flatten(this.children.map(c => c.find(predicate)).concat(predicate(this) ? [this] : []))
+    return flatten(flatten(toPairs(this.children).map(([_, a]) => a)).map(c => c.find(predicate)).concat(predicate(this) ? [this] : []))
   }
 }

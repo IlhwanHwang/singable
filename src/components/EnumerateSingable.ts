@@ -10,13 +10,13 @@ export default class EnumerateSingable extends MultipleInputSingable {
   className: string = "enumerate"
   op: OutEndpoint
 
-  constructor(parent: Component) {
+  constructor(parent: Component, parentTarget: string = "default") {
     super(parent)
     this.name = "new enumerate object"
     this.op = new OutEndpoint(this)
   }
 
-  getEditor(parent: Component): Component {
+  getEditor(parent: Component, parentTarget: string = "default"): Component {
     return new NullEditor(parent)
   }
 

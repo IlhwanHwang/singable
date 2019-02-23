@@ -1,4 +1,4 @@
-import Component from "../Component"
+import Component, { Container } from "../Component"
 import {createDivNode, createButtonNode} from "../../utils/singable"
 import DrumRollStructure from "../DrumRollStructure"
 import DrumRollRowEditor from "./DrumRollRowEditor";
@@ -11,8 +11,8 @@ export default class DrumRollEditor extends BaseEditor {
   data: DrumRollStructure
   player: Player = null
 
-  constructor(parent: Component, singable: DrumRollSingable) {
-    super(parent, singable)
+  constructor(parent: Component, parentTarget: string = "default", singable: DrumRollSingable) {
+    super(parent, parentTarget, singable)
     this.data = singable.data
   }
 
@@ -25,7 +25,7 @@ export default class DrumRollEditor extends BaseEditor {
     super.removeChild(child)
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const newDiv = createDivNode(
       n => {
         n.style.border = "solid 1px orange",
@@ -70,6 +70,6 @@ export default class DrumRollEditor extends BaseEditor {
     this.data.rows.forEach(dr => {
       new DrumRollRowEditor(this, dr)
     })
-    return [newDiv, newDiv]
+    return [newDiv, { default: newDiv }]
   }
 }

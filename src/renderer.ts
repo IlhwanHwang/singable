@@ -1,7 +1,7 @@
 import SingablePanel from "./components/SingablePanel"
 import Singable from "./components/Singable"
 import OutputSingable from "./components/OutputSingable"
-import Component from "./components/Component"
+import Component, { Container } from "./components/Component"
 import EditorBase from "./components/editor/EditorBase"
 import { forEach, centerOf } from "./utils";
 import Player from "./utils/Player"
@@ -20,32 +20,32 @@ export const rootComp = new Component()
 new MasterTab(rootComp)
 
 const layoutPanels = new class extends Component {
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const newDiv = createDivNode(n => {
       n.style.width = "100vw"
       n.style.height = "calc(100vh - 24px)"
     })
-    return [newDiv, newDiv]
+    return [newDiv, { default: newDiv }]
   }
 }(rootComp)
 
 const layoutSingablePanel = new class extends Component {
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const newDiv = createDivNode(n => {
       n.style.width = "100%"
       n.style.height = "50%"
     })
-    return [newDiv, newDiv]
+    return [newDiv, { default: newDiv }]
   }
 }(layoutPanels)
 
 const layoutEditor = new class extends Component {
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const newDiv = createDivNode(n => {
       n.style.width = "100%"
       n.style.height = "50%"
     })
-    return [newDiv, newDiv]
+    return [newDiv, { default: newDiv }]
   }
 }(layoutPanels)
 

@@ -1,4 +1,4 @@
-import Component from "./Component"
+import Component, { Container } from "./Component"
 import Singable from "./Singable"
 import {createDivNode} from "../utils/singable"
 import { InEndpoint, OutEndpoint } from "./Endpoint";
@@ -15,7 +15,7 @@ export default class BoundSingable extends Singable {
   op: OutEndpoint
   ip: InEndpoint
 
-  constructor(parent: Component) {
+  constructor(parent: Component, parentTarget: string = "default") {
     super(parent)
     this.data = {
       upper: 72,
@@ -26,11 +26,11 @@ export default class BoundSingable extends Singable {
     this.ip = new InEndpoint(this)
   }
 
-  getEditor(parent: Component): Component {
-    return new BoundEditor(parent, this)
+  getEditor(parent: Component, parentTarget: string = "default"): Component {
+    return new BoundEditor(parent, parentTarget, this)
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const [newDiv, container] = super.render()
     newDiv.appendChild(
       createDivNode(n => {
@@ -64,12 +64,12 @@ import { instruments } from "../keys";
 export class BoundEditor extends BaseEditor {
   data: BoundStructure
 
-  constructor(parent: Component, singable: BoundSingable) {
-    super(parent, singable)
+  constructor(parent: Component, parentTarget: string = "default", singable: BoundSingable) {
+    super(parent, parentTarget, singable)
     this.data = singable.data
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const newDiv = createDivNode(
       n => {
         n.style.border = "solid 1px orange",
@@ -112,6 +112,6 @@ export class BoundEditor extends BaseEditor {
         ])
       ]
     )
-    return [newDiv, newDiv]
+    return [newDiv, { default: newDiv }]
   }
 }

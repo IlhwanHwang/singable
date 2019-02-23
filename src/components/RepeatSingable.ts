@@ -1,4 +1,4 @@
-import Component from "./Component"
+import Component, { Container } from "./Component"
 import Singable from "./Singable"
 import {editorBase} from "../renderer"
 import { createDivNode, createInputNode, createButtonNode } from "../utils/singable"
@@ -17,7 +17,7 @@ export default class RepeatSingable extends Singable {
   op: OutEndpoint
   ip: InEndpoint
 
-  constructor(parent: Component) {
+  constructor(parent: Component, parentTarget: string = "default") {
     super(parent)
     this.data = {
       repeat: 1
@@ -27,11 +27,11 @@ export default class RepeatSingable extends Singable {
     this.ip = new InEndpoint(this)
   }
 
-  getEditor(parent: Component): Component {
-    return new RepeatEditor(editorBase, this)
+  getEditor(parent: Component, parentTarget: string = "default"): Component {
+    return new RepeatEditor(parent, parentTarget, this)
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const [newDiv, container] = super.render()
     newDiv.appendChild(
       createDivNode(n => {
@@ -58,12 +58,12 @@ export class RepeatEditor extends BaseEditor {
   editing: boolean = false
   semitonesInput: string
 
-  constructor(parent: Component, singable: RepeatSingable) {
-    super(parent, singable)
+  constructor(parent: Component, parentTarget: string = "default", singable: RepeatSingable) {
+    super(parent, parentTarget, singable)
     this.data = singable.data
   }
 
-  render(): [HTMLElement, HTMLElement] {
+  render(): [HTMLElement, Container] {
     const newDiv = createDivNode(
       n => {
         n.style.border = "solid 1px orange",
@@ -102,6 +102,6 @@ export class RepeatEditor extends BaseEditor {
         })
       ]
     )
-    return [newDiv, newDiv]
+    return [newDiv, { default: newDiv }]
   }
 }

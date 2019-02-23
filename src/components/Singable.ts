@@ -1,4 +1,4 @@
-import Component from "./Component"
+import Component, { Container } from "./Component"
 import Draggable, { DragEvent } from "./Draggable"
 import {createDivNode, createButtonNode, createInputNode} from "../utils/singable"
 import { outConnectionFocus, connections, editorSingable, editorBase } from "../renderer";
@@ -14,8 +14,8 @@ export default class Singable extends Draggable {
   endpoints: Array<Endpoint>
   data: {}
 
-  constructor(parent: Component) {
-    super(parent)
+  constructor(parent: Component, parentTarget: string = "default") {
+    super(parent, parentTarget)
     this.name = "new singable object"
     this.endpoints = Array<Endpoint>()
     this.onDragging = e => {
@@ -24,11 +24,11 @@ export default class Singable extends Draggable {
     }
   }
 
-  getEditor(parent: Component): Component {
+  getEditor(parent: Component, parentTarget: string = "default"): Component {
     return null
   }
 
-	render(): [HTMLElement, HTMLElement] {
+	render(): [HTMLElement, Container] {
 		const newDiv = createDivNode(
 			n => {
         n.style.border = "solid 1px black"
@@ -69,7 +69,7 @@ export default class Singable extends Draggable {
         })
 			]
 		)
-		return [newDiv, newDiv]
+		return [newDiv, { default: newDiv }]
   }
   
   sing(): Timeline {
