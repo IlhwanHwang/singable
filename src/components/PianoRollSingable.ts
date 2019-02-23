@@ -1,7 +1,7 @@
 import Singable from "./Singable"
 import Component from "./Component";
 import { OutEndpoint, InEndpoint } from "./Endpoint";
-import NoteKey, {Timeline, pitchMax, pitchMin, pitchNotation, ProgramChangeKey} from "../Key"
+import NoteKey, {Timeline, pitchMax, pitchMin, pitchNotation, ProgramChangeKey, NoteKeyStructure} from "../Key"
 import { range, toPairs, zip, flatten } from "lodash"
 import { createDivNode, createSpanNode, createButtonNode, createSelectNode, createOptionNode, createInputNode } from "../utils/singable";
 import Draggable from "./Draggable";
@@ -10,8 +10,9 @@ import { instruments } from "../keys";
 import Player, { playKey } from "../utils/Player"
 import BaseEditor from "./BaseEditor";
 
+
 export interface PianoRollStructure {
-  keys: Array<NoteKey>
+  keys: Array<NoteKeyStructure>
   length: number
   incompletes: number
   instrumentKey: number
@@ -93,7 +94,7 @@ export default class PianoRollSingable extends Singable {
       this.data.length,
       [
         new ProgramChangeKey(0, this.data.instrumentKey, this.data.channel),
-        ...this.data.keys.map(k => k.replace({channel: this.data.channel})),
+        ...this.data.keys.map(ks => NoteKey.fromStructure(ks).replace({channel: this.data.channel})),
         ...screened
       ]
     )
@@ -129,7 +130,7 @@ export class PianoRollEditor extends BaseEditor {
       })
     }
     this.data.keys.forEach(k => {
-      const pianoKey = new PianoRollKey(this, k)
+      const pianoKey = new PianoRollKey(this, k as NoteKey)
       const snapped = this.unsnap(k.pitch, k.timing)
       pianoKey.x = snapped.x
       pianoKey.y = snapped.y
@@ -599,7 +600,7 @@ class PianoRollSelectArea extends Draggable {
       .filter(c => c instanceof PianoRollKey)
       .map(c => c as PianoRollKey)
       .filter(pk => !(
-        pk.key.end() <= timing || 
+        pk.key.timing + pk.key.length <= timing || 
         pk.key.timing >= end || 
         pk.key.pitch < pitch1 ||
         pk.key.pitch > pitch2)
@@ -668,7 +669,7 @@ class PianoRollScreen extends Draggable {
 
 
 class PianoRollKey extends Draggable {
-  key: NoteKey
+  key: NoteKeyStructure
   x: number
   y: number
   xStart: number
@@ -753,7 +754,10 @@ class PianoRollKey extends Draggable {
     if (this.dragEdge) {
       const oldKey = this.key
       const newLength = Math.max(snapped.timing - this.key.timing + this.lengthStart, parent.snapBeatResolution)
-      const newKey = this.key.replace({ length: newLength })
+      const newKey = {
+        ...this.key,
+        length: newLength
+      }
       this.key = newKey
       parent.lengthPrev = newLength
       parent.data.keys = parent.data.keys.map(k => k === oldKey ? newKey : k)
@@ -762,7 +766,11 @@ class PianoRollKey extends Draggable {
       // this.x = Math.max(snapped.x, 0)
       // this.y = snapped.y
       const oldKey = this.key
-      const newKey = this.key.replace({ pitch: snapped.pitch, timing: Math.max(snapped.timing, -parent.data.incompletes) })
+      const newKey = {
+        ...this.key,
+        pitch: snapped.pitch,
+        timing: Math.max(snapped.timing, -parent.data.incompletes)
+      }
       if (oldKey.pitch !== newKey.pitch) {
         playKey(new NoteKey(0, 0.5, newKey.pitch, 1, parent.data.channel))
       }

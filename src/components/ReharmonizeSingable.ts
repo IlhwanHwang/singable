@@ -17,6 +17,7 @@ export interface ReharmonizeStructure {
     tonic: number,
     quality: string
   }
+  granularity: Array<number>
 }
 
 export default class ReharmonizeSingable extends Singable {
@@ -32,7 +33,8 @@ export default class ReharmonizeSingable extends Singable {
       scale: {
         tonic: 0,
         quality: "major"
-      }
+      },
+      granularity: [1, 2, 4]
     }
     this.name = "new reharmonize object"
     this.op = new OutEndpoint(this)
@@ -78,7 +80,7 @@ export default class ReharmonizeSingable extends Singable {
     const op = this.ip.findOut()
     const singer = op ? op.parent as Singable : null
     const chordNodes = singer
-      ? songToChordNodes(singer.sing(), scale, numeralRestrictions, [1, 2, 4])
+      ? songToChordNodes(singer.sing(), scale, numeralRestrictions, this.data.granularity)
       : []
     return chordNodes
   }
@@ -108,80 +110,99 @@ export class ReharmonizeEditor extends BaseEditor {
   }
 
   render(): [HTMLElement, HTMLElement] {
-    try {
-      const chordNodes = this.reharmonizer.getChordNodes()
-      const numerals = this.reharmonizer.getScale().possibleNumerals()
-      const newDiv = createDivNode(n => {
-          n.style.border = "solid 1px orange",
-          n.style.width = "100%",
-          n.style.height = "100%",
-          n.style.boxSizing = "border-box"
-        }, [
-          createDivNode(null, [
-            createSelectNode(n => {
-              n.onchange = e => {
-                const { tonic, quality } = this.reharmonizer.parseScaleNotation(n.value)
-                this.data.scale.tonic = tonic
-                this.data.scale.quality = quality
-                this.update()
+    const chordNodes = this.reharmonizer.getChordNodes()
+    const numerals = this.reharmonizer.getScale().possibleNumerals()
+    const newDiv = createDivNode(n => {
+        n.style.border = "solid 1px orange",
+        n.style.width = "100%",
+        n.style.height = "100%",
+        n.style.boxSizing = "border-box"
+      }, [
+        createDivNode(null, [
+          createSelectNode(n => {
+            n.onchange = e => {
+              const { tonic, quality } = this.reharmonizer.parseScaleNotation(n.value)
+              this.data.scale.tonic = tonic
+              this.data.scale.quality = quality
+              this.update()
+            }
+          }, [
+            ...range(0, 12).map(p => createOptionNode(n => {
+              n.value = this.reharmonizer.getScaleNotation({ tonic: p, quality: "major"})
+              n.innerText = `${pitchNotation(p, false)} Major`
+              if (n.value === this.reharmonizer.getScaleNotation()) {
+                n.selected = true
               }
-            }, [
-              ...range(0, 12).map(p => createOptionNode(n => {
-                n.value = this.reharmonizer.getScaleNotation({ tonic: p, quality: "major"})
-                n.innerText = `${pitchNotation(p, false)} Major`
-                if (n.value === this.reharmonizer.getScaleNotation()) {
-                  n.selected = true
-                }
-              })),
-              ...range(0, 12).map(p => createOptionNode(n => {
-                n.value = this.reharmonizer.getScaleNotation({ tonic: p, quality: "minor"})
-                n.innerText = `${pitchNotation(p, false)} Minor`
-                if (n.value === this.reharmonizer.getScaleNotation()) {
-                  n.selected = true
-                }
-              }))
-            ])
+            })),
+            ...range(0, 12).map(p => createOptionNode(n => {
+              n.value = this.reharmonizer.getScaleNotation({ tonic: p, quality: "minor"})
+              n.innerText = `${pitchNotation(p, false)} Minor`
+              if (n.value === this.reharmonizer.getScaleNotation()) {
+                n.selected = true
+              }
+            }))
           ]),
-          createDivNode(null, [
-            ...flatten(
-              chordNodes.map(cn => range(cn.length).map(i => {
-                const timing = cn.timing + i
-                return createDivNode(n => {
-                  n.innerText = cn.numeral.notation()
-                  n.style.display = "inline-block"
-                  n.style.width = "48px"
-                  n.style.border = "solid 1px cyan"
-                }, [
-                  createSelectNode(n => {
-                    n.onchange = e => {
-                      this.data.restrictions[timing] = n.value
-                      this.update()
-                    }
-                  }, [
-                    createOptionNode(n => {
-                      n.innerText = "None"
-                      n.value = ""
-                    }),
-                    ...numerals.map(numeral => createOptionNode(n => {
-                      n.innerText = numeral.notation()
-                      n.value = numeral.notation()
-                      if (n.value === this.data.restrictions[timing.toString()]) {
-                        n.selected = true
-                      }
-                    }))
-                  ])
-                ])
+          createSelectNode(n => {
+            n.onchange = e => {
+              const granularity = n.value.split(",").map(g => parseInt(g))
+              this.data.granularity = granularity
+              this.update()
+            }
+          }, [
+            ...[
+              [1, 2, 4],
+              [2, 4],
+              [4],
+              [1, 4],
+              [1, 3],
+              [3],
+              [2],
+              [1, 2],
+              [1]
+            ]
+              .map(g => createOptionNode(n => {
+                n.innerText = g.map(x => x.toString()).join(", ")
+                n.value = g.map(x => x.toString()).join(",")
+                if (n.value === this.data.granularity.map(x => x.toString()).join(",")) {
+                  n.selected = true
+                }
               }))
-            )
           ])
-        ]
-      )
-      return [newDiv, newDiv]
-    }
-    catch (e) {
-      console.error(e)
-      const newDiv = createDivNode()
-      return [newDiv, newDiv]
-    }
+        ]),
+        createDivNode(null, [
+          ...flatten(
+            chordNodes.map(cn => range(cn.length).map(i => {
+              const timing = cn.timing + i
+              return createDivNode(n => {
+                n.innerText = cn.numeral.notation()
+                n.style.display = "inline-block"
+                n.style.width = "48px"
+                n.style.border = "solid 1px cyan"
+              }, [
+                createSelectNode(n => {
+                  n.onchange = e => {
+                    this.data.restrictions[timing] = n.value
+                    this.update()
+                  }
+                }, [
+                  createOptionNode(n => {
+                    n.innerText = "None"
+                    n.value = ""
+                  }),
+                  ...numerals.map(numeral => createOptionNode(n => {
+                    n.innerText = numeral.notation()
+                    n.value = numeral.notation()
+                    if (n.value === this.data.restrictions[timing.toString()]) {
+                      n.selected = true
+                    }
+                  }))
+                ])
+              ])
+            }))
+          )
+        ])
+      ]
+    )
+    return [newDiv, newDiv]
   }
 }

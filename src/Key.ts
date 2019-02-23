@@ -40,11 +40,24 @@ export class ProgramChangeKey extends BaseKey {
   }
 }
 
+
+export interface NoteKeyStructure {
+  timing: number
+  length: number
+  pitch: number
+  velocity: number
+  channel: number
+}
+
 export default class NoteKey extends BaseKey {
   length: number
   pitch: number
   velocity: number
   channel: number
+
+  static fromStructure(s: NoteKeyStructure) {
+    return new NoteKey(s.timing, s.length, s.pitch, s.velocity, s.channel)
+  }
 
   constructor(timing: number, length: number, pitch: number, velocity: number = 1, channel: number = 1) {
     super(timing)
