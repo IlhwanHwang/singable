@@ -112,16 +112,6 @@ export class TimeIndicator extends Draggable {
     this.allowTransform = false
   }
 
-  // setTiming(timing: number = null) {
-  //   if (timing === null) { timing = this.timing }
-  //   else { this.timing = timing }
-
-  //   const handle = this.element.querySelector(".pianoroll-time-indicator-handle") as HTMLElement
-  //   const snapped = this.unsnap(0, timing)
-
-  //   handle.style.left = `${snapped.x - 10}px`
-  // }
-
   render(): [HTMLElement, Container] {
     const unitBeatLength = this.unsnap(0, 1).x - this.unsnap(0, 0).x
     const newDiv = createDivNode(n => {
@@ -148,8 +138,41 @@ export class TimeIndicator extends Draggable {
         n.style.borderRadius = "10px"
         n.style.backgroundColor = "blue"
         n.style.position = "absolute"
-        n.style.left = `${this.timing * unitBeatLength - 10}px`
+        const snapped = this.unsnap(0, this.timing)
+        n.style.left = `${snapped.x - 10}px`
         n.style.top = "0"
+      })
+    ])
+
+    return [newDiv, { default: newDiv }]
+  }
+}
+
+
+class PitchIndicator extends Draggable {
+  pitchMin: number
+  pitchMax: number
+  unsnap: (pitch: number, timing: number) => { x: number, y: number }
+
+  render(): [HTMLElement, Container] {
+    const unitPitchHeight = this.unsnap(0, 1).y - this.unsnap(1, 1).y
+    const newDiv = createDivNode(n => {
+      n.style.position = "absolute"
+      n.style.left = "0"
+      n.style.top = "0px"
+      n.style.width = "100%"
+    }, [
+      ...range(this.pitchMin, this.pitchMax + 1).map(p => {
+        return createSpanNode(n => {
+          n.style.position = "absolute"
+          n.style.width = "100%"
+          n.style.height = `${unitPitchHeight}px`
+          n.style.left = "0px"
+          n.style.top = `${(this.pitchMax - p) * unitPitchHeight}px`
+          n.style.fontSize = "8px"
+          n.style.textAlign = "right"
+          n.innerText = pitchNotation(p)
+        })
       })
     ])
 
@@ -171,6 +194,7 @@ export class PianoRollEditor extends BaseEditor {
   timingTracker: number = null
   bpm = 120
   timeIndicator: TimeIndicator
+  pitchIndicator: PitchIndicator
 
   constructor(parent: Component, parentTarget: string = "default", singable: PianoRollSingable) {
     super(parent, parentTarget, singable)
@@ -198,12 +222,27 @@ export class PianoRollEditor extends BaseEditor {
     this.timeIndicator.length = this.data.length
     this.timeIndicator.incompletes = this.data.incompletes
     this.timeIndicator.timing = this.timing
-    this.timeIndicator.onDragging = e => {
+    const timeIndicatorOnDragging = (e: MouseEvent) => {
       const rectX = this.timeIndicator.element.getBoundingClientRect().left
       const mouseX = e.x - rectX
       const snapped = this.snap(mouseX, 0)
       this.updateTimeIndicator(snapped.timing)
     }
+    const origOnDragging = this.timeIndicator.onDragging
+    this.timeIndicator.onDragging = e => {
+      origOnDragging.bind(this.timeIndicator)(e)
+      timeIndicatorOnDragging(e)
+    }
+    const origOnDragStart = this.timeIndicator.onDragStart
+    this.timeIndicator.onDragStart = e => {
+      origOnDragStart.bind(this.timeIndicator)(e)
+      timeIndicatorOnDragging(e)
+    }
+
+    this.pitchIndicator = new PitchIndicator(this, "pitch-indicator")
+    this.pitchIndicator.unsnap = (p, t) => this.unsnap(p, t)
+    this.pitchIndicator.pitchMax = pitchMax
+    this.pitchIndicator.pitchMin = pitchMin
   }
 
   addScreen(timing: number, length: number) {
@@ -275,32 +314,17 @@ export class PianoRollEditor extends BaseEditor {
       n.style.width = "calc(100% - 40px)"
       n.style.height = "20px"
       n.style.overflow = "hidden"
-    }, [])
+    })
     
     const pitchIndicator = createDivNode(n => {
+      n.classList.add("pianoroll-pitch-indicator")
       n.style.position = "absolute"
       n.style.left = "0"
       n.style.top = "20px"
       n.style.width = "40px"
       n.style.height = "calc(100% - 20px)"
-      n.style.border = "solid 1px blue"
-      n.style.boxSizing = "border-box"
       n.style.overflow = "hidden"
-      n.classList.add("pianoroll-pitch-indicator")
-    }, [
-      ...range(pitchMin, pitchMax + 1).map(p => {
-        return createSpanNode(n => {
-          n.style.position = "absolute"
-          n.style.width = "100%"
-          n.style.height = `${this.unitPitchHeight}px`
-          n.style.left = "0px"
-          n.style.top = `${(pitchMax - p) * this.unitPitchHeight}px`
-          n.style.fontSize = "8px"
-          n.style.textAlign = "right"
-          n.innerText = pitchNotation(p)
-        })
-      })
-    ])
+    })
 
     const scrollArea = createDivNode(n => {
       n.classList.add("pianoroll-scrollarea")
@@ -538,7 +562,18 @@ export class PianoRollEditor extends BaseEditor {
       ])
     ])
 
-    return [newDiv, { default: container, "time-indicator": timeIndicator }]
+    return [newDiv, {
+      default: container,
+      "time-indicator": timeIndicator,
+      "pitch-indicator": pitchIndicator
+    }]
+  }
+
+  update() {
+    super.update()
+    this.timeIndicator.length = this.data.length
+    this.timeIndicator.incompletes = this.data.incompletes
+    this.timeIndicator.update()
   }
 
   snap(x: number, y: number): {x: number, y: number, pitch: number, timing: number} {
