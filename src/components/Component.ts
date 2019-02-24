@@ -36,6 +36,9 @@ export default class Component {
   }
 
   addChild(child: Component, target: string) {
+    if (this.children[target] === undefined) {
+      this.children[target] = new Array()
+    }
     this.children[target].push(child)
   }
 
