@@ -12,7 +12,7 @@ export default class Component {
   parent: Component = null
   parentTarget: string = null
   systemName: string = `component-${id++}`
-  children: Children = {}
+  children: Children = { default: Array() }
 
   constructor(parent: Component = null, parentTarget: string = "default") {
     this.parent = parent
