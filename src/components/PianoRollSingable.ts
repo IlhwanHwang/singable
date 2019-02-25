@@ -78,7 +78,7 @@ export default class PianoRollSingable extends Singable {
         else {
           crossing.unshift({ timing: 0, length: heading[0] ? heading[0].timing + heading[0].length : k.end() })
           crossing.push({ timing: tailing[0] ? tailing[0].timing : k.timing + k.length, length: 0 })
-          return zip(crossing.slice(0, crossing.length - 1), crossing.slice(1, crossing.length))
+          return zip(crossing.slice(0, -1), crossing.slice(1))
             .map(([a, b]) => {
               const timing = a.timing + a.length
               const end = b.timing

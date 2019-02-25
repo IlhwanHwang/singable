@@ -37,24 +37,26 @@ export default class MultipleInputSingable extends Singable {
       this.ipDummy = [
         ...this.ipDummy.slice(0, ind),
         new InEndpoint(this), new InEndpoint(this),
-        ...this.ipDummy.slice(ind + 1, this.ipDummy.length)
+        ...this.ipDummy.slice(ind + 1)
       ]
       this.ipConnected = [
         ...this.ipConnected.slice(0, ind),
         ip,
-        ...this.ipConnected.slice(ind, this.ipConnected.length)
+        ...this.ipConnected.slice(ind)
       ]
     }
     else if (newDisconnections.length == 1) {
       const { ip, ind } = newDisconnections[0]
+      const toBeDestoryed = [ip, this.ipDummy[ind]]
       this.ipDummy = [
-        ...this.ipDummy.slice(0, ind - 1),
-        ...this.ipDummy.slice(ind + 1, this.ipDummy.length)
+        ...this.ipDummy.slice(0, ind),
+        ...this.ipDummy.slice(ind + 1)
       ]
       this.ipConnected = [
         ...this.ipConnected.slice(0, ind),
-        ...this.ipConnected.slice(ind + 1, this.ipConnected.length)
+        ...this.ipConnected.slice(ind + 1)
       ]
+      toBeDestoryed.forEach(ep => ep.destroy())
     }
     else if (newDisconnections.length == 0 && newConnections.length == 0) {
       super.update()

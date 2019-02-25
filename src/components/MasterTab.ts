@@ -19,7 +19,7 @@ export default class MasterTab extends Component {
   newProject() {
     editorSingable.set(null)
     while (connections.get().length > 0) {
-      connections.set(connections.get().slice(0, connections.get().length - 1))
+      connections.set(connections.get().slice(0, -1))
     }
     while (singablePanel.children["default"].length > 0) {
       singablePanel.children["default"][0].destroy()

@@ -45,7 +45,7 @@ export class Numeral {
 
 export function interval(notation: string) {
   const quality = notation[0]
-  const indexRaw = parseInt(notation.slice(1, notation.length))
+  const indexRaw = parseInt(notation.slice(1))
   const octave = Math.floor((indexRaw - 1) / 7)
   const index = indexRaw - octave * 7
   const semitones = (index == 1 || index == 4 || index == 5)
