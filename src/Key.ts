@@ -7,6 +7,51 @@ export const pitchMax = 127
 export const pitchMin = 0
 
 
+const Constants = {
+  HEADER_CHUNK_TYPE: [0x4d, 0x54, 0x68, 0x64],
+  HEADER_CHUNK_LENGTH: [0x00, 0x00, 0x00, 0x06],
+  HEADER_CHUNK_FORMAT0: [0x00, 0x00],
+  HEADER_CHUNK_FORMAT1: [0x00, 0x01],
+  HEADER_CHUNK_DIVISION: [0x00, 0x80],
+  TRACK_CHUNK_TYPE: [0x4d, 0x54, 0x72, 0x6b],
+  META_EVENT_ID: 0xFF,
+  META_TEXT_ID: 0x01,
+  META_COPYRIGHT_ID: 0x02,
+  META_TRACK_NAME_ID: 0x03,
+  META_INSTRUMENT_NAME_ID: 0x04,
+  META_LYRIC_ID: 0x05,
+  META_MARKER_ID: 0x06,
+  META_CUE_POINT: 0x07,
+  META_TEMPO_ID: 0x51,
+  META_SMTPE_OFFSET: 0x54,
+  META_TIME_SIGNATURE_ID: 0x58,
+  META_KEY_SIGNATURE_ID: 0x59,
+  META_END_OF_TRACK_ID: [0x2F, 0x00],
+  CONTROLLER_CHANGE_STATUS: 0xB0,
+  PROGRAM_CHANGE_STATUS: 0xC0
+};
+
+
+function numberToVariableLength(ticks: number) {
+  let buffer = ticks & 0x7F;
+  while (ticks = ticks >> 7) {
+    buffer <<= 8;
+    buffer |= ticks & 0x7F | 0x80;
+  }
+  const bList = [];
+  while (true) {
+    bList.push(buffer & 0xff);
+    if (buffer & 0x80) {
+      buffer >>= 8
+    }
+    else {
+      break;
+    }
+  }
+  return bList;
+}
+
+
 export class BaseKey {
   timing: number
 
@@ -33,9 +78,26 @@ export class ProgramChangeKey extends BaseKey {
 
   replace(part: Partial<ProgramChangeKey>) {
     return new ProgramChangeKey(
-      part.timing || this.timing, 
-      part.instrument || this.instrument, 
-      part.channel || this.channel,
+      nvl(part.timing, this.timing), 
+      nvl(part.instrument, this.instrument), 
+      nvl(part.channel, this.channel),
+    )
+  }
+}
+
+
+export class BPMKey extends BaseKey {
+  bpm: number
+
+  constructor(timing: number, bpm: number) {
+    super(timing)
+    this.bpm = bpm
+  }
+
+  replace(part: Partial<BPMKey>) {
+    return new BPMKey(
+      nvl(part.timing, this.timing), 
+      nvl(part.bpm, this.bpm)
     )
   }
 }
@@ -111,11 +173,21 @@ export class Timeline {
         })
       }
       else if (k instanceof ProgramChangeKey) {
-        const programChangeKey = new ProgramChangeEvent({
+        const programChangeEvent = new ProgramChangeEvent({
           instrument: k.instrument - 1
         }) as any as {type: string, data: Uint8Array}
-        programChangeKey.data[1] = 0xC0 + k.channel - 1
-        return programChangeKey
+        programChangeEvent.data[1] = 0xC0 + k.channel - 1
+        return programChangeEvent
+      }
+      else if (k instanceof BPMKey) {
+        const tempo = Math.round(60000000 / k.bpm)
+        return {
+          type: "tempo",
+          data: [
+            0x00, Constants.META_EVENT_ID, Constants.META_TEMPO_ID,
+            0x03,
+            (tempo >> 16 & 0xFF), (tempo >> 8 & 0xFF), (tempo & 0xFF)]
+        }
       }
     })
   

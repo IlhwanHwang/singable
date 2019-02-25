@@ -1,7 +1,7 @@
 import Component, { Container } from "./Component";
 import Player from "../utils/Player";
-import { createDivNode, createButtonNode } from "../utils/singable";
-import { singablePanel, connections, rootComp } from "../renderer";
+import { createDivNode, createButtonNode, createInputNode } from "../utils/singable";
+import { singablePanel, connections, rootComp, editorSingable } from "../renderer";
 import OutputSingable from "./OutputSingable";
 import Singable, { factory } from "./Singable";
 import { remote } from "electron"
@@ -9,12 +9,15 @@ import { writeFileSync, readFileSync } from "fs"
 import { fromPairs, toPairs } from "lodash"
 import MultipleInputSingable from "./MultipleInputSingable";
 import { InEndpoint, OutEndpoint } from "./Endpoint";
+import { BPMKey } from "../Key";
 
 export default class MasterTab extends Component {
   player: Player = null
   savePath: string = null
+  globalBPM: number = 144
 
   newProject() {
+    editorSingable.set(null)
     while (connections.get().length > 0) {
       connections.set(connections.get().slice(0, connections.get().length - 1))
     }
@@ -134,6 +137,17 @@ export default class MasterTab extends Component {
         n.innerText = "Save As"
         n.onclick = e => { this.saveProject(true) }
       }),
+      createInputNode(n => {
+        n.value = this.globalBPM.toString()
+        n.onchange = e => {
+          try {
+            this.globalBPM = parseInt(n.value)
+          }
+          catch {
+            // pass
+          }
+        }
+      }),
       createButtonNode(n => {
         n.innerText = "Play"
         const play = (): void => {
@@ -151,8 +165,10 @@ export default class MasterTab extends Component {
           if (output === null) {
             return
           }
-        
-          output.sing().toFile("./temp.mid")
+          
+          const song = output.sing()
+          song.keys.unshift(new BPMKey(0, this.globalBPM))
+          song.toFile("./temp.mid")
           this.player = new Player()
           this.player.play("./temp.mid", stop)
           n.innerText = "Stop"
