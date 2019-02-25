@@ -152,6 +152,10 @@ export class Timeline {
       })
     )
   }
+
+  merge(other: Timeline) {
+    return new Timeline(Math.max(this.length, other.length), [...this.keys, ...other.keys])
+  }
 }
 
 
