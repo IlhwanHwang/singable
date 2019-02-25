@@ -119,6 +119,7 @@ export class ReharmonizeEditor extends BaseEditor {
   bpm: number = 120
   timingTracker: number = null
   latency: number = 0.5
+  scrollX: number = 0
 
   constructor(parent: Component, parentTarget: string = "default", singable: Singable, data: ReharmonizeStructure) {
     super(parent, parentTarget, singable)
@@ -154,6 +155,10 @@ export class ReharmonizeEditor extends BaseEditor {
     // this.update()
     const bar = this.element.querySelector(".reharmonize-time-indicator-bar") as HTMLElement
     bar.style.left = `${this.timing * this.unitBeatLength}px`
+  }
+
+  onAttached() {
+    this.element.querySelector(".scroll-area").scroll(this.scrollX, 0)
   }
 
   render(): [HTMLElement, Container] {
@@ -205,11 +210,7 @@ export class ReharmonizeEditor extends BaseEditor {
         n.style.height = "100%",
         n.style.boxSizing = "border-box"
       }, [
-        createDivNode(n => {
-          n.style.width = "100%"
-          n.style.height = "20px"
-          n.style.border = "solid 1px magenta"
-        }, [
+        createDivNode(null, [
           createButtonNode(n => {
             n.innerText = "Play"
             const stop = () => {
@@ -239,9 +240,7 @@ export class ReharmonizeEditor extends BaseEditor {
               n.innerText = "Stop"
             }
             n.onclick = e => this.player === null ? play() : stop()
-          })
-        ]),
-        createDivNode(null, [
+          }),
           createSelectNode(n => {
             n.onchange = e => {
               const { tonic, quality } = this.reharmonizer.parseScaleNotation(n.value)
@@ -293,8 +292,12 @@ export class ReharmonizeEditor extends BaseEditor {
           ])
         ]),
         createDivNode(n => {
+          n.classList.add("scroll-area")
           n.style.width = "100%"
           n.style.overflow = "scroll"
+          n.onscroll = e => {
+            this.scrollX = n.scrollLeft
+          }
         }, [
           timeIndicator,
           createDivNode(n => {

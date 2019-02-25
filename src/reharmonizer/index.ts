@@ -66,6 +66,7 @@ function getMelodyWeight(melody: Array<NoteKey>) {
 interface ScoreMelodyOption {
   scoreFundamental: number
   scoreConsonance: number
+  scoreSeventh: number,
   scorePrimary: number
   scoreSecondary: number
   scoreDissonance: number
@@ -80,6 +81,7 @@ function scoreMelody(scale: Scale, melody: Array<NoteKey>, numeral: Numeral, wei
   options = {
     scoreFundamental: 1,
     scoreConsonance: 0.5,
+    scoreSeventh: 0.0,
     scorePrimary: 0.25,
     scoreSecondary: 0.125,
     scoreDissonance: -1,
@@ -93,11 +95,14 @@ function scoreMelody(scale: Scale, melody: Array<NoteKey>, numeral: Numeral, wei
 
   const scores = melody
     .map(k => {
-      if (checkPitch(k.pitch, base.slice(0, 2))) {
+      if (checkPitch(k.pitch, base.slice(0, 3))) {
         return options["scoreFundamental"]
       }
-      else if (checkPitch(k.pitch, base.slice(2, 4))) {
+      else if (checkPitch(k.pitch, base.slice(2, 3))) {
         return options["scoreConsonance"]
+      }
+      else if (checkPitch(k.pitch, base.slice(3, 4))) {
+        return options["scoreSeventh"]
       }
       else if (checkPitch(k.pitch, primary)) {
         return options["scorePrimary"]
