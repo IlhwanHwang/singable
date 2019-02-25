@@ -1,7 +1,7 @@
 import Component, { Container } from "./Component";
 import Player from "../utils/Player";
 import { createDivNode, createButtonNode, createInputNode } from "../utils/singable";
-import { singablePanel, connections, rootComp, editorSingable } from "../renderer";
+import { singablePanel, connections, rootComp, editorSingable, editorBase } from "../renderer";
 import OutputSingable from "./OutputSingable";
 import Singable, { factory } from "./Singable";
 import { remote } from "electron"
@@ -18,6 +18,9 @@ export default class MasterTab extends Component {
 
   newProject() {
     editorSingable.set(null)
+    while (editorBase.children["default"].length > 0) {
+      editorBase.children["default"][0].destroy()
+    }
     while (connections.get().length > 0) {
       connections.set(connections.get().slice(0, -1))
     }
