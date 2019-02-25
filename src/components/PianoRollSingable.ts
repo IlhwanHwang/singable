@@ -105,28 +105,27 @@ export class TimeIndicator extends Draggable {
   length: number
   incompletes: number
   timing: number
-  unsnap: (pitch: number, timing: number) => { x: number, y: number }
+  unitBeatLength: number
 
-  constructor(parent: Component, parentTarget: string) {
+  constructor(parent: Component, parentTarget: string, unitBeatLength: number) {
     super(parent, parentTarget)
     this.allowTransform = false
+    this.unitBeatLength = unitBeatLength
   }
 
   render(): [HTMLElement, Container] {
-    const unitBeatLength = this.unsnap(0, 1).x - this.unsnap(0, 0).x
     const newDiv = createDivNode(n => {
       n.style.position = "absolute"
       n.style.left = "0"
       n.style.top = "0"
-      n.style.width = `${unitBeatLength * (this.length + this.incompletes + 1)}px`
+      n.style.width = `${this.unitBeatLength * (this.length + this.incompletes + 1)}px`
       n.style.height = "100%"
     }, [
       ...range(-this.incompletes, this.length).map(t => createDivNode(n => {
-        const snapped = this.unsnap(0, t)
         n.innerText = `${Math.floor(t / 4)}:${t % 4}(${t})`
         n.style.position = "absolute"
-        n.style.left = `${snapped.x}px`
-        n.style.width = `${unitBeatLength}px`
+        n.style.left = `${(t + this.incompletes) * this.unitBeatLength}px`
+        n.style.width = `${this.unitBeatLength}px`
         n.style.top = "0"
         n.style.height = "100%"
         n.style.backgroundColor = t % 2 === 0 ? "white" : "lightgray"
@@ -138,8 +137,7 @@ export class TimeIndicator extends Draggable {
         n.style.borderRadius = "10px"
         n.style.backgroundColor = "blue"
         n.style.position = "absolute"
-        const snapped = this.unsnap(0, this.timing)
-        n.style.left = `${snapped.x - 10}px`
+        n.style.left = `${this.timing * this.unitBeatLength - 10}px`
         n.style.top = "0"
       })
     ])
@@ -152,10 +150,9 @@ export class TimeIndicator extends Draggable {
 class PitchIndicator extends Draggable {
   pitchMin: number
   pitchMax: number
-  unsnap: (pitch: number, timing: number) => { x: number, y: number }
+  unitPitchHeight: number
 
   render(): [HTMLElement, Container] {
-    const unitPitchHeight = this.unsnap(0, 1).y - this.unsnap(1, 1).y
     const newDiv = createDivNode(n => {
       n.style.position = "absolute"
       n.style.left = "0"
@@ -166,9 +163,9 @@ class PitchIndicator extends Draggable {
         return createSpanNode(n => {
           n.style.position = "absolute"
           n.style.width = "100%"
-          n.style.height = `${unitPitchHeight}px`
+          n.style.height = `${this.unitPitchHeight}px`
           n.style.left = "0px"
-          n.style.top = `${(this.pitchMax - p) * unitPitchHeight}px`
+          n.style.top = `${(this.pitchMax - p) * this.unitPitchHeight}px`
           n.style.fontSize = "8px"
           n.style.textAlign = "right"
           n.innerText = pitchNotation(p)
@@ -217,30 +214,28 @@ export class PianoRollEditor extends BaseEditor {
       pianoKey.y = snapped.y
     })
 
-    this.timeIndicator = new TimeIndicator(this, "time-indicator")
-    this.timeIndicator.unsnap = (p, t) => this.unsnap(p, t)
-    this.timeIndicator.length = this.data.length
-    this.timeIndicator.incompletes = this.data.incompletes
-    this.timeIndicator.timing = this.timing
-    const timeIndicatorOnDragging = (e: MouseEvent) => {
-      const rectX = this.timeIndicator.element.getBoundingClientRect().left
-      const mouseX = e.x - rectX
-      const snapped = this.snap(mouseX, 0)
-      this.updateTimeIndicator(snapped.timing)
-    }
-    const origOnDragging = this.timeIndicator.onDragging
-    this.timeIndicator.onDragging = e => {
-      origOnDragging.bind(this.timeIndicator)(e)
-      timeIndicatorOnDragging(e)
-    }
-    const origOnDragStart = this.timeIndicator.onDragStart
-    this.timeIndicator.onDragStart = e => {
-      origOnDragStart.bind(this.timeIndicator)(e)
-      timeIndicatorOnDragging(e)
-    }
+    this.timeIndicator = new class extends TimeIndicator {
+      dragAction(e: MouseEvent) {
+        const rectX = this.element.getBoundingClientRect().left
+        const mouseX = e.x - rectX
+        const parent = (this.parent as PianoRollEditor)
+        const snapped = parent.snap(mouseX, 0)
+        parent.updateTimeIndicator(snapped.timing)
+      }
+
+      onDragStart(e: MouseEvent) {
+        super.onDragStart(e)
+        this.dragAction(e)
+      }
+
+      onDragging(e: MouseEvent) {
+        super.onDragging(e)
+        this.dragAction(e)
+      }
+    }(this, "time-indicator", this.unitBeatLength)
 
     this.pitchIndicator = new PitchIndicator(this, "pitch-indicator")
-    this.pitchIndicator.unsnap = (p, t) => this.unsnap(p, t)
+    this.pitchIndicator.unitPitchHeight = this.unitPitchHeight
     this.pitchIndicator.pitchMax = pitchMax
     this.pitchIndicator.pitchMin = pitchMin
   }
@@ -573,6 +568,7 @@ export class PianoRollEditor extends BaseEditor {
     super.update()
     this.timeIndicator.length = this.data.length
     this.timeIndicator.incompletes = this.data.incompletes
+    this.timeIndicator.unitBeatLength = this.unitBeatLength
     this.timeIndicator.update()
   }
 
