@@ -685,10 +685,23 @@ class PianoRollKey extends Draggable {
         parent.data.keys = parent.data.keys.filter(k => k !== this.key)
         this.destroy()
       }
-      n.onmouseup = e => {
-        this.justCreated = false
-      }
-    })
+      document.addEventListener("mouseup", e => { this.justCreated = false }, { once: true })
+    }, [
+      createDivNode(n => {
+        n.style.position = "absolute"
+        n.style.left = "0px"
+        n.style.width = "calc(100% - 8px)"
+        n.style.height = "100%"
+        n.style.cursor = "move"
+      }),
+      createDivNode(n => {
+        n.style.position = "absolute"
+        n.style.right = "0px"
+        n.style.width = "8px"
+        n.style.height = "100%"
+        n.style.cursor = "ew-resize"
+      })
+    ])
     return [newDiv, { default: newDiv }]
   }
 
@@ -701,7 +714,7 @@ class PianoRollKey extends Draggable {
       this.onDragStop(e)
     }
     else {
-      const margin = 8
+      const margin = 10
       const mouseX = e.x - this.element.getClientRects()[0].left
       const edgeX = this.element.getClientRects()[0].width - margin
       this.dragEdge = !this.justCreated && (mouseX > edgeX)
