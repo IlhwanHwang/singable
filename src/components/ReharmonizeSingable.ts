@@ -4,7 +4,7 @@ import { InEndpoint, OutEndpoint } from "./Endpoint";
 import BaseEditor from "./BaseEditor";
 import NoteKey, { Timeline, pitchNotation } from "../Key";
 import { range, flatten, sum, toPairs, fromPairs } from "lodash"
-import { createDivNode, createSelectNode, createOptionNode, createButtonNode } from "../utils/singable";
+import { createDivNode, createSelectNode, createOptionNode, createButtonNode, createInputNode, createSpanNode } from "../utils/singable";
 import { MajorScale, NaturalMinorScale } from "../reharmonizer/Scale";
 import { Numeral, songToChordNodes } from "../reharmonizer";;
 import { ChordNode } from "../reharmonizer/ChordDag";
@@ -20,6 +20,7 @@ export interface ReharmonizeStructure {
     quality: string
   }
   granularity: Array<number>
+  outputScale: boolean
 }
 
 export default class ReharmonizeSingable extends Singable {
@@ -36,7 +37,8 @@ export default class ReharmonizeSingable extends Singable {
         tonic: 0,
         quality: "major"
       },
-      granularity: [1, 2, 4]
+      granularity: [1, 2, 4],
+      outputScale: false
     }
     this.name = "new reharmonize object"
     this.op = new OutEndpoint(this)
@@ -99,7 +101,14 @@ export default class ReharmonizeSingable extends Singable {
       sum(chordNodes.map(cn => cn.length)),
       flatten(
         chordNodes
-          .map(cn => scale.chord(cn.numeral).map(p => [p, cn.timing, cn.length]))
+          .map(cn => {
+            const pitches = this.data.outputScale
+              ? scale.chord(cn.numeral)
+                .concat(scale.availableTensionNotesPrimary(cn.numeral))
+                .concat(scale.availableTensionNotesSecondary(cn.numeral))
+              : scale.chord(cn.numeral)
+            return pitches.map(p => [p, cn.timing, cn.length])
+          })
       ).map(([pitch, timing, length]) => new NoteKey(timing, length, pitch + 60))
     )
   }
@@ -289,6 +298,17 @@ export class ReharmonizeEditor extends BaseEditor {
                   n.selected = true
                 }
               }))
+          ]),
+          createSpanNode(n => {
+            n.innerText = "Output scale"
+          }, [
+            createInputNode(n => {
+              n.type = "checkbox"
+              n.checked = this.data.outputScale
+              n.onchange = e => {
+                this.data.outputScale = n.checked
+              }
+            })
           ])
         ]),
         createDivNode(n => {
