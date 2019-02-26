@@ -103,7 +103,7 @@ export default class ReharmonizeSingable extends Singable {
         chordNodes
           .map(cn => {
             const pitches = this.data.outputScale
-              ? scale.chord(cn.numeral)
+              ? scale.chord(cn.numeral.replace({ seventh: true }))
                 .concat(scale.availableTensionNotesPrimary(cn.numeral))
                 .concat(scale.availableTensionNotesSecondary(cn.numeral))
               : scale.chord(cn.numeral)

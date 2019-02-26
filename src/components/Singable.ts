@@ -108,6 +108,7 @@ import PianoRollSingable from "./PianoRollSingable";
 import RepeatSingable from "./RepeatSingable";
 import TransposeSingable from "./TransposeSingable";
 import ReharmonizeSingable from "./ReharmonizeSingable";
+import SnapSingable from "./SnapSingable";
 
 export const factory: { [index: string]: () => Singable } = {
   arpeggio: () => new ArpeggioSingable(singablePanel),
@@ -120,5 +121,6 @@ export const factory: { [index: string]: () => Singable } = {
   pianoroll: () => new PianoRollSingable(singablePanel),
   repeat: () => new RepeatSingable(singablePanel),
   reharmonize: () => new ReharmonizeSingable(singablePanel),
+  snap: () => new SnapSingable(singablePanel),
   transpose: () => new TransposeSingable(singablePanel)
 }
